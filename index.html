@@ -1,92 +1,298 @@
-<!doctype html>
-<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
-<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
-  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script type="text/javascript" src="javascripts/script.js"></script>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Adapt : Linux USB JTAG controller for Digilent boards." />
 
-  <title>Adapt</title>
-  <meta name="description" content="Linux USB JTAG controller for Digilent boards.">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Adapt</title>
+  </head>
 
-</head>
+  <body>
 
-<body>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/diamondman/Adapt">View on GitHub</a>
 
-  <div class="wrapper">
-    <header>
-      <h1 class="title">Adapt</h1>
-    </header>
-    <div id="container">
-      <p class="tagline">Linux USB JTAG controller for Digilent boards.</p>
-      <div id="main" role="main">
-        <div class="download-bar">
-        <div class="inner">
-          <a href="https://github.com/diamondman/Adapt/tarball/master" class="download-button tar"><span>Download</span></a>
-          <a href="https://github.com/diamondman/Adapt/zipball/master" class="download-button zip"><span>Download</span></a>
-          <a href="https://github.com/diamondman/Adapt" class="code">View Adapt on GitHub</a>
-        </div>
-        <span class="blc"></span><span class="trc"></span>
-        </div>
-        <article class="markdown-body">
-          <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+          <h1 id="project_title">Adapt</h1>
+          <h2 id="project_tagline">Linux USB JTAG controller for Digilent boards.</h2>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </article>
-      </div>
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/diamondman/Adapt/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/diamondman/Adapt/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
     </div>
-    <footer>
-      <div class="owner">
-      <p><a href="https://github.com/diamondman" class="avatar"><img src="https://0.gravatar.com/avatar/20ee46fb20995802718f5adef15cd2fd?d=https%3A%2F%2Fidenticons.github.com%2F5313a1a73c918aa7a9d173ea04b7696e.png&amp;r=x&amp;s=60" width="48" height="48"/></a> <a href="https://github.com/diamondman">diamondman</a> maintains <a href="https://github.com/diamondman/Adapt">Adapt</a></p>
 
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a name="protocol-documentation-for-digilent-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-digilent-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for Digilent USB JTAG controllers.</h3>
 
-      </div>
-      <div class="creds">
-        <small>This page generated using <a href="http://pages.github.com/">GitHub Pages</a><br/>theme by <a href="https://twitter.com/jonrohan/">Jon Rohan</a></small>
-      </div>
-    </footer>
-  </div>
-  <div class="current-section">
-    <a href="#top">Scroll to top</a>
-    <a href="https://github.com/diamondman/Adapt/tarball/master" class="tar">tar</a><a href="https://github.com/diamondman/Adapt/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
-    <p class="name"></p>
-  </div>
+<p>The following describes all understood messages in the Digilent's USB protocol for communicating with fpgas over JTAG on their development boards.</p>
 
-  
-</body>
+<p>There are two main types of messages sent over USB: <em>Control</em> and <em>Bulk</em>.</p>
+
+<h4>
+<a name="control-messages" class="anchor" href="#control-messages"><span class="octicon octicon-link"></span></a>Control Messages</h4>
+
+<p>These messages have nothing to do with JTAG and are all about reading data about the board/JTAG controller, or writing JTAG controller settings. None of the known messages of this type cause activity on JTAG pins connected to the target device. All of these messages are sent to USB endpoint <strong>0</strong>, and result in either data being sent to the device (OUT) or read from the device (IN). </p>
+
+<p>For those unfamiliar with how USB control messages are sent, there are 3 parameters every message transaction needs in addition to <strong>direction</strong>: <strong>Request Code</strong>, <strong>Value</strong>, and <strong>Length</strong>. <strong>Request</strong> code is the most obvious and can be considered the function being called. <strong>Value</strong> can be thought of as the parameter to the request. <strong>length</strong> is the number of bytes that will be sent to or received from the device depending on the direction of the transfer. Usually a given message has a known <strong>length</strong> for a <strong>Request Code</strong> so it is not hard to get these right.</p>
+
+<table>
+<thead><tr>
+<th>Name</th>
+<th>RQ*</th>
+<th>Direction</th>
+<th>Value</th>
+<th>Length</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>UNKNOWN</td>
+<td>A0</td>
+<td>OUT</td>
+<td>?</td>
+<td>?</td>
+<td>Commands seem to be some sort of control register write. Not used in the init of spartan 3 or Coolrunner 2.</td>
+</tr>
+<tr>
+<td>Product Name</td>
+<td>E1</td>
+<td>IN</td>
+<td>0</td>
+<td>28</td>
+<td>ASCII</td>
+</tr>
+<tr>
+<td>User Name</td>
+<td>E2</td>
+<td>IN</td>
+<td>0</td>
+<td>16</td>
+<td>ASCII</td>
+</tr>
+<tr>
+<td>Serial Number</td>
+<td>E4</td>
+<td>IN</td>
+<td>0</td>
+<td>12</td>
+<td>ASCII</td>
+</tr>
+<tr>
+<td>Firmware Version</td>
+<td>E6</td>
+<td>IN</td>
+<td>0</td>
+<td>2</td>
+<td>RAW BYTES Little Endian.</td>
+</tr>
+<tr>
+<td>UNKNOWN STATUS (MAC?)</td>
+<td>E7</td>
+<td>IN</td>
+<td>0</td>
+<td>8</td>
+<td>Seems to be some sort of status register effected by calls to A0 Value usually 0-&gt;xx:00:00:00:00:00:00:00. For the Basys2 board, the 64 bit values are</td>
+</tr>
+<tr>
+<td>Set OEM Seed</td>
+<td>E8</td>
+<td>OUT</td>
+<td>0</td>
+<td>2</td>
+<td>Sends random seed, or 14 if can't get uptime as source. EC is usually called after. After EC seed is set to 00.</td>
+</tr>
+<tr>
+<td>Product ID</td>
+<td>E9</td>
+<td>IN</td>
+<td>0</td>
+<td>4</td>
+<td>Reversed byte order for some reason RAW BYTES. Digilent adapter cables have BigE 000000xx. In normal cases, this last byte being between 0x20 and 0x40 has special meaning of some kind.</td>
+</tr>
+<tr>
+<td>OEM ID CHECK</td>
+<td>EC</td>
+<td>IN</td>
+<td>0</td>
+<td>4</td>
+<td>Takes value passed in from E8 and xors the bytes plus other stuff still researching. ??:??:??:yx where xy = e8(hi)^e8(lo). The four bytes spell Digi when xored with the xor of the bytes passed to E8. REVERSED so technically igiD. It also seems to support (these values return reversed) 0x356A92C7 and 0x586F656D.</td>
+</tr>
+</tbody>
+</table><h6>
+<a name="rq-is-request-code" class="anchor" href="#rq-is-request-code"><span class="octicon octicon-link"></span></a>(RQ is Request Code)</h6>
+
+<h4>
+<a name="bulk-messages" class="anchor" href="#bulk-messages"><span class="octicon octicon-link"></span></a>Bulk Messages</h4>
+
+<p>Most of the bulk messages get JTAG related details from the board. Some of them still only read details about the controller chip, but the really interesting commands require JTAG being enabled first.</p>
+
+<p>All messages that start these bulk transaction are sent to the same USB endpoint (1) and have this basic structure:</p>
+
+<p>SZ:CT:RQ:00:{Parameters to the request if any}</p>
+
+<p>SZ: The length of the message in bytes not including this length byte. (One less than the total length of the data returned).</p>
+
+<p>CT: Category or request. Almost always 0x02.</p>
+
+<p>RQ: Request Code</p>
+
+<h5>
+<a name="status-response-message-format" class="anchor" href="#status-response-message-format"><span class="octicon octicon-link"></span></a>Status Response message format:</h5>
+
+<p>BULK IN (USB ENDPOINT 2) 01:XX #Status code. 1 byte long. 00 known to be 'good'. 03 is a fail of some kind (when the device is already in use).</p>
+
+<h5>
+<a name="bulk-request-types" class="anchor" href="#bulk-request-types"><span class="octicon octicon-link"></span></a>Bulk request types.</h5>
+
+<p>All of the known bulk messages are similar, but among them, there are two primary types based on how the controller responds.</p>
+
+<ul>
+<li>
+<strong>Bulk Configuration Request:</strong> Requests that return a single message. These messages may be either a status code in the case of a command, or the raw data if querying a value. They all start with the same length byte as above.</li>
+<li>
+<strong>Bulk JTAG Control Request:</strong> The responses to these messages are much more complex and involve 4 or 5 messages .</li>
+</ul><h5>
+<a name="avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart" class="anchor" href="#avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart"><span class="octicon octicon-link"></span></a>AVD Response protocol (Note the variables here refer to labels below the next chart):</h5>
+
+<ol>
+<li>Initialization message (In table below).</li>
+<li>Status Code message (described above).</li>
+<li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 3.</li>
+<li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 4. Only sent if RV in init message is 1.</li>
+<li>03:02:ZZ:00 to USB Endpoint 1. ZZ = 80|RQ. RQ is the RQ of the init message. Requests number of bits transferred.</li>
+<li>This is too much of a pain to do at 4 AM.</li>
+</ol><h5>
+<a name="bulk-jtag-control-request-commands" class="anchor" href="#bulk-jtag-control-request-commands"><span class="octicon octicon-link"></span></a>Bulk JTAG Control Request Commands:</h5>
+
+<table>
+<thead><tr>
+<th>Name</th>
+<th>CT</th>
+<th>RQ</th>
+<th>Transaction Type</th>
+<th>SZ</th>
+<th>Parameters</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>ENABLE JTAG</td>
+<td>02</td>
+<td>00</td>
+<td>Simple</td>
+<td>3</td>
+<td>None</td>
+</tr>
+<tr>
+<td>DISABLE JTAG</td>
+<td>02</td>
+<td>01</td>
+<td>Simple</td>
+<td>4</td>
+<td>None</td>
+</tr>
+<tr>
+<td>PORT INFO</td>
+<td>02</td>
+<td>02</td>
+<td>Simple</td>
+<td>4</td>
+<td>1 byte detail type. <strong>0x01:</strong> Port Count. <strong>0x05:</strong> Port Properties.</td>
+</tr>
+<tr>
+<td>SET SPEED</td>
+<td>02</td>
+<td>03</td>
+<td>Simple</td>
+<td>7</td>
+<td>4 byte speed in bps</td>
+</tr>
+<tr>
+<td>GET SPEED</td>
+<td>02</td>
+<td>04</td>
+<td>Simple</td>
+<td>3</td>
+<td>None</td>
+</tr>
+<tr>
+<td>SET Tms Tdi Tdo</td>
+<td>02</td>
+<td>05</td>
+<td>Simple</td>
+<td>6</td>
+<td>MS:DI:DO One byte each.</td>
+</tr>
+<tr>
+<td>GET Tms Tdi Tdo Tck</td>
+<td>02</td>
+<td>06</td>
+<td>Simple</td>
+<td>3</td>
+<td>None</td>
+</tr>
+<tr>
+<td>WRITE TDI BITS</td>
+<td>02</td>
+<td>08</td>
+<td>ADV</td>
+<td>9</td>
+<td>RV:MS:XX:XX:XX:XX (Check)</td>
+</tr>
+<tr>
+<td>READ TDO BITS</td>
+<td>02</td>
+<td>09</td>
+<td>ADV</td>
+<td>9</td>
+<td>MS:DI:XX:XX:XX:XX</td>
+</tr>
+<tr>
+<td>WRITE TMS/TDI BITS</td>
+<td>02</td>
+<td>10</td>
+<td>ADV</td>
+<td>8</td>
+<td>RV:XX:XX:XX:XX</td>
+</tr>
+<tr>
+<td>WRITE TMS BITS</td>
+<td>02</td>
+<td>11</td>
+<td>ADV</td>
+<td>9</td>
+<td>RV:DI:XX:XX:XX:XX (Check)</td>
+</tr>
+</tbody>
+</table><h6>
+<a name="xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes" class="anchor" href="#xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes"><span class="octicon octicon-link"></span></a>(XX is the number of bits to transfer. Little Endian Number. 4 bytes.)</h6>
+
+<h6>
+<a name="ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-" class="anchor" href="#ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-"><span class="octicon octicon-link"></span></a>(MS, DI, DO, and CK are Boolean values for the state of the pins TMS, TDI, TDO, and TCK respectively. )</h6>
+
+<h6>
+<a name="rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data" class="anchor" href="#rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data"><span class="octicon octicon-link"></span></a>(RV is 1 if the values shifted out of TDO should be returned. This causes an additional packet to be sent from the device after the transfer of the provided input data.)</h6>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Adapt maintained by <a href="https://github.com/diamondman">diamondman</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
 </html>
