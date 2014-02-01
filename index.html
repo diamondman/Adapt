@@ -170,7 +170,7 @@
 <li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 3.</li>
 <li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 4. Only sent if RV in init message is 1.</li>
 <li>03:02:ZZ:00 to USB Endpoint 1. ZZ = 80|RQ. RQ is the RQ of the init message. Requests number of bits transferred.</li>
-<li>This is too much of a pain to do at 4 AM.</li>
+<li>SZ:FL:(XX:XX:XX:XX)* SZ = bitcount(FL)*4 + 1. FL is a bit field for 0x80 and 0x40. 0x80 requests for the number of bits sent. 0x40 Requests for the number of bits received. For each flag there is a 4 byte number for the number of bits.</li>
 </ol><h5>
 <a name="bulk-jtag-control-request-commands" class="anchor" href="#bulk-jtag-control-request-commands"><span class="octicon octicon-link"></span></a>Bulk JTAG Control Request Commands:</h5>
 
