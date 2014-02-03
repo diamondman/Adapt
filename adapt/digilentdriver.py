@@ -1,3 +1,14 @@
+#-*- coding: utf-8 -*-
+"""
+    digilentdriver
+    ~~~~~~~~~~~~~~
+
+    Digilent driver for Linux USB JTAG controller
+
+    :copyright: (c) 2014 by Jessy Diamond Exum
+    :license: Pending, see LICENSE for more details.
+"""
+
 import usb1
 import math
 
