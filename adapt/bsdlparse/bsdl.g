@@ -12,9 +12,9 @@ import sys
 }
 
 @init{
-    self.entity_name = ""
     self.attributes = {}
     self.chip_package = None
+    self.ports = []
 }
 
 @members{
@@ -22,65 +22,77 @@ import sys
 }
 
 eval returns [value]
-    : {$value=[]}
-        (entity)
+    : (entity){$value=$entity.value}
         EOF;
 
 entity returns [value]
-    : ENTITY ename=identifier IS 
-        {self.entity_name = $ename.value}
+    : {$value = {}}
+      ENTITY ename=identifier IS 
+        {$value['entity_name'] = $ename.value}
 
-    (generic SCOLON)+
+    {$value['generics']={}}
+    (g=generic SCOLON {$value['generics'][$g.key]=$g.value})+
 
     port_list SCOLON 
-        {print "PORTS:", ", ".join($port_list.value)}
+        {$value['ports']=$port_list.value}
 
     (use SCOLON)*
 
-    ((attribute|constant) SCOLON)*
+    {$value['attributes']={}}
+    {$value['constants']={}}
+    (
+      (
+        (i=attribute {$value['attributes'][$i.key]=$i.value})
+        |(i=constant {$value['constants'][$i.key]=$i.value})
+      ) SCOLON 
+    )*
 
-    END identifier SCOLON
+    END identifier SCOLON //Just assume it is fine
     ;
 
-generic
+generic returns [key, value]
     : GENERIC OPAREN 
-        (identifier COLON identifier
-            COLON EQUAL string )
-      CPAREN
+        (gk=identifier COLON identifier
+            COLON EQUAL gv=string )
+      CPAREN {$value=$gv.value}{$key=$gk.value}
     ;
 
 use
     : USE id1=identifier DOT ALL
-        {print $id1.text+".all"}
+        {#oprint $id1.text+".all"}
     ;
 
-attribute
+attribute returns [key, value]
     : ATTRIBUTE 
-        atn=identifier OF entn=identifier COLON 
-        {print "ATTRIBUTE CREATION", $atn.value, $entn.value} 
-        general_attribute_assignment
+        atn=identifier OF entn=identifier COLON {$key=$atn.value} 
+        {#print "ATTRIBUTE CREATION", $atn.value, $entn.value} 
+        v=general_attribute_assignment {$value=$v.value}
     ;
 
-general_attribute_assignment
+general_attribute_assignment returns [value]
     : (ENTITY IS 
             (
-                identifier|
-                string|
-                DIGIT+
+                i=identifier {$value=$i.value}
+                |s=string {$value=$s.value}
+                |n=number {$value=$n.value}
             )
-      )|
-      (SIGNAL IS 
+      )
+      |(SIGNAL IS 
             (
-                (TRUE|FALSE)|
-                (OPAREN scinot_number 
+                (TRUE {$value=True}|FALSE {$value=False})|
+                (OPAREN scinot_number {$value=$scinot_number.text}
                     COMMA BOTH CPAREN)
             )
       )
     ;
 
-constant
-    : CONSTANT identifier COLON identifier 
-        COLON EQUAL string
+number returns [value]
+    : DIGIT+ {$value=int($number.text)}
+    ;
+
+constant returns [key, value]
+    : CONSTANT k=identifier {$key=$k.value} COLON identifier 
+        COLON EQUAL v=string {$value=$v.value}
     ;
 
 port_list returns [value]
@@ -98,24 +110,27 @@ port_def returns [value]
          BIT_VECTOR OPAREN DIGIT+ TO DIGIT+ CPAREN);
 
 identifier returns [value]
-    : (FULLCASE_WORD|WORD) (FULLCASE_WORD|WORD|DIGIT)* ('_' (FULLCASE_WORD|WORD|DIGIT)+)* {$value = $identifier.text}
-                             {#print $identifier.value};
+    : (FULLCASE_WORD|WORD) (FULLCASE_WORD|WORD|DIGIT)* ('_' (FULLCASE_WORD|WORD|DIGIT)+)* {$value = $identifier.text.upper()}
+    ;
 
 portmode returns [value]
     : IN|OUT|INOUT|BUFFER|LINKAGE|BUS;
 
-string
-    : (STRING ANDSIGN)* STRING
+string returns [value]
+    : {str_parts = []}
+      (s=STRING ANDSIGN {str_parts.append($s.text[1:-1])})* 
+        s1=STRING {str_parts.append($s1.text[1:-1])}
+        {$value = "".join(str_parts)}
     ;
 
 scinot_number
-    : DIGIT* DOT DIGIT* 'e' DIGIT*
+    : DIGIT* DOT DIGIT* 'e' '+'? DIGIT*
     ;
 
 
 
 
-STRING :   '"' (ICHAR|DIGIT|'_'|'.'|','|' '|':'|';'|'('|')'|'['|']'|'*'|'\t')* '"';
+STRING :   '"' (ICHAR|DIGIT|'_'|'.'|','|' '|':'|';'|'('|')'|'['|']'|'*'|'\t'|'-'|'/'|'\\'|'|')* '"';
 
 WHITESPACE
     : ( ' ' | '\t' | '\r' | '\n' )+ { $channel = HIDDEN }

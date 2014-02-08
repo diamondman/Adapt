@@ -1,4 +1,4 @@
-# $ANTLR 3.1 bsdl.g 2014-02-05 02:26:56
+# $ANTLR 3.1 bsdl.g 2014-02-07 02:03:42
 
 import sys
 from antlr3 import *
@@ -38,7 +38,7 @@ DOWNTO=58
 BEGIN=51
 LOOP=74
 RETURN=98
-BOTH=23
+BOTH=22
 TRANSPORT=110
 IMPURE=69
 ICHAR=39
@@ -78,12 +78,13 @@ CONSTANT=24
 USE=13
 ELSIF=60
 END=7
-FALSE=21
+FALSE=20
 BIT_VECTOR=27
 OTHERS=86
 REPORT=97
 SLA=104
 ATTRIBUTE=16
+T__124=124
 T__123=123
 FOR=63
 CONFIGURATION=56
@@ -97,16 +98,16 @@ ENTITY=4
 PURE=91
 THEN=109
 IN=31
-COMMA=22
+COMMA=21
 IS=5
 REJECT=95
 EQUAL=11
 ALL=15
-SIGNAL=19
+SIGNAL=18
 ACCESS=44
 CPAREN=12
 NEXT=79
-DIGIT=18
+DIGIT=23
 DOT=14
 COMPONENT=55
 WITH=119
@@ -122,7 +123,7 @@ PORT=25
 LITERAL=73
 REM=96
 AFTER=45
-TRUE=20
+TRUE=19
 PROCEDURE=89
 COLON=10
 OPEN=84
@@ -139,8 +140,8 @@ STRING=37
 tokenNames = [
     "<invalid>", "<EOR>", "<DOWN>", "<UP>", 
     "ENTITY", "IS", "SCOLON", "END", "GENERIC", "OPAREN", "COLON", "EQUAL", 
-    "CPAREN", "USE", "DOT", "ALL", "ATTRIBUTE", "OF", "DIGIT", "SIGNAL", 
-    "TRUE", "FALSE", "COMMA", "BOTH", "CONSTANT", "PORT", "BIT", "BIT_VECTOR", 
+    "CPAREN", "USE", "DOT", "ALL", "ATTRIBUTE", "OF", "SIGNAL", "TRUE", 
+    "FALSE", "COMMA", "BOTH", "DIGIT", "CONSTANT", "PORT", "BIT", "BIT_VECTOR", 
     "TO", "FULLCASE_WORD", "WORD", "IN", "OUT", "INOUT", "BUFFER", "LINKAGE", 
     "BUS", "STRING", "ANDSIGN", "ICHAR", "WHITESPACE", "COMMENT", "USCORE", 
     "ABS", "ACCESS", "AFTER", "ALIAS", "AND", "ARCHITECTURE", "ARRAY", "ASSERT", 
@@ -153,7 +154,7 @@ tokenNames = [
     "RETURN", "ROL", "ROR", "SELECT", "SEVERITY", "SHARED", "SLA", "SLL", 
     "SRA", "SRL", "SUBTYPE", "THEN", "TRANSPORT", "TYPE", "UNAFFECTED", 
     "UNITS", "UNTIL", "VARIABLE", "WAIT", "WHEN", "WHILE", "WITH", "XNOR", 
-    "XOR", "CHAR", "'e'"
+    "XOR", "CHAR", "'e'", "'+'"
 ]
 
 
@@ -172,17 +173,6 @@ class bsdlParser(Parser):
         Parser.__init__(self, input, state)
 
 
-        self.dfa9 = self.DFA9(
-            self, 9,
-            eot = self.DFA9_eot,
-            eof = self.DFA9_eof,
-            min = self.DFA9_min,
-            max = self.DFA9_max,
-            accept = self.DFA9_accept,
-            special = self.DFA9_special,
-            transition = self.DFA9_transition
-            )
-
         self.dfa10 = self.DFA10(
             self, 10,
             eot = self.DFA10_eot,
@@ -194,12 +184,23 @@ class bsdlParser(Parser):
             transition = self.DFA10_transition
             )
 
+        self.dfa11 = self.DFA11(
+            self, 11,
+            eot = self.DFA11_eot,
+            eof = self.DFA11_eof,
+            min = self.DFA11_min,
+            max = self.DFA11_max,
+            accept = self.DFA11_accept,
+            special = self.DFA11_special,
+            transition = self.DFA11_transition
+            )
+
 
 
               
-        self.entity_name = ""
         self.attributes = {}
         self.chip_package = None
+        self.ports = []
 
 
 
@@ -220,25 +221,28 @@ class bsdlParser(Parser):
 
         value = None
 
+        entity1 = None
+
+
         try:
             try:
                 # bsdl.g:25:5: ( ( entity ) EOF )
                 # bsdl.g:25:7: ( entity ) EOF
                 pass 
-                #action start
-                value=[]
-                #action end
-                # bsdl.g:26:9: ( entity )
-                # bsdl.g:26:10: entity
+                # bsdl.g:25:7: ( entity )
+                # bsdl.g:25:8: entity
                 pass 
-                self._state.following.append(self.FOLLOW_entity_in_eval71)
-                self.entity()
+                self._state.following.append(self.FOLLOW_entity_in_eval61)
+                entity1 = self.entity()
 
                 self._state.following.pop()
 
 
 
-                self.match(self.input, EOF, self.FOLLOW_EOF_in_eval82)
+                #action start
+                value=entity1
+                #action end
+                self.match(self.input, EOF, self.FOLLOW_EOF_in_eval73)
 
 
 
@@ -256,31 +260,41 @@ class bsdlParser(Parser):
 
 
     # $ANTLR start "entity"
-    # bsdl.g:29:1: entity returns [value] : ENTITY ename= identifier IS ( generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( attribute | constant ) SCOLON )* END identifier SCOLON ;
+    # bsdl.g:28:1: entity returns [value] : ENTITY ename= identifier IS (g= generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( (i= attribute ) | (i= constant ) ) SCOLON )* END identifier SCOLON ;
     def entity(self, ):
 
         value = None
 
         ename = None
 
-        port_list1 = None
+        g = None
+
+        i = None
+
+        port_list2 = None
 
 
         try:
             try:
-                # bsdl.g:30:5: ( ENTITY ename= identifier IS ( generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( attribute | constant ) SCOLON )* END identifier SCOLON )
-                # bsdl.g:30:7: ENTITY ename= identifier IS ( generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( attribute | constant ) SCOLON )* END identifier SCOLON
+                # bsdl.g:29:5: ( ENTITY ename= identifier IS (g= generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( (i= attribute ) | (i= constant ) ) SCOLON )* END identifier SCOLON )
+                # bsdl.g:29:7: ENTITY ename= identifier IS (g= generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( (i= attribute ) | (i= constant ) ) SCOLON )* END identifier SCOLON
                 pass 
-                self.match(self.input, ENTITY, self.FOLLOW_ENTITY_in_entity98)
-                self._state.following.append(self.FOLLOW_identifier_in_entity102)
+                #action start
+                value = {}
+                #action end
+                self.match(self.input, ENTITY, self.FOLLOW_ENTITY_in_entity97)
+                self._state.following.append(self.FOLLOW_identifier_in_entity101)
                 ename = self.identifier()
 
                 self._state.following.pop()
-                self.match(self.input, IS, self.FOLLOW_IS_in_entity104)
+                self.match(self.input, IS, self.FOLLOW_IS_in_entity103)
                 #action start
-                self.entity_name = ((ename is not None) and [ename.value] or [None])[0]
+                value['entity_name'] = ((ename is not None) and [ename.value] or [None])[0]
                 #action end
-                # bsdl.g:33:5: ( generic SCOLON )+
+                #action start
+                value['generics']={}
+                #action end
+                # bsdl.g:34:5: (g= generic SCOLON )+
                 cnt1 = 0
                 while True: #loop1
                     alt1 = 2
@@ -291,13 +305,16 @@ class bsdlParser(Parser):
 
 
                     if alt1 == 1:
-                        # bsdl.g:33:6: generic SCOLON
+                        # bsdl.g:34:6: g= generic SCOLON
                         pass 
-                        self._state.following.append(self.FOLLOW_generic_in_entity123)
-                        self.generic()
+                        self._state.following.append(self.FOLLOW_generic_in_entity130)
+                        g = self.generic()
 
                         self._state.following.pop()
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity125)
+                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity132)
+                        #action start
+                        value['generics'][((g is not None) and [g.key] or [None])[0]]=((g is not None) and [g.value] or [None])[0]
+                        #action end
 
 
                     else:
@@ -310,15 +327,15 @@ class bsdlParser(Parser):
                     cnt1 += 1
 
 
-                self._state.following.append(self.FOLLOW_port_list_in_entity134)
-                port_list1 = self.port_list()
+                self._state.following.append(self.FOLLOW_port_list_in_entity143)
+                port_list2 = self.port_list()
 
                 self._state.following.pop()
-                self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity136)
+                self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity145)
                 #action start
-                print "PORTS:", ", ".join(port_list1)
+                value['ports']=port_list2
                 #action end
-                # bsdl.g:38:5: ( use SCOLON )*
+                # bsdl.g:39:5: ( use SCOLON )*
                 while True: #loop2
                     alt2 = 2
                     LA2_0 = self.input.LA(1)
@@ -328,20 +345,26 @@ class bsdlParser(Parser):
 
 
                     if alt2 == 1:
-                        # bsdl.g:38:6: use SCOLON
+                        # bsdl.g:39:6: use SCOLON
                         pass 
-                        self._state.following.append(self.FOLLOW_use_in_entity155)
+                        self._state.following.append(self.FOLLOW_use_in_entity164)
                         self.use()
 
                         self._state.following.pop()
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity157)
+                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity166)
 
 
                     else:
                         break #loop2
 
 
-                # bsdl.g:40:5: ( ( attribute | constant ) SCOLON )*
+                #action start
+                value['attributes']={}
+                #action end
+                #action start
+                value['constants']={}
+                #action end
+                # bsdl.g:43:5: ( ( (i= attribute ) | (i= constant ) ) SCOLON )*
                 while True: #loop4
                     alt4 = 2
                     LA4_0 = self.input.LA(1)
@@ -351,9 +374,9 @@ class bsdlParser(Parser):
 
 
                     if alt4 == 1:
-                        # bsdl.g:40:6: ( attribute | constant ) SCOLON
+                        # bsdl.g:44:7: ( (i= attribute ) | (i= constant ) ) SCOLON
                         pass 
-                        # bsdl.g:40:6: ( attribute | constant )
+                        # bsdl.g:44:7: ( (i= attribute ) | (i= constant ) )
                         alt3 = 2
                         LA3_0 = self.input.LA(1)
 
@@ -367,37 +390,55 @@ class bsdlParser(Parser):
                             raise nvae
 
                         if alt3 == 1:
-                            # bsdl.g:40:7: attribute
+                            # bsdl.g:45:9: (i= attribute )
                             pass 
-                            self._state.following.append(self.FOLLOW_attribute_in_entity168)
-                            self.attribute()
+                            # bsdl.g:45:9: (i= attribute )
+                            # bsdl.g:45:10: i= attribute
+                            pass 
+                            self._state.following.append(self.FOLLOW_attribute_in_entity208)
+                            i = self.attribute()
 
                             self._state.following.pop()
+                            #action start
+                            value['attributes'][((i is not None) and [i.key] or [None])[0]]=((i is not None) and [i.value] or [None])[0]
+                            #action end
+
+
+
 
 
                         elif alt3 == 2:
-                            # bsdl.g:40:17: constant
+                            # bsdl.g:46:10: (i= constant )
                             pass 
-                            self._state.following.append(self.FOLLOW_constant_in_entity170)
-                            self.constant()
+                            # bsdl.g:46:10: (i= constant )
+                            # bsdl.g:46:11: i= constant
+                            pass 
+                            self._state.following.append(self.FOLLOW_constant_in_entity225)
+                            i = self.constant()
 
                             self._state.following.pop()
+                            #action start
+                            value['constants'][((i is not None) and [i.key] or [None])[0]]=((i is not None) and [i.value] or [None])[0]
+                            #action end
 
 
 
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity173)
+
+
+
+                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity238)
 
 
                     else:
                         break #loop4
 
 
-                self.match(self.input, END, self.FOLLOW_END_in_entity182)
-                self._state.following.append(self.FOLLOW_identifier_in_entity184)
+                self.match(self.input, END, self.FOLLOW_END_in_entity253)
+                self._state.following.append(self.FOLLOW_identifier_in_entity255)
                 self.identifier()
 
                 self._state.following.pop()
-                self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity186)
+                self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity257)
 
 
 
@@ -413,42 +454,67 @@ class bsdlParser(Parser):
 
     # $ANTLR end "entity"
 
+    class generic_return(ParserRuleReturnScope):
+        def __init__(self):
+            ParserRuleReturnScope.__init__(self)
+
+            self.key = None
+            self.value = None
+
+
+
 
     # $ANTLR start "generic"
-    # bsdl.g:45:1: generic : GENERIC OPAREN ( identifier COLON identifier COLON EQUAL string ) CPAREN ;
+    # bsdl.g:53:1: generic returns [key, value] : GENERIC OPAREN (gk= identifier COLON identifier COLON EQUAL gv= string ) CPAREN ;
     def generic(self, ):
+
+        retval = self.generic_return()
+        retval.start = self.input.LT(1)
+
+        gk = None
+
+        gv = None
+
 
         try:
             try:
-                # bsdl.g:46:5: ( GENERIC OPAREN ( identifier COLON identifier COLON EQUAL string ) CPAREN )
-                # bsdl.g:46:7: GENERIC OPAREN ( identifier COLON identifier COLON EQUAL string ) CPAREN
+                # bsdl.g:54:5: ( GENERIC OPAREN (gk= identifier COLON identifier COLON EQUAL gv= string ) CPAREN )
+                # bsdl.g:54:7: GENERIC OPAREN (gk= identifier COLON identifier COLON EQUAL gv= string ) CPAREN
                 pass 
-                self.match(self.input, GENERIC, self.FOLLOW_GENERIC_in_generic203)
-                self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_generic205)
-                # bsdl.g:47:9: ( identifier COLON identifier COLON EQUAL string )
-                # bsdl.g:47:10: identifier COLON identifier COLON EQUAL string
+                self.match(self.input, GENERIC, self.FOLLOW_GENERIC_in_generic279)
+                self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_generic281)
+                # bsdl.g:55:9: (gk= identifier COLON identifier COLON EQUAL gv= string )
+                # bsdl.g:55:10: gk= identifier COLON identifier COLON EQUAL gv= string
                 pass 
-                self._state.following.append(self.FOLLOW_identifier_in_generic217)
+                self._state.following.append(self.FOLLOW_identifier_in_generic295)
+                gk = self.identifier()
+
+                self._state.following.pop()
+                self.match(self.input, COLON, self.FOLLOW_COLON_in_generic297)
+                self._state.following.append(self.FOLLOW_identifier_in_generic299)
                 self.identifier()
 
                 self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_generic219)
-                self._state.following.append(self.FOLLOW_identifier_in_generic221)
-                self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_generic235)
-                self.match(self.input, EQUAL, self.FOLLOW_EQUAL_in_generic237)
-                self._state.following.append(self.FOLLOW_string_in_generic239)
-                self.string()
+                self.match(self.input, COLON, self.FOLLOW_COLON_in_generic313)
+                self.match(self.input, EQUAL, self.FOLLOW_EQUAL_in_generic315)
+                self._state.following.append(self.FOLLOW_string_in_generic319)
+                gv = self.string()
 
                 self._state.following.pop()
 
 
 
-                self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_generic249)
+                self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_generic329)
+                #action start
+                retval.value=gv
+                #action end
+                #action start
+                retval.key=((gk is not None) and [gk.value] or [None])[0]
+                #action end
 
 
+
+                retval.stop = self.input.LT(-1)
 
 
             except RecognitionException, re:
@@ -458,13 +524,13 @@ class bsdlParser(Parser):
 
             pass
 
-        return 
+        return retval
 
     # $ANTLR end "generic"
 
 
     # $ANTLR start "use"
-    # bsdl.g:52:1: use : USE id1= identifier DOT ALL ;
+    # bsdl.g:60:1: use : USE id1= identifier DOT ALL ;
     def use(self, ):
 
         id1 = None
@@ -472,18 +538,18 @@ class bsdlParser(Parser):
 
         try:
             try:
-                # bsdl.g:53:5: ( USE id1= identifier DOT ALL )
-                # bsdl.g:53:7: USE id1= identifier DOT ALL
+                # bsdl.g:61:5: ( USE id1= identifier DOT ALL )
+                # bsdl.g:61:7: USE id1= identifier DOT ALL
                 pass 
-                self.match(self.input, USE, self.FOLLOW_USE_in_use266)
-                self._state.following.append(self.FOLLOW_identifier_in_use270)
+                self.match(self.input, USE, self.FOLLOW_USE_in_use349)
+                self._state.following.append(self.FOLLOW_identifier_in_use353)
                 id1 = self.identifier()
 
                 self._state.following.pop()
-                self.match(self.input, DOT, self.FOLLOW_DOT_in_use272)
-                self.match(self.input, ALL, self.FOLLOW_ALL_in_use274)
+                self.match(self.input, DOT, self.FOLLOW_DOT_in_use355)
+                self.match(self.input, ALL, self.FOLLOW_ALL_in_use357)
                 #action start
-                print ((id1 is not None) and [self.input.toString(id1.start,id1.stop)] or [None])[0]+".all"
+                #oprint ((id1 is not None) and [self.input.toString(id1.start,id1.stop)] or [None])[0]+".all"
                 #action end
 
 
@@ -500,41 +566,63 @@ class bsdlParser(Parser):
 
     # $ANTLR end "use"
 
+    class attribute_return(ParserRuleReturnScope):
+        def __init__(self):
+            ParserRuleReturnScope.__init__(self)
+
+            self.key = None
+            self.value = None
+
+
+
 
     # $ANTLR start "attribute"
-    # bsdl.g:57:1: attribute : ATTRIBUTE atn= identifier OF entn= identifier COLON general_attribute_assignment ;
+    # bsdl.g:65:1: attribute returns [key, value] : ATTRIBUTE atn= identifier OF entn= identifier COLON v= general_attribute_assignment ;
     def attribute(self, ):
+
+        retval = self.attribute_return()
+        retval.start = self.input.LT(1)
 
         atn = None
 
         entn = None
 
+        v = None
+
 
         try:
             try:
-                # bsdl.g:58:5: ( ATTRIBUTE atn= identifier OF entn= identifier COLON general_attribute_assignment )
-                # bsdl.g:58:7: ATTRIBUTE atn= identifier OF entn= identifier COLON general_attribute_assignment
+                # bsdl.g:66:5: ( ATTRIBUTE atn= identifier OF entn= identifier COLON v= general_attribute_assignment )
+                # bsdl.g:66:7: ATTRIBUTE atn= identifier OF entn= identifier COLON v= general_attribute_assignment
                 pass 
-                self.match(self.input, ATTRIBUTE, self.FOLLOW_ATTRIBUTE_in_attribute301)
-                self._state.following.append(self.FOLLOW_identifier_in_attribute314)
+                self.match(self.input, ATTRIBUTE, self.FOLLOW_ATTRIBUTE_in_attribute388)
+                self._state.following.append(self.FOLLOW_identifier_in_attribute401)
                 atn = self.identifier()
 
                 self._state.following.pop()
-                self.match(self.input, OF, self.FOLLOW_OF_in_attribute316)
-                self._state.following.append(self.FOLLOW_identifier_in_attribute320)
+                self.match(self.input, OF, self.FOLLOW_OF_in_attribute403)
+                self._state.following.append(self.FOLLOW_identifier_in_attribute407)
                 entn = self.identifier()
 
                 self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_attribute322)
+                self.match(self.input, COLON, self.FOLLOW_COLON_in_attribute409)
                 #action start
-                print "ATTRIBUTE CREATION", ((atn is not None) and [atn.value] or [None])[0], ((entn is not None) and [entn.value] or [None])[0]
+                retval.key=((atn is not None) and [atn.value] or [None])[0]
                 #action end
-                self._state.following.append(self.FOLLOW_general_attribute_assignment_in_attribute344)
-                self.general_attribute_assignment()
+                #action start
+                #print "ATTRIBUTE CREATION", ((atn is not None) and [atn.value] or [None])[0], ((entn is not None) and [entn.value] or [None])[0]
+                #action end
+                self._state.following.append(self.FOLLOW_general_attribute_assignment_in_attribute435)
+                v = self.general_attribute_assignment()
 
                 self._state.following.pop()
+                #action start
+                retval.value=v
+                #action end
 
 
+
+                retval.stop = self.input.LT(-1)
 
 
             except RecognitionException, re:
@@ -544,18 +632,29 @@ class bsdlParser(Parser):
 
             pass
 
-        return 
+        return retval
 
     # $ANTLR end "attribute"
 
 
     # $ANTLR start "general_attribute_assignment"
-    # bsdl.g:64:1: general_attribute_assignment : ( ( ENTITY IS ( identifier | string | ( DIGIT )+ ) ) | ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) ) );
+    # bsdl.g:72:1: general_attribute_assignment returns [value] : ( ( ENTITY IS (i= identifier | s= string | n= number ) ) | ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) ) );
     def general_attribute_assignment(self, ):
+
+        value = None
+
+        i = None
+
+        s = None
+
+        n = None
+
+        scinot_number3 = None
+
 
         try:
             try:
-                # bsdl.g:65:5: ( ( ENTITY IS ( identifier | string | ( DIGIT )+ ) ) | ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) ) )
+                # bsdl.g:73:5: ( ( ENTITY IS (i= identifier | s= string | n= number ) ) | ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) ) )
                 alt8 = 2
                 LA8_0 = self.input.LA(1)
 
@@ -569,74 +668,61 @@ class bsdlParser(Parser):
                     raise nvae
 
                 if alt8 == 1:
-                    # bsdl.g:65:7: ( ENTITY IS ( identifier | string | ( DIGIT )+ ) )
+                    # bsdl.g:73:7: ( ENTITY IS (i= identifier | s= string | n= number ) )
                     pass 
-                    # bsdl.g:65:7: ( ENTITY IS ( identifier | string | ( DIGIT )+ ) )
-                    # bsdl.g:65:8: ENTITY IS ( identifier | string | ( DIGIT )+ )
+                    # bsdl.g:73:7: ( ENTITY IS (i= identifier | s= string | n= number ) )
+                    # bsdl.g:73:8: ENTITY IS (i= identifier | s= string | n= number )
                     pass 
-                    self.match(self.input, ENTITY, self.FOLLOW_ENTITY_in_general_attribute_assignment362)
-                    self.match(self.input, IS, self.FOLLOW_IS_in_general_attribute_assignment364)
-                    # bsdl.g:66:13: ( identifier | string | ( DIGIT )+ )
-                    alt6 = 3
-                    LA6 = self.input.LA(1)
-                    if LA6 == FULLCASE_WORD or LA6 == WORD:
-                        alt6 = 1
-                    elif LA6 == STRING:
-                        alt6 = 2
-                    elif LA6 == DIGIT:
-                        alt6 = 3
+                    self.match(self.input, ENTITY, self.FOLLOW_ENTITY_in_general_attribute_assignment459)
+                    self.match(self.input, IS, self.FOLLOW_IS_in_general_attribute_assignment461)
+                    # bsdl.g:74:13: (i= identifier | s= string | n= number )
+                    alt5 = 3
+                    LA5 = self.input.LA(1)
+                    if LA5 == FULLCASE_WORD or LA5 == WORD:
+                        alt5 = 1
+                    elif LA5 == STRING:
+                        alt5 = 2
+                    elif LA5 == DIGIT:
+                        alt5 = 3
                     else:
-                        nvae = NoViableAltException("", 6, 0, self.input)
+                        nvae = NoViableAltException("", 5, 0, self.input)
 
                         raise nvae
 
-                    if alt6 == 1:
-                        # bsdl.g:67:17: identifier
+                    if alt5 == 1:
+                        # bsdl.g:75:17: i= identifier
                         pass 
-                        self._state.following.append(self.FOLLOW_identifier_in_general_attribute_assignment397)
-                        self.identifier()
+                        self._state.following.append(self.FOLLOW_identifier_in_general_attribute_assignment496)
+                        i = self.identifier()
 
                         self._state.following.pop()
+                        #action start
+                        value=((i is not None) and [i.value] or [None])[0]
+                        #action end
 
 
-                    elif alt6 == 2:
-                        # bsdl.g:68:17: string
+                    elif alt5 == 2:
+                        # bsdl.g:76:18: s= string
                         pass 
-                        self._state.following.append(self.FOLLOW_string_in_general_attribute_assignment416)
-                        self.string()
+                        self._state.following.append(self.FOLLOW_string_in_general_attribute_assignment519)
+                        s = self.string()
 
                         self._state.following.pop()
+                        #action start
+                        value=s
+                        #action end
 
 
-                    elif alt6 == 3:
-                        # bsdl.g:69:17: ( DIGIT )+
+                    elif alt5 == 3:
+                        # bsdl.g:77:18: n= number
                         pass 
-                        # bsdl.g:69:17: ( DIGIT )+
-                        cnt5 = 0
-                        while True: #loop5
-                            alt5 = 2
-                            LA5_0 = self.input.LA(1)
+                        self._state.following.append(self.FOLLOW_number_in_general_attribute_assignment542)
+                        n = self.number()
 
-                            if (LA5_0 == DIGIT) :
-                                alt5 = 1
-
-
-                            if alt5 == 1:
-                                # bsdl.g:69:17: DIGIT
-                                pass 
-                                self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_general_attribute_assignment435)
-
-
-                            else:
-                                if cnt5 >= 1:
-                                    break #loop5
-
-                                eee = EarlyExitException(5, self.input)
-                                raise eee
-
-                            cnt5 += 1
-
-
+                        self._state.following.pop()
+                        #action start
+                        value=((n is not None) and [n.value] or [None])[0]
+                        #action end
 
 
 
@@ -646,14 +732,14 @@ class bsdlParser(Parser):
 
 
                 elif alt8 == 2:
-                    # bsdl.g:72:7: ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) )
+                    # bsdl.g:80:8: ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) )
                     pass 
-                    # bsdl.g:72:7: ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) )
-                    # bsdl.g:72:8: SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) )
+                    # bsdl.g:80:8: ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) )
+                    # bsdl.g:80:9: SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) )
                     pass 
-                    self.match(self.input, SIGNAL, self.FOLLOW_SIGNAL_in_general_attribute_assignment468)
-                    self.match(self.input, IS, self.FOLLOW_IS_in_general_attribute_assignment470)
-                    # bsdl.g:73:13: ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) )
+                    self.match(self.input, SIGNAL, self.FOLLOW_SIGNAL_in_general_attribute_assignment576)
+                    self.match(self.input, IS, self.FOLLOW_IS_in_general_attribute_assignment578)
+                    # bsdl.g:81:13: ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) )
                     alt7 = 2
                     LA7_0 = self.input.LA(1)
 
@@ -667,33 +753,59 @@ class bsdlParser(Parser):
                         raise nvae
 
                     if alt7 == 1:
-                        # bsdl.g:74:17: ( TRUE | FALSE )
+                        # bsdl.g:82:17: ( TRUE | FALSE )
                         pass 
-                        if (TRUE <= self.input.LA(1) <= FALSE):
-                            self.input.consume()
-                            self._state.errorRecovery = False
+                        # bsdl.g:82:17: ( TRUE | FALSE )
+                        alt6 = 2
+                        LA6_0 = self.input.LA(1)
 
+                        if (LA6_0 == TRUE) :
+                            alt6 = 1
+                        elif (LA6_0 == FALSE) :
+                            alt6 = 2
                         else:
-                            mse = MismatchedSetException(None, self.input)
-                            raise mse
+                            nvae = NoViableAltException("", 6, 0, self.input)
+
+                            raise nvae
+
+                        if alt6 == 1:
+                            # bsdl.g:82:18: TRUE
+                            pass 
+                            self.match(self.input, TRUE, self.FOLLOW_TRUE_in_general_attribute_assignment612)
+                            #action start
+                            value=True
+                            #action end
+
+
+                        elif alt6 == 2:
+                            # bsdl.g:82:37: FALSE
+                            pass 
+                            self.match(self.input, FALSE, self.FOLLOW_FALSE_in_general_attribute_assignment616)
+                            #action start
+                            value=False
+                            #action end
+
 
 
 
 
                     elif alt7 == 2:
-                        # bsdl.g:75:17: ( OPAREN scinot_number COMMA BOTH CPAREN )
+                        # bsdl.g:83:17: ( OPAREN scinot_number COMMA BOTH CPAREN )
                         pass 
-                        # bsdl.g:75:17: ( OPAREN scinot_number COMMA BOTH CPAREN )
-                        # bsdl.g:75:18: OPAREN scinot_number COMMA BOTH CPAREN
+                        # bsdl.g:83:17: ( OPAREN scinot_number COMMA BOTH CPAREN )
+                        # bsdl.g:83:18: OPAREN scinot_number COMMA BOTH CPAREN
                         pass 
-                        self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_general_attribute_assignment527)
-                        self._state.following.append(self.FOLLOW_scinot_number_in_general_attribute_assignment529)
-                        self.scinot_number()
+                        self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_general_attribute_assignment639)
+                        self._state.following.append(self.FOLLOW_scinot_number_in_general_attribute_assignment641)
+                        scinot_number3 = self.scinot_number()
 
                         self._state.following.pop()
-                        self.match(self.input, COMMA, self.FOLLOW_COMMA_in_general_attribute_assignment552)
-                        self.match(self.input, BOTH, self.FOLLOW_BOTH_in_general_attribute_assignment554)
-                        self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_general_attribute_assignment556)
+                        #action start
+                        value=((scinot_number3 is not None) and [self.input.toString(scinot_number3.start,scinot_number3.stop)] or [None])[0]
+                        #action end
+                        self.match(self.input, COMMA, self.FOLLOW_COMMA_in_general_attribute_assignment665)
+                        self.match(self.input, BOTH, self.FOLLOW_BOTH_in_general_attribute_assignment667)
+                        self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_general_attribute_assignment669)
 
 
 
@@ -713,38 +825,64 @@ class bsdlParser(Parser):
 
             pass
 
-        return 
+        return value
 
     # $ANTLR end "general_attribute_assignment"
 
+    class number_return(ParserRuleReturnScope):
+        def __init__(self):
+            ParserRuleReturnScope.__init__(self)
 
-    # $ANTLR start "constant"
-    # bsdl.g:81:1: constant : CONSTANT identifier COLON identifier COLON EQUAL string ;
-    def constant(self, ):
+            self.value = None
+
+
+
+
+    # $ANTLR start "number"
+    # bsdl.g:89:1: number returns [value] : ( DIGIT )+ ;
+    def number(self, ):
+
+        retval = self.number_return()
+        retval.start = self.input.LT(1)
 
         try:
             try:
-                # bsdl.g:82:5: ( CONSTANT identifier COLON identifier COLON EQUAL string )
-                # bsdl.g:82:7: CONSTANT identifier COLON identifier COLON EQUAL string
+                # bsdl.g:90:5: ( ( DIGIT )+ )
+                # bsdl.g:90:7: ( DIGIT )+
                 pass 
-                self.match(self.input, CONSTANT, self.FOLLOW_CONSTANT_in_constant596)
-                self._state.following.append(self.FOLLOW_identifier_in_constant598)
-                self.identifier()
+                # bsdl.g:90:7: ( DIGIT )+
+                cnt9 = 0
+                while True: #loop9
+                    alt9 = 2
+                    LA9_0 = self.input.LA(1)
 
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_constant600)
-                self._state.following.append(self.FOLLOW_identifier_in_constant602)
-                self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_constant613)
-                self.match(self.input, EQUAL, self.FOLLOW_EQUAL_in_constant615)
-                self._state.following.append(self.FOLLOW_string_in_constant617)
-                self.string()
-
-                self._state.following.pop()
+                    if (LA9_0 == DIGIT) :
+                        alt9 = 1
 
 
+                    if alt9 == 1:
+                        # bsdl.g:90:7: DIGIT
+                        pass 
+                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_number713)
+
+
+                    else:
+                        if cnt9 >= 1:
+                            break #loop9
+
+                        eee = EarlyExitException(9, self.input)
+                        raise eee
+
+                    cnt9 += 1
+
+
+                #action start
+                retval.value=int(self.input.toString(retval.start, self.input.LT(-1)))
+                #action end
+
+
+
+                retval.stop = self.input.LT(-1)
 
 
             except RecognitionException, re:
@@ -754,13 +892,79 @@ class bsdlParser(Parser):
 
             pass
 
-        return 
+        return retval
+
+    # $ANTLR end "number"
+
+    class constant_return(ParserRuleReturnScope):
+        def __init__(self):
+            ParserRuleReturnScope.__init__(self)
+
+            self.key = None
+            self.value = None
+
+
+
+
+    # $ANTLR start "constant"
+    # bsdl.g:93:1: constant returns [key, value] : CONSTANT k= identifier COLON identifier COLON EQUAL v= string ;
+    def constant(self, ):
+
+        retval = self.constant_return()
+        retval.start = self.input.LT(1)
+
+        k = None
+
+        v = None
+
+
+        try:
+            try:
+                # bsdl.g:94:5: ( CONSTANT k= identifier COLON identifier COLON EQUAL v= string )
+                # bsdl.g:94:7: CONSTANT k= identifier COLON identifier COLON EQUAL v= string
+                pass 
+                self.match(self.input, CONSTANT, self.FOLLOW_CONSTANT_in_constant737)
+                self._state.following.append(self.FOLLOW_identifier_in_constant741)
+                k = self.identifier()
+
+                self._state.following.pop()
+                #action start
+                retval.key=((k is not None) and [k.value] or [None])[0]
+                #action end
+                self.match(self.input, COLON, self.FOLLOW_COLON_in_constant745)
+                self._state.following.append(self.FOLLOW_identifier_in_constant747)
+                self.identifier()
+
+                self._state.following.pop()
+                self.match(self.input, COLON, self.FOLLOW_COLON_in_constant758)
+                self.match(self.input, EQUAL, self.FOLLOW_EQUAL_in_constant760)
+                self._state.following.append(self.FOLLOW_string_in_constant764)
+                v = self.string()
+
+                self._state.following.pop()
+                #action start
+                retval.value=v
+                #action end
+
+
+
+                retval.stop = self.input.LT(-1)
+
+
+            except RecognitionException, re:
+                self.reportError(re)
+                self.recover(self.input, re)
+        finally:
+
+            pass
+
+        return retval
 
     # $ANTLR end "constant"
 
 
     # $ANTLR start "port_list"
-    # bsdl.g:86:1: port_list returns [value] : PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN ;
+    # bsdl.g:98:1: port_list returns [value] : PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN ;
     def port_list(self, ):
 
         value = None
@@ -770,39 +974,39 @@ class bsdlParser(Parser):
 
         try:
             try:
-                # bsdl.g:87:5: ( PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN )
-                # bsdl.g:87:7: PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN
+                # bsdl.g:99:5: ( PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN )
+                # bsdl.g:99:7: PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN
                 pass 
                 #action start
                 value = []
                 #action end
-                self.match(self.input, PORT, self.FOLLOW_PORT_in_port_list648)
-                self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_port_list650)
-                # bsdl.g:89:9: (pd= port_def SCOLON )*
-                while True: #loop9
-                    alt9 = 2
-                    alt9 = self.dfa9.predict(self.input)
-                    if alt9 == 1:
-                        # bsdl.g:89:10: pd= port_def SCOLON
+                self.match(self.input, PORT, self.FOLLOW_PORT_in_port_list797)
+                self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_port_list799)
+                # bsdl.g:101:9: (pd= port_def SCOLON )*
+                while True: #loop10
+                    alt10 = 2
+                    alt10 = self.dfa10.predict(self.input)
+                    if alt10 == 1:
+                        # bsdl.g:101:10: pd= port_def SCOLON
                         pass 
-                        self._state.following.append(self.FOLLOW_port_def_in_port_list664)
+                        self._state.following.append(self.FOLLOW_port_def_in_port_list813)
                         pd = self.port_def()
 
                         self._state.following.pop()
                         #action start
                         value.extend(pd)
                         #action end
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_port_list668)
+                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_port_list817)
 
 
                     else:
-                        break #loop9
+                        break #loop10
 
 
-                # bsdl.g:90:9: (pd= port_def )
-                # bsdl.g:90:10: pd= port_def
+                # bsdl.g:102:9: (pd= port_def )
+                # bsdl.g:102:10: pd= port_def
                 pass 
-                self._state.following.append(self.FOLLOW_port_def_in_port_list684)
+                self._state.following.append(self.FOLLOW_port_def_in_port_list833)
                 pd = self.port_def()
 
                 self._state.following.pop()
@@ -812,7 +1016,7 @@ class bsdlParser(Parser):
 
 
 
-                self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_port_list697)
+                self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_port_list846)
 
 
 
@@ -830,7 +1034,7 @@ class bsdlParser(Parser):
 
 
     # $ANTLR start "port_def"
-    # bsdl.g:93:1: port_def returns [value] : (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN ) ;
+    # bsdl.g:105:1: port_def returns [value] : (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN ) ;
     def port_def(self, ):
 
         value = None
@@ -840,97 +1044,70 @@ class bsdlParser(Parser):
 
         try:
             try:
-                # bsdl.g:94:5: ( (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN ) )
-                # bsdl.g:94:7: (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN )
+                # bsdl.g:106:5: ( (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN ) )
+                # bsdl.g:106:7: (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN )
                 pass 
                 #action start
                 value=[]
                 #action end
-                # bsdl.g:95:8: (pname= identifier COMMA )*
-                while True: #loop10
-                    alt10 = 2
-                    alt10 = self.dfa10.predict(self.input)
-                    if alt10 == 1:
-                        # bsdl.g:95:9: pname= identifier COMMA
+                # bsdl.g:107:8: (pname= identifier COMMA )*
+                while True: #loop11
+                    alt11 = 2
+                    alt11 = self.dfa11.predict(self.input)
+                    if alt11 == 1:
+                        # bsdl.g:107:9: pname= identifier COMMA
                         pass 
-                        self._state.following.append(self.FOLLOW_identifier_in_port_def725)
+                        self._state.following.append(self.FOLLOW_identifier_in_port_def874)
                         pname = self.identifier()
 
                         self._state.following.pop()
                         #action start
                         value.append(((pname is not None) and [pname.value] or [None])[0])
                         #action end
-                        self.match(self.input, COMMA, self.FOLLOW_COMMA_in_port_def729)
+                        self.match(self.input, COMMA, self.FOLLOW_COMMA_in_port_def878)
 
 
                     else:
-                        break #loop10
+                        break #loop11
 
 
-                self._state.following.append(self.FOLLOW_identifier_in_port_def743)
+                self._state.following.append(self.FOLLOW_identifier_in_port_def892)
                 pname = self.identifier()
 
                 self._state.following.pop()
                 #action start
                 value.append(((pname is not None) and [pname.value] or [None])[0])
                 #action end
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_port_def747)
-                self._state.following.append(self.FOLLOW_portmode_in_port_def749)
+                self.match(self.input, COLON, self.FOLLOW_COLON_in_port_def896)
+                self._state.following.append(self.FOLLOW_portmode_in_port_def898)
                 self.portmode()
 
                 self._state.following.pop()
-                # bsdl.g:97:9: ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN )
-                alt13 = 2
-                LA13_0 = self.input.LA(1)
+                # bsdl.g:109:9: ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN )
+                alt14 = 2
+                LA14_0 = self.input.LA(1)
 
-                if (LA13_0 == BIT) :
-                    alt13 = 1
-                elif (LA13_0 == BIT_VECTOR) :
-                    alt13 = 2
+                if (LA14_0 == BIT) :
+                    alt14 = 1
+                elif (LA14_0 == BIT_VECTOR) :
+                    alt14 = 2
                 else:
-                    nvae = NoViableAltException("", 13, 0, self.input)
+                    nvae = NoViableAltException("", 14, 0, self.input)
 
                     raise nvae
 
-                if alt13 == 1:
-                    # bsdl.g:97:10: BIT
+                if alt14 == 1:
+                    # bsdl.g:109:10: BIT
                     pass 
-                    self.match(self.input, BIT, self.FOLLOW_BIT_in_port_def762)
+                    self.match(self.input, BIT, self.FOLLOW_BIT_in_port_def911)
 
 
-                elif alt13 == 2:
-                    # bsdl.g:98:10: BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN
+                elif alt14 == 2:
+                    # bsdl.g:110:10: BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN
                     pass 
-                    self.match(self.input, BIT_VECTOR, self.FOLLOW_BIT_VECTOR_in_port_def774)
-                    self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_port_def776)
-                    # bsdl.g:98:28: ( DIGIT )+
-                    cnt11 = 0
-                    while True: #loop11
-                        alt11 = 2
-                        LA11_0 = self.input.LA(1)
-
-                        if (LA11_0 == DIGIT) :
-                            alt11 = 1
-
-
-                        if alt11 == 1:
-                            # bsdl.g:98:28: DIGIT
-                            pass 
-                            self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_port_def778)
-
-
-                        else:
-                            if cnt11 >= 1:
-                                break #loop11
-
-                            eee = EarlyExitException(11, self.input)
-                            raise eee
-
-                        cnt11 += 1
-
-
-                    self.match(self.input, TO, self.FOLLOW_TO_in_port_def781)
-                    # bsdl.g:98:38: ( DIGIT )+
+                    self.match(self.input, BIT_VECTOR, self.FOLLOW_BIT_VECTOR_in_port_def923)
+                    self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_port_def925)
+                    # bsdl.g:110:28: ( DIGIT )+
                     cnt12 = 0
                     while True: #loop12
                         alt12 = 2
@@ -941,9 +1118,9 @@ class bsdlParser(Parser):
 
 
                         if alt12 == 1:
-                            # bsdl.g:98:38: DIGIT
+                            # bsdl.g:110:28: DIGIT
                             pass 
-                            self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_port_def783)
+                            self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_port_def927)
 
 
                         else:
@@ -956,7 +1133,34 @@ class bsdlParser(Parser):
                         cnt12 += 1
 
 
-                    self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_port_def786)
+                    self.match(self.input, TO, self.FOLLOW_TO_in_port_def930)
+                    # bsdl.g:110:38: ( DIGIT )+
+                    cnt13 = 0
+                    while True: #loop13
+                        alt13 = 2
+                        LA13_0 = self.input.LA(1)
+
+                        if (LA13_0 == DIGIT) :
+                            alt13 = 1
+
+
+                        if alt13 == 1:
+                            # bsdl.g:110:38: DIGIT
+                            pass 
+                            self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_port_def932)
+
+
+                        else:
+                            if cnt13 >= 1:
+                                break #loop13
+
+                            eee = EarlyExitException(13, self.input)
+                            raise eee
+
+                        cnt13 += 1
+
+
+                    self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_port_def935)
 
 
 
@@ -985,7 +1189,7 @@ class bsdlParser(Parser):
 
 
     # $ANTLR start "identifier"
-    # bsdl.g:100:1: identifier returns [value] : ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )* ;
+    # bsdl.g:112:1: identifier returns [value] : ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )* ;
     def identifier(self, ):
 
         retval = self.identifier_return()
@@ -993,8 +1197,8 @@ class bsdlParser(Parser):
 
         try:
             try:
-                # bsdl.g:101:5: ( ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )* )
-                # bsdl.g:101:7: ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )*
+                # bsdl.g:113:5: ( ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )* )
+                # bsdl.g:113:7: ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )*
                 pass 
                 if (FULLCASE_WORD <= self.input.LA(1) <= WORD):
                     self.input.consume()
@@ -1005,16 +1209,16 @@ class bsdlParser(Parser):
                     raise mse
 
 
-                # bsdl.g:101:28: ( FULLCASE_WORD | WORD | DIGIT )*
-                while True: #loop14
-                    alt14 = 2
-                    LA14_0 = self.input.LA(1)
+                # bsdl.g:113:28: ( FULLCASE_WORD | WORD | DIGIT )*
+                while True: #loop15
+                    alt15 = 2
+                    LA15_0 = self.input.LA(1)
 
-                    if (LA14_0 == DIGIT or (FULLCASE_WORD <= LA14_0 <= WORD)) :
-                        alt14 = 1
+                    if (LA15_0 == DIGIT or (FULLCASE_WORD <= LA15_0 <= WORD)) :
+                        alt15 = 1
 
 
-                    if alt14 == 1:
+                    if alt15 == 1:
                         # bsdl.g:
                         pass 
                         if self.input.LA(1) == DIGIT or (FULLCASE_WORD <= self.input.LA(1) <= WORD):
@@ -1029,33 +1233,33 @@ class bsdlParser(Parser):
 
 
                     else:
-                        break #loop14
+                        break #loop15
 
 
-                # bsdl.g:101:56: ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )*
-                while True: #loop16
-                    alt16 = 2
-                    LA16_0 = self.input.LA(1)
+                # bsdl.g:113:56: ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )*
+                while True: #loop17
+                    alt17 = 2
+                    LA17_0 = self.input.LA(1)
 
-                    if (LA16_0 == USCORE) :
-                        alt16 = 1
+                    if (LA17_0 == USCORE) :
+                        alt17 = 1
 
 
-                    if alt16 == 1:
-                        # bsdl.g:101:57: '_' ( FULLCASE_WORD | WORD | DIGIT )+
+                    if alt17 == 1:
+                        # bsdl.g:113:57: '_' ( FULLCASE_WORD | WORD | DIGIT )+
                         pass 
-                        self.match(self.input, USCORE, self.FOLLOW_USCORE_in_identifier819)
-                        # bsdl.g:101:61: ( FULLCASE_WORD | WORD | DIGIT )+
-                        cnt15 = 0
-                        while True: #loop15
-                            alt15 = 2
-                            LA15_0 = self.input.LA(1)
+                        self.match(self.input, USCORE, self.FOLLOW_USCORE_in_identifier968)
+                        # bsdl.g:113:61: ( FULLCASE_WORD | WORD | DIGIT )+
+                        cnt16 = 0
+                        while True: #loop16
+                            alt16 = 2
+                            LA16_0 = self.input.LA(1)
 
-                            if (LA15_0 == DIGIT or (FULLCASE_WORD <= LA15_0 <= WORD)) :
-                                alt15 = 1
+                            if (LA16_0 == DIGIT or (FULLCASE_WORD <= LA16_0 <= WORD)) :
+                                alt16 = 1
 
 
-                            if alt15 == 1:
+                            if alt16 == 1:
                                 # bsdl.g:
                                 pass 
                                 if self.input.LA(1) == DIGIT or (FULLCASE_WORD <= self.input.LA(1) <= WORD):
@@ -1070,26 +1274,23 @@ class bsdlParser(Parser):
 
 
                             else:
-                                if cnt15 >= 1:
-                                    break #loop15
+                                if cnt16 >= 1:
+                                    break #loop16
 
-                                eee = EarlyExitException(15, self.input)
+                                eee = EarlyExitException(16, self.input)
                                 raise eee
 
-                            cnt15 += 1
+                            cnt16 += 1
 
 
 
 
                     else:
-                        break #loop16
+                        break #loop17
 
 
                 #action start
-                retval.value = self.input.toString(retval.start, self.input.LT(-1))
-                #action end
-                #action start
-                #print retval.value
+                retval.value = self.input.toString(retval.start, self.input.LT(-1)).upper()
                 #action end
 
 
@@ -1110,14 +1311,14 @@ class bsdlParser(Parser):
 
 
     # $ANTLR start "portmode"
-    # bsdl.g:104:1: portmode returns [value] : ( IN | OUT | INOUT | BUFFER | LINKAGE | BUS );
+    # bsdl.g:116:1: portmode returns [value] : ( IN | OUT | INOUT | BUFFER | LINKAGE | BUS );
     def portmode(self, ):
 
         value = None
 
         try:
             try:
-                # bsdl.g:105:5: ( IN | OUT | INOUT | BUFFER | LINKAGE | BUS )
+                # bsdl.g:117:5: ( IN | OUT | INOUT | BUFFER | LINKAGE | BUS )
                 # bsdl.g:
                 pass 
                 if (IN <= self.input.LA(1) <= BUS):
@@ -1146,40 +1347,57 @@ class bsdlParser(Parser):
 
 
     # $ANTLR start "string"
-    # bsdl.g:107:1: string : ( STRING ANDSIGN )* STRING ;
+    # bsdl.g:119:1: string returns [value] : (s= STRING ANDSIGN )* s1= STRING ;
     def string(self, ):
+
+        value = None
+
+        s = None
+        s1 = None
 
         try:
             try:
-                # bsdl.g:108:5: ( ( STRING ANDSIGN )* STRING )
-                # bsdl.g:108:7: ( STRING ANDSIGN )* STRING
+                # bsdl.g:120:5: ( (s= STRING ANDSIGN )* s1= STRING )
+                # bsdl.g:120:7: (s= STRING ANDSIGN )* s1= STRING
                 pass 
-                # bsdl.g:108:7: ( STRING ANDSIGN )*
-                while True: #loop17
-                    alt17 = 2
-                    LA17_0 = self.input.LA(1)
+                #action start
+                str_parts = []
+                #action end
+                # bsdl.g:121:7: (s= STRING ANDSIGN )*
+                while True: #loop18
+                    alt18 = 2
+                    LA18_0 = self.input.LA(1)
 
-                    if (LA17_0 == STRING) :
-                        LA17_1 = self.input.LA(2)
+                    if (LA18_0 == STRING) :
+                        LA18_1 = self.input.LA(2)
 
-                        if (LA17_1 == ANDSIGN) :
-                            alt17 = 1
-
-
+                        if (LA18_1 == ANDSIGN) :
+                            alt18 = 1
 
 
-                    if alt17 == 1:
-                        # bsdl.g:108:8: STRING ANDSIGN
+
+
+                    if alt18 == 1:
+                        # bsdl.g:121:8: s= STRING ANDSIGN
                         pass 
-                        self.match(self.input, STRING, self.FOLLOW_STRING_in_string902)
-                        self.match(self.input, ANDSIGN, self.FOLLOW_ANDSIGN_in_string904)
+                        s=self.match(self.input, STRING, self.FOLLOW_STRING_in_string1039)
+                        self.match(self.input, ANDSIGN, self.FOLLOW_ANDSIGN_in_string1041)
+                        #action start
+                        str_parts.append(s.text[1:-1])
+                        #action end
 
 
                     else:
-                        break #loop17
+                        break #loop18
 
 
-                self.match(self.input, STRING, self.FOLLOW_STRING_in_string908)
+                s1=self.match(self.input, STRING, self.FOLLOW_STRING_in_string1058)
+                #action start
+                str_parts.append(s1.text[1:-1])
+                #action end
+                #action start
+                value = "".join(str_parts)
+                #action end
 
 
 
@@ -1191,41 +1409,31 @@ class bsdlParser(Parser):
 
             pass
 
-        return 
+        return value
 
     # $ANTLR end "string"
 
+    class scinot_number_return(ParserRuleReturnScope):
+        def __init__(self):
+            ParserRuleReturnScope.__init__(self)
+
+
+
+
 
     # $ANTLR start "scinot_number"
-    # bsdl.g:111:1: scinot_number : ( DIGIT )* DOT ( DIGIT )* 'e' ( DIGIT )* ;
+    # bsdl.g:126:1: scinot_number : ( DIGIT )* DOT ( DIGIT )* 'e' ( '+' )? ( DIGIT )* ;
     def scinot_number(self, ):
+
+        retval = self.scinot_number_return()
+        retval.start = self.input.LT(1)
 
         try:
             try:
-                # bsdl.g:112:5: ( ( DIGIT )* DOT ( DIGIT )* 'e' ( DIGIT )* )
-                # bsdl.g:112:7: ( DIGIT )* DOT ( DIGIT )* 'e' ( DIGIT )*
+                # bsdl.g:127:5: ( ( DIGIT )* DOT ( DIGIT )* 'e' ( '+' )? ( DIGIT )* )
+                # bsdl.g:127:7: ( DIGIT )* DOT ( DIGIT )* 'e' ( '+' )? ( DIGIT )*
                 pass 
-                # bsdl.g:112:7: ( DIGIT )*
-                while True: #loop18
-                    alt18 = 2
-                    LA18_0 = self.input.LA(1)
-
-                    if (LA18_0 == DIGIT) :
-                        alt18 = 1
-
-
-                    if alt18 == 1:
-                        # bsdl.g:112:7: DIGIT
-                        pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number925)
-
-
-                    else:
-                        break #loop18
-
-
-                self.match(self.input, DOT, self.FOLLOW_DOT_in_scinot_number928)
-                # bsdl.g:112:18: ( DIGIT )*
+                # bsdl.g:127:7: ( DIGIT )*
                 while True: #loop19
                     alt19 = 2
                     LA19_0 = self.input.LA(1)
@@ -1235,17 +1443,17 @@ class bsdlParser(Parser):
 
 
                     if alt19 == 1:
-                        # bsdl.g:112:18: DIGIT
+                        # bsdl.g:127:7: DIGIT
                         pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number930)
+                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number1087)
 
 
                     else:
                         break #loop19
 
 
-                self.match(self.input, 123, self.FOLLOW_123_in_scinot_number933)
-                # bsdl.g:112:29: ( DIGIT )*
+                self.match(self.input, DOT, self.FOLLOW_DOT_in_scinot_number1090)
+                # bsdl.g:127:18: ( DIGIT )*
                 while True: #loop20
                     alt20 = 2
                     LA20_0 = self.input.LA(1)
@@ -1255,17 +1463,52 @@ class bsdlParser(Parser):
 
 
                     if alt20 == 1:
-                        # bsdl.g:112:29: DIGIT
+                        # bsdl.g:127:18: DIGIT
                         pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number935)
+                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number1092)
 
 
                     else:
                         break #loop20
 
 
+                self.match(self.input, 123, self.FOLLOW_123_in_scinot_number1095)
+                # bsdl.g:127:29: ( '+' )?
+                alt21 = 2
+                LA21_0 = self.input.LA(1)
+
+                if (LA21_0 == 124) :
+                    alt21 = 1
+                if alt21 == 1:
+                    # bsdl.g:127:29: '+'
+                    pass 
+                    self.match(self.input, 124, self.FOLLOW_124_in_scinot_number1097)
 
 
+
+                # bsdl.g:127:34: ( DIGIT )*
+                while True: #loop22
+                    alt22 = 2
+                    LA22_0 = self.input.LA(1)
+
+                    if (LA22_0 == DIGIT) :
+                        alt22 = 1
+
+
+                    if alt22 == 1:
+                        # bsdl.g:127:34: DIGIT
+                        pass 
+                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number1100)
+
+
+                    else:
+                        break #loop22
+
+
+
+
+
+                retval.stop = self.input.LT(-1)
 
 
             except RecognitionException, re:
@@ -1275,7 +1518,7 @@ class bsdlParser(Parser):
 
             pass
 
-        return 
+        return retval
 
     # $ANTLR end "scinot_number"
 
@@ -1283,193 +1526,196 @@ class bsdlParser(Parser):
     # Delegated rules
 
 
-    # lookup tables for DFA #9
+    # lookup tables for DFA #10
 
-    DFA9_eot = DFA.unpack(
+    DFA10_eot = DFA.unpack(
         u"\21\uffff"
         )
 
-    DFA9_eof = DFA.unpack(
+    DFA10_eof = DFA.unpack(
         u"\21\uffff"
         )
 
-    DFA9_min = DFA.unpack(
-        u"\1\35\2\12\1\22\1\35\1\37\1\12\1\32\1\6\1\11\2\uffff\3\22\1\14"
+    DFA10_min = DFA.unpack(
+        u"\1\35\2\12\1\27\1\35\1\37\1\12\1\32\1\6\1\11\2\uffff\3\27\1\14"
         u"\1\6"
         )
 
-    DFA9_max = DFA.unpack(
-        u"\1\36\2\52\2\36\1\44\1\52\1\33\1\14\1\11\2\uffff\1\22\1\34\2\22"
+    DFA10_max = DFA.unpack(
+        u"\1\36\2\52\2\36\1\44\1\52\1\33\1\14\1\11\2\uffff\1\27\1\34\2\27"
         u"\1\14"
         )
 
-    DFA9_accept = DFA.unpack(
+    DFA10_accept = DFA.unpack(
         u"\12\uffff\1\2\1\1\5\uffff"
         )
 
-    DFA9_special = DFA.unpack(
+    DFA10_special = DFA.unpack(
         u"\21\uffff"
         )
 
             
-    DFA9_transition = [
+    DFA10_transition = [
         DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\1\5\7\uffff\1\2\3\uffff\1\4\6\uffff\2\2\13\uffff\1"
-        u"\3"),
-        DFA.unpack(u"\1\5\7\uffff\1\2\3\uffff\1\4\6\uffff\2\2\13\uffff\1"
-        u"\3"),
-        DFA.unpack(u"\1\6\12\uffff\2\6"),
+        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        u"\1\3"),
+        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        u"\1\3"),
+        DFA.unpack(u"\1\6\5\uffff\2\6"),
         DFA.unpack(u"\2\1"),
         DFA.unpack(u"\6\7"),
-        DFA.unpack(u"\1\5\7\uffff\1\6\3\uffff\1\4\6\uffff\2\6\13\uffff\1"
-        u"\3"),
+        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\6\5\uffff\2\6\13\uffff"
+        u"\1\3"),
         DFA.unpack(u"\1\10\1\11"),
         DFA.unpack(u"\1\13\5\uffff\1\12"),
         DFA.unpack(u"\1\14"),
         DFA.unpack(u""),
         DFA.unpack(u""),
         DFA.unpack(u"\1\15"),
-        DFA.unpack(u"\1\15\11\uffff\1\16"),
+        DFA.unpack(u"\1\15\4\uffff\1\16"),
         DFA.unpack(u"\1\17"),
-        DFA.unpack(u"\1\20\5\uffff\1\17"),
+        DFA.unpack(u"\1\20\12\uffff\1\17"),
         DFA.unpack(u"\1\13\5\uffff\1\12")
-    ]
-
-    # class definition for DFA #9
-
-    DFA9 = DFA
-    # lookup tables for DFA #10
-
-    DFA10_eot = DFA.unpack(
-        u"\7\uffff"
-        )
-
-    DFA10_eof = DFA.unpack(
-        u"\7\uffff"
-        )
-
-    DFA10_min = DFA.unpack(
-        u"\1\35\2\12\1\22\2\uffff\1\12"
-        )
-
-    DFA10_max = DFA.unpack(
-        u"\1\36\2\52\1\36\2\uffff\1\52"
-        )
-
-    DFA10_accept = DFA.unpack(
-        u"\4\uffff\1\1\1\2\1\uffff"
-        )
-
-    DFA10_special = DFA.unpack(
-        u"\7\uffff"
-        )
-
-            
-    DFA10_transition = [
-        DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\1\5\7\uffff\1\2\3\uffff\1\4\6\uffff\2\2\13\uffff\1"
-        u"\3"),
-        DFA.unpack(u"\1\5\7\uffff\1\2\3\uffff\1\4\6\uffff\2\2\13\uffff\1"
-        u"\3"),
-        DFA.unpack(u"\1\6\12\uffff\2\6"),
-        DFA.unpack(u""),
-        DFA.unpack(u""),
-        DFA.unpack(u"\1\5\7\uffff\1\6\3\uffff\1\4\6\uffff\2\6\13\uffff\1"
-        u"\3")
     ]
 
     # class definition for DFA #10
 
     DFA10 = DFA
+    # lookup tables for DFA #11
+
+    DFA11_eot = DFA.unpack(
+        u"\7\uffff"
+        )
+
+    DFA11_eof = DFA.unpack(
+        u"\7\uffff"
+        )
+
+    DFA11_min = DFA.unpack(
+        u"\1\35\2\12\1\27\2\uffff\1\12"
+        )
+
+    DFA11_max = DFA.unpack(
+        u"\1\36\2\52\1\36\2\uffff\1\52"
+        )
+
+    DFA11_accept = DFA.unpack(
+        u"\4\uffff\1\2\1\1\1\uffff"
+        )
+
+    DFA11_special = DFA.unpack(
+        u"\7\uffff"
+        )
+
+            
+    DFA11_transition = [
+        DFA.unpack(u"\2\1"),
+        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        u"\1\3"),
+        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        u"\1\3"),
+        DFA.unpack(u"\1\6\5\uffff\2\6"),
+        DFA.unpack(u""),
+        DFA.unpack(u""),
+        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\6\5\uffff\2\6\13\uffff"
+        u"\1\3")
+    ]
+
+    # class definition for DFA #11
+
+    DFA11 = DFA
  
 
-    FOLLOW_entity_in_eval71 = frozenset([])
-    FOLLOW_EOF_in_eval82 = frozenset([1])
-    FOLLOW_ENTITY_in_entity98 = frozenset([29, 30])
-    FOLLOW_identifier_in_entity102 = frozenset([5])
-    FOLLOW_IS_in_entity104 = frozenset([8])
-    FOLLOW_generic_in_entity123 = frozenset([6])
-    FOLLOW_SCOLON_in_entity125 = frozenset([8, 25])
-    FOLLOW_port_list_in_entity134 = frozenset([6])
-    FOLLOW_SCOLON_in_entity136 = frozenset([7, 13, 16, 24])
-    FOLLOW_use_in_entity155 = frozenset([6])
-    FOLLOW_SCOLON_in_entity157 = frozenset([7, 13, 16, 24])
-    FOLLOW_attribute_in_entity168 = frozenset([6])
-    FOLLOW_constant_in_entity170 = frozenset([6])
-    FOLLOW_SCOLON_in_entity173 = frozenset([7, 16, 24])
-    FOLLOW_END_in_entity182 = frozenset([29, 30])
-    FOLLOW_identifier_in_entity184 = frozenset([6])
-    FOLLOW_SCOLON_in_entity186 = frozenset([1])
-    FOLLOW_GENERIC_in_generic203 = frozenset([9])
-    FOLLOW_OPAREN_in_generic205 = frozenset([29, 30])
-    FOLLOW_identifier_in_generic217 = frozenset([10])
-    FOLLOW_COLON_in_generic219 = frozenset([29, 30])
-    FOLLOW_identifier_in_generic221 = frozenset([10])
-    FOLLOW_COLON_in_generic235 = frozenset([11])
-    FOLLOW_EQUAL_in_generic237 = frozenset([37])
-    FOLLOW_string_in_generic239 = frozenset([12])
-    FOLLOW_CPAREN_in_generic249 = frozenset([1])
-    FOLLOW_USE_in_use266 = frozenset([29, 30])
-    FOLLOW_identifier_in_use270 = frozenset([14])
-    FOLLOW_DOT_in_use272 = frozenset([15])
-    FOLLOW_ALL_in_use274 = frozenset([1])
-    FOLLOW_ATTRIBUTE_in_attribute301 = frozenset([29, 30])
-    FOLLOW_identifier_in_attribute314 = frozenset([17])
-    FOLLOW_OF_in_attribute316 = frozenset([29, 30])
-    FOLLOW_identifier_in_attribute320 = frozenset([10])
-    FOLLOW_COLON_in_attribute322 = frozenset([4, 19])
-    FOLLOW_general_attribute_assignment_in_attribute344 = frozenset([1])
-    FOLLOW_ENTITY_in_general_attribute_assignment362 = frozenset([5])
-    FOLLOW_IS_in_general_attribute_assignment364 = frozenset([18, 29, 30, 37])
-    FOLLOW_identifier_in_general_attribute_assignment397 = frozenset([1])
-    FOLLOW_string_in_general_attribute_assignment416 = frozenset([1])
-    FOLLOW_DIGIT_in_general_attribute_assignment435 = frozenset([1, 18])
-    FOLLOW_SIGNAL_in_general_attribute_assignment468 = frozenset([5])
-    FOLLOW_IS_in_general_attribute_assignment470 = frozenset([9, 20, 21])
-    FOLLOW_set_in_general_attribute_assignment503 = frozenset([1])
-    FOLLOW_OPAREN_in_general_attribute_assignment527 = frozenset([14, 18])
-    FOLLOW_scinot_number_in_general_attribute_assignment529 = frozenset([22])
-    FOLLOW_COMMA_in_general_attribute_assignment552 = frozenset([23])
-    FOLLOW_BOTH_in_general_attribute_assignment554 = frozenset([12])
-    FOLLOW_CPAREN_in_general_attribute_assignment556 = frozenset([1])
-    FOLLOW_CONSTANT_in_constant596 = frozenset([29, 30])
-    FOLLOW_identifier_in_constant598 = frozenset([10])
-    FOLLOW_COLON_in_constant600 = frozenset([29, 30])
-    FOLLOW_identifier_in_constant602 = frozenset([10])
-    FOLLOW_COLON_in_constant613 = frozenset([11])
-    FOLLOW_EQUAL_in_constant615 = frozenset([37])
-    FOLLOW_string_in_constant617 = frozenset([1])
-    FOLLOW_PORT_in_port_list648 = frozenset([9])
-    FOLLOW_OPAREN_in_port_list650 = frozenset([29, 30])
-    FOLLOW_port_def_in_port_list664 = frozenset([6])
-    FOLLOW_SCOLON_in_port_list668 = frozenset([29, 30])
-    FOLLOW_port_def_in_port_list684 = frozenset([12])
-    FOLLOW_CPAREN_in_port_list697 = frozenset([1])
-    FOLLOW_identifier_in_port_def725 = frozenset([22])
-    FOLLOW_COMMA_in_port_def729 = frozenset([29, 30])
-    FOLLOW_identifier_in_port_def743 = frozenset([10])
-    FOLLOW_COLON_in_port_def747 = frozenset([31, 32, 33, 34, 35, 36])
-    FOLLOW_portmode_in_port_def749 = frozenset([26, 27])
-    FOLLOW_BIT_in_port_def762 = frozenset([1])
-    FOLLOW_BIT_VECTOR_in_port_def774 = frozenset([9])
-    FOLLOW_OPAREN_in_port_def776 = frozenset([18])
-    FOLLOW_DIGIT_in_port_def778 = frozenset([18, 28])
-    FOLLOW_TO_in_port_def781 = frozenset([18])
-    FOLLOW_DIGIT_in_port_def783 = frozenset([12, 18])
-    FOLLOW_CPAREN_in_port_def786 = frozenset([1])
-    FOLLOW_set_in_identifier803 = frozenset([1, 18, 29, 30, 42])
-    FOLLOW_set_in_identifier809 = frozenset([1, 18, 29, 30, 42])
-    FOLLOW_USCORE_in_identifier819 = frozenset([18, 29, 30])
-    FOLLOW_set_in_identifier821 = frozenset([1, 18, 29, 30, 42])
+    FOLLOW_entity_in_eval61 = frozenset([])
+    FOLLOW_EOF_in_eval73 = frozenset([1])
+    FOLLOW_ENTITY_in_entity97 = frozenset([29, 30])
+    FOLLOW_identifier_in_entity101 = frozenset([5])
+    FOLLOW_IS_in_entity103 = frozenset([8])
+    FOLLOW_generic_in_entity130 = frozenset([6])
+    FOLLOW_SCOLON_in_entity132 = frozenset([8, 25])
+    FOLLOW_port_list_in_entity143 = frozenset([6])
+    FOLLOW_SCOLON_in_entity145 = frozenset([7, 13, 16, 24])
+    FOLLOW_use_in_entity164 = frozenset([6])
+    FOLLOW_SCOLON_in_entity166 = frozenset([7, 13, 16, 24])
+    FOLLOW_attribute_in_entity208 = frozenset([6])
+    FOLLOW_constant_in_entity225 = frozenset([6])
+    FOLLOW_SCOLON_in_entity238 = frozenset([7, 16, 24])
+    FOLLOW_END_in_entity253 = frozenset([29, 30])
+    FOLLOW_identifier_in_entity255 = frozenset([6])
+    FOLLOW_SCOLON_in_entity257 = frozenset([1])
+    FOLLOW_GENERIC_in_generic279 = frozenset([9])
+    FOLLOW_OPAREN_in_generic281 = frozenset([29, 30])
+    FOLLOW_identifier_in_generic295 = frozenset([10])
+    FOLLOW_COLON_in_generic297 = frozenset([29, 30])
+    FOLLOW_identifier_in_generic299 = frozenset([10])
+    FOLLOW_COLON_in_generic313 = frozenset([11])
+    FOLLOW_EQUAL_in_generic315 = frozenset([37])
+    FOLLOW_string_in_generic319 = frozenset([12])
+    FOLLOW_CPAREN_in_generic329 = frozenset([1])
+    FOLLOW_USE_in_use349 = frozenset([29, 30])
+    FOLLOW_identifier_in_use353 = frozenset([14])
+    FOLLOW_DOT_in_use355 = frozenset([15])
+    FOLLOW_ALL_in_use357 = frozenset([1])
+    FOLLOW_ATTRIBUTE_in_attribute388 = frozenset([29, 30])
+    FOLLOW_identifier_in_attribute401 = frozenset([17])
+    FOLLOW_OF_in_attribute403 = frozenset([29, 30])
+    FOLLOW_identifier_in_attribute407 = frozenset([10])
+    FOLLOW_COLON_in_attribute409 = frozenset([4, 18])
+    FOLLOW_general_attribute_assignment_in_attribute435 = frozenset([1])
+    FOLLOW_ENTITY_in_general_attribute_assignment459 = frozenset([5])
+    FOLLOW_IS_in_general_attribute_assignment461 = frozenset([23, 29, 30, 37])
+    FOLLOW_identifier_in_general_attribute_assignment496 = frozenset([1])
+    FOLLOW_string_in_general_attribute_assignment519 = frozenset([1])
+    FOLLOW_number_in_general_attribute_assignment542 = frozenset([1])
+    FOLLOW_SIGNAL_in_general_attribute_assignment576 = frozenset([5])
+    FOLLOW_IS_in_general_attribute_assignment578 = frozenset([9, 19, 20])
+    FOLLOW_TRUE_in_general_attribute_assignment612 = frozenset([1])
+    FOLLOW_FALSE_in_general_attribute_assignment616 = frozenset([1])
+    FOLLOW_OPAREN_in_general_attribute_assignment639 = frozenset([14, 23])
+    FOLLOW_scinot_number_in_general_attribute_assignment641 = frozenset([21])
+    FOLLOW_COMMA_in_general_attribute_assignment665 = frozenset([22])
+    FOLLOW_BOTH_in_general_attribute_assignment667 = frozenset([12])
+    FOLLOW_CPAREN_in_general_attribute_assignment669 = frozenset([1])
+    FOLLOW_DIGIT_in_number713 = frozenset([1, 23])
+    FOLLOW_CONSTANT_in_constant737 = frozenset([29, 30])
+    FOLLOW_identifier_in_constant741 = frozenset([10])
+    FOLLOW_COLON_in_constant745 = frozenset([29, 30])
+    FOLLOW_identifier_in_constant747 = frozenset([10])
+    FOLLOW_COLON_in_constant758 = frozenset([11])
+    FOLLOW_EQUAL_in_constant760 = frozenset([37])
+    FOLLOW_string_in_constant764 = frozenset([1])
+    FOLLOW_PORT_in_port_list797 = frozenset([9])
+    FOLLOW_OPAREN_in_port_list799 = frozenset([29, 30])
+    FOLLOW_port_def_in_port_list813 = frozenset([6])
+    FOLLOW_SCOLON_in_port_list817 = frozenset([29, 30])
+    FOLLOW_port_def_in_port_list833 = frozenset([12])
+    FOLLOW_CPAREN_in_port_list846 = frozenset([1])
+    FOLLOW_identifier_in_port_def874 = frozenset([21])
+    FOLLOW_COMMA_in_port_def878 = frozenset([29, 30])
+    FOLLOW_identifier_in_port_def892 = frozenset([10])
+    FOLLOW_COLON_in_port_def896 = frozenset([31, 32, 33, 34, 35, 36])
+    FOLLOW_portmode_in_port_def898 = frozenset([26, 27])
+    FOLLOW_BIT_in_port_def911 = frozenset([1])
+    FOLLOW_BIT_VECTOR_in_port_def923 = frozenset([9])
+    FOLLOW_OPAREN_in_port_def925 = frozenset([23])
+    FOLLOW_DIGIT_in_port_def927 = frozenset([23, 28])
+    FOLLOW_TO_in_port_def930 = frozenset([23])
+    FOLLOW_DIGIT_in_port_def932 = frozenset([12, 23])
+    FOLLOW_CPAREN_in_port_def935 = frozenset([1])
+    FOLLOW_set_in_identifier952 = frozenset([1, 23, 29, 30, 42])
+    FOLLOW_set_in_identifier958 = frozenset([1, 23, 29, 30, 42])
+    FOLLOW_USCORE_in_identifier968 = frozenset([23, 29, 30])
+    FOLLOW_set_in_identifier970 = frozenset([1, 23, 29, 30, 42])
     FOLLOW_set_in_portmode0 = frozenset([1])
-    FOLLOW_STRING_in_string902 = frozenset([38])
-    FOLLOW_ANDSIGN_in_string904 = frozenset([37])
-    FOLLOW_STRING_in_string908 = frozenset([1])
-    FOLLOW_DIGIT_in_scinot_number925 = frozenset([14, 18])
-    FOLLOW_DOT_in_scinot_number928 = frozenset([18, 123])
-    FOLLOW_DIGIT_in_scinot_number930 = frozenset([18, 123])
-    FOLLOW_123_in_scinot_number933 = frozenset([1, 18])
-    FOLLOW_DIGIT_in_scinot_number935 = frozenset([1, 18])
+    FOLLOW_STRING_in_string1039 = frozenset([38])
+    FOLLOW_ANDSIGN_in_string1041 = frozenset([37])
+    FOLLOW_STRING_in_string1058 = frozenset([1])
+    FOLLOW_DIGIT_in_scinot_number1087 = frozenset([14, 23])
+    FOLLOW_DOT_in_scinot_number1090 = frozenset([23, 123])
+    FOLLOW_DIGIT_in_scinot_number1092 = frozenset([23, 123])
+    FOLLOW_123_in_scinot_number1095 = frozenset([1, 23, 124])
+    FOLLOW_124_in_scinot_number1097 = frozenset([1, 23])
+    FOLLOW_DIGIT_in_scinot_number1100 = frozenset([1, 23])
 
 
 

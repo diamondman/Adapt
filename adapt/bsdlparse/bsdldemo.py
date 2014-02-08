@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import sys
+from pprint import pprint
+
 from bsdlLexer import bsdlLexer
 from bsdlParser import bsdlParser
 from antlr3 import ANTLRInputStream, CommonTokenStream, RecognitionException
@@ -19,7 +21,7 @@ try:
     lexer = bsdlLexer(char_stream)
     tokens = CommonTokenStream(lexer)
     parser = bsdlParser(tokens);
-    print "RES: %s"%parser.eval()
+    pprint(parser.eval())
     f.close()
 except RecognitionException:
     traceback.print_stack()

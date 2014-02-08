@@ -1,0 +1,126 @@
+01;AMD
+02;AMI
+83;Fairchild
+04;Fujitsu
+85;GTE
+86;Harris
+07;Hitachi
+08;Inmos
+89;Intel
+8A;I.T.T.
+0B;Intersil
+8C;Monolithic Memories
+0D;Mostek
+0E;Freescale (Motorola)
+8F;National
+10;NEC
+91;RCA
+92;Raytheon
+13;Conexant (Rockwell)
+94;Seeq
+15;NXP (Philips)
+16;Synertek
+97;Texas Instruments
+98;Toshiba
+19;Xicor
+1A;Zilog
+9B;Eurotechnique
+1C;Mitsubishi
+9D;Lucent (AT&T)
+9E;Exel
+1F;Atmel
+20;SGS/Thomson
+A1;Lattice Semi.
+A2;NCR
+23;Wafer Scale Integration
+A4;IBM
+25;Tristar
+26;Visic
+A7;Intl. CMOS Technology
+A8;SSSI
+29;MicrochipTechnology
+2A;Ricoh Ltd.
+AB;VLSI
+2C;Micron Technology
+AD;SK Hynix
+AE;OKI Semiconductor
+2F;ACTEL
+B0;Sharp
+31;Catalyst
+32;Panasonic
+B3;IDT
+34;Cypress
+B5;DEC
+B6;LSI Logic
+37;Zarlink(Plessey)
+38;UTMC
+B9;Thinking Machine
+BA;Thomson CSF
+3B;Integrated CMOS (Vertex)
+BC;Honeywell
+3D;Tektronix
+3E;Oracle Corporation
+BF;Silicon Storage Technology
+40;ProMos/Mosel Vitelic
+C1;Infineon (Siemens)
+C2;Macronix
+43;Xerox
+C4;Plus Logic
+45;SanDiskCorporation
+46;Elan Circuit Tech.
+C7;European Silicon Str.
+C8;Apple Computer
+49;Xilinx
+4A;Compaq
+CB;Protocol Engines
+4C;SCI
+CD;Seiko Instruments
+CE;Samsung
+4F;I3 Design System
+D0;Klic
+51;Crosspoint Solutions
+52;Alliance Semiconductor
+D3;Tandem
+54;Hewlett-Packard
+D5;Integrated Silicon Solutions
+D6;Brooktree
+57;New Media
+58;MHS Electronic
+D9;Performance Semi.
+DA;Winbond Electronic
+5B;Kawasaki Steel
+DC;Bright Micro
+5D;TECMAR
+5E;Exar
+DF;PCMCIA
+E0;LG Semi (Goldstar)
+61;Northern Telecom
+62;Sanyo
+E3;Array Microsystems
+64;Crystal Semiconductor
+E5;Analog Devices
+E6;PMC-Sierra
+67;Asparix
+68;Convex Computer
+E9;Quality Semiconductor
+EA;Nimbus Technology
+6B;Transwitch
+EC;Micronas (ITT Intermetall)
+6D;Cannon
+6E;Altera
+EF;NEXCOM
+70;QUALCOMM
+F1;Sony
+F2;Cray Research
+73;AMS(Austria Micro)
+F4;Vitesse
+75;Aster Electronics
+76;Bay Networks (Synoptic)
+F7;Zentrum/ZMD
+F8;TRW
+79;Thesys
+7A;Solbourne Computer
+FB;Allied-Signal
+7C;Dialog Semiconductor
+FD;Media Vision
+FE;Numonyx Corporation
