@@ -1,3 +1,3 @@
 #!/bin/sh
 BASEDIR=$(dirname $0)
-ADAPT_CORE_DIR=$BASEDIR/../ exec /usr/bin/python $BASEDIR/../adapt/adapt_main.py
+exec /usr/bin/python $BASEDIR/../adapt/adapt_main.py "$@"

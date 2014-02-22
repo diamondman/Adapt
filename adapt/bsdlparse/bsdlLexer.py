@@ -1,4 +1,4 @@
-# $ANTLR 3.1 bsdl.g 2014-02-07 02:03:42
+# $ANTLR 3.1 bsdl.g 2014-02-08 13:25:29
 
 import sys
 from antlr3 import *
@@ -9,127 +9,127 @@ from antlr3.compat import set, frozenset
 HIDDEN = BaseRecognizer.HIDDEN
 
 # token types
-PACKAGE=87
-FUNCTION=64
-NAND=77
-INERTIAL=70
-SEVERITY=102
-WHILE=118
-ROR=100
+PACKAGE=86
+FUNCTION=63
+NAND=76
+INERTIAL=69
+SEVERITY=101
+WHILE=117
+ROR=99
 GENERIC=8
-MOD=76
-CASE=54
-CHAR=122
-NEW=78
-NOR=80
-NOT=81
-POSTPONED=88
-SUBTYPE=108
+MOD=75
+CASE=53
+CHAR=121
+NEW=77
+NOR=79
+NOT=80
+POSTPONED=87
+SUBTYPE=107
 EOF=-1
-ROL=99
-TYPE=111
+ROL=98
+TYPE=110
 WORD=30
-UNITS=113
-DOWNTO=58
-LOOP=74
-BEGIN=51
-RETURN=98
+UNITS=112
+DOWNTO=57
+LOOP=73
+BEGIN=50
+RETURN=97
 BOTH=22
-TRANSPORT=110
-IMPURE=69
-BODY=53
-ICHAR=39
-GENERATE=65
+TRANSPORT=109
+IMPURE=68
+BODY=52
+ICHAR=122
+GENERATE=64
 LINKAGE=35
-COMMENT=41
-REGISTER=94
-SELECT=101
-ARRAY=49
-EXIT=61
-SHARED=103
-RECORD=93
-GUARDED=67
-SRL=107
-SRA=106
-NULL=82
-XNOR=120
-ELSE=59
-ON=83
-WHITESPACE=40
+COMMENT=40
+REGISTER=93
+SELECT=100
+ARRAY=48
+EXIT=60
+SHARED=102
+RECORD=92
+GUARDED=66
+SRL=106
+SRA=105
+NULL=81
+XNOR=119
+ELSE=58
+ON=82
+WHITESPACE=39
 BUS=36
-WAIT=116
+WAIT=115
 OF=17
-FILE=62
-ASSERT=50
-ABS=43
-GROUP=66
-VARIABLE=115
+FILE=61
+ASSERT=49
+ABS=42
+GROUP=65
+VARIABLE=114
 OUT=32
-UNTIL=114
-USCORE=42
-OR=85
-ALIAS=46
+UNTIL=113
+USCORE=41
+OR=84
+ALIAS=45
 ANDSIGN=38
 CONSTANT=24
 USE=13
-ELSIF=60
+ELSIF=59
 END=7
 FALSE=20
 BIT_VECTOR=27
-OTHERS=86
-REPORT=97
-SLA=104
+OTHERS=85
+REPORT=96
+SLA=103
 ATTRIBUTE=16
 T__124=124
 T__123=123
-FOR=63
-CONFIGURATION=56
-LIBRARY=72
-SLL=105
-ARCHITECTURE=48
-AND=47
-IF=68
+FOR=62
+CONFIGURATION=55
+LIBRARY=71
+SLL=104
+ARCHITECTURE=47
+AND=46
+IF=67
 INOUT=33
 ENTITY=4
-PURE=91
-THEN=109
+PURE=90
+THEN=108
 IN=31
 COMMA=21
 IS=5
-REJECT=95
+REJECT=94
 ALL=15
 EQUAL=11
 SIGNAL=18
-ACCESS=44
-NEXT=79
+ACCESS=43
+NEXT=78
 CPAREN=12
 DIGIT=23
 DOT=14
-COMPONENT=55
-WITH=119
+COMPONENT=54
+WITH=118
 SCOLON=6
 FULLCASE_WORD=29
-XOR=121
+XOR=120
 TO=28
 OPAREN=9
-DISCONNECT=57
+DISCONNECT=56
 PORT=25
 BUFFER=34
-RANGE=92
-LITERAL=73
-AFTER=45
-REM=96
+RANGE=91
+LITERAL=72
+AFTER=44
+REM=95
 TRUE=19
-PROCEDURE=89
-OPEN=84
+PROCEDURE=88
+OPEN=83
 COLON=10
-LABEL=71
-WHEN=117
-BLOCK=52
-MAP=75
+LABEL=70
+WHEN=116
+BLOCK=51
+MAP=74
 BIT=26
-PROCESS=90
-UNAFFECTED=112
+PROCESS=89
+UNAFFECTED=111
 STRING=37
 
 
@@ -217,23 +217,23 @@ class bsdlLexer(Lexer):
             _type = STRING
             _channel = DEFAULT_CHANNEL
 
-            # bsdl.g:133:8: ( '\"' ( ICHAR | DIGIT | '_' | '.' | ',' | ' ' | ':' | ';' | '(' | ')' | '[' | ']' | '*' | '\\t' | '-' | '/' | '\\\\' | '|' )* '\"' )
-            # bsdl.g:133:12: '\"' ( ICHAR | DIGIT | '_' | '.' | ',' | ' ' | ':' | ';' | '(' | ')' | '[' | ']' | '*' | '\\t' | '-' | '/' | '\\\\' | '|' )* '\"'
+            # bsdl.g:133:8: ( '\"' (~ '\"' )* '\"' )
+            # bsdl.g:133:12: '\"' (~ '\"' )* '\"'
             pass 
             self.match(34)
-            # bsdl.g:133:16: ( ICHAR | DIGIT | '_' | '.' | ',' | ' ' | ':' | ';' | '(' | ')' | '[' | ']' | '*' | '\\t' | '-' | '/' | '\\\\' | '|' )*
+            # bsdl.g:133:16: (~ '\"' )*
             while True: #loop1
                 alt1 = 2
                 LA1_0 = self.input.LA(1)
 
-                if (LA1_0 == 9 or LA1_0 == 32 or (40 <= LA1_0 <= 42) or (44 <= LA1_0 <= 59) or (65 <= LA1_0 <= 93) or LA1_0 == 95 or (97 <= LA1_0 <= 122) or LA1_0 == 124) :
+                if ((0 <= LA1_0 <= 33) or (35 <= LA1_0 <= 65534)) :
                     alt1 = 1
 
 
                 if alt1 == 1:
-                    # bsdl.g:
+                    # bsdl.g:133:17: ~ '\"'
                     pass 
-                    if self.input.LA(1) == 9 or self.input.LA(1) == 32 or (40 <= self.input.LA(1) <= 42) or (44 <= self.input.LA(1) <= 59) or (65 <= self.input.LA(1) <= 93) or self.input.LA(1) == 95 or (97 <= self.input.LA(1) <= 122) or self.input.LA(1) == 124:
+                    if (0 <= self.input.LA(1) <= 33) or (35 <= self.input.LA(1) <= 65534):
                         self.input.consume()
                     else:
                         mse = MismatchedSetException(None, self.input)

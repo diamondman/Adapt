@@ -130,7 +130,7 @@ scinot_number
 
 
 
-STRING :   '"' (ICHAR|DIGIT|'_'|'.'|','|' '|':'|';'|'('|')'|'['|']'|'*'|'\t'|'-'|'/'|'\\'|'|')* '"';
+STRING :   '"' (~'"')* '"';
 
 WHITESPACE
     : ( ' ' | '\t' | '\r' | '\n' )+ { $channel = HIDDEN }

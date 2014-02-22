@@ -1,7 +1,10 @@
 import os
+import json
+from bitarray import bitarray
 
 from bsdlparse import parse_file
 from jtagUtils import manufacturer_lookup
+from jtagUtils import adapt_base_dir
 
 class BSDLInvalidFormatException(Exception):
     pass
@@ -16,6 +19,7 @@ class JTAGDeviceDescription(object):
     static get_descriptor_for_idcode method on this class to search for the correct 
     descriptor for an idcode."""
     _desc_cache = {}
+    _desc_id_file_cache = {}
 
     def __init__(self, bsdl_path):
         self._file_name = bsdl_path
@@ -32,7 +36,8 @@ class JTAGDeviceDescription(object):
         self._manufacturer_id = None
         if idcode:
             self._idcode = int(idcode.replace('X','0'), 2)
-            self._idcode_mask = int(idcode.replace('0', '1').replace('X', '0'), 2)
+            #Seems this mask is basically constant.
+            self._idcode_mask = 0x0FFFFFFF #int(idcode.replace('0', '1').replace('X', '0'), 2)
             #Get the manufacturer id in lower 11 bits but not last
             self._manufacturer_id = (self._idcode>>1) & 0b11111111111
 
@@ -43,12 +48,14 @@ class JTAGDeviceDescription(object):
         try:
             instructions_str = attributes['INSTRUCTION_OPCODE'].replace('\t','').replace(' ','')
             instructions_temp = [i.replace(')','').split('(') for i in instructions_str.split('),')]
-            self._instructions = {i[0]:int(i[1], 2) for i in instructions_temp if ',' not in i[1]}
+            self._instructions = {i[0]:bitarray(str(i[1])) for i in instructions_temp if ',' not in i[1]}
+            #self._instructions = {i[0]:int(i[1], 2) for i in instructions_temp if ',' not in i[1]}
         except ValueError, e:
             raise BSDLInvalidFormatException('Instruction codes are poorly formatted in %s.'%self._file_name)
 
         constants_keys = parser_result['constants'].keys()
         self._chip_package = "UNKNOWN" if not len(constants_keys) else constants_keys[0];
+
 
 
     @property
@@ -60,14 +67,49 @@ class JTAGDeviceDescription(object):
         return (self._idcode_mask&code)==self._idcode
 
     @classmethod
+    def _save_id_file_cache(cls):
+        f = open(os.path.join(adapt_base_dir, 'tmp', 'id_bsdl_cache.json'), 'w')
+        #print "ABOUT TO DUMP", cls._desc_id_file_cache
+        json.dump(cls._desc_id_file_cache, f)
+        f.close()
+
+    @classmethod
+    def _load_id_file_cache(cls):
+        if len(cls._desc_id_file_cache.keys()) > 0:
+            return
+        path = os.path.join(adapt_base_dir, 'tmp', 'id_bsdl_cache.json')
+        if os.path.isfile(path):
+            try:
+                f = open(path)
+                fj = json.load(f)
+                f.close()
+                for did, fn in fj.items():
+                    #print "LOADING %s:%s"%(did, fn)
+                    cls._desc_id_file_cache[did] = fn
+            except:
+                print "There was a problem loading the bsdl cache."
+
+    @classmethod
     def get_descriptor_for_idcode(cls, idcode):
         """Use this method to find bsdl descriptions for devices.
         The caching on this method drastically lower the execution
         time when there are a lot of bsdl files and more than one 
         device. May move it into a metaclass to make it more 
         transparent."""
-        #print "LOOKING UP!"
-        base_bsdl_dir = '../res/bsdl/'
+        idcode = idcode&0x0fffffff        
+
+        #import ipdb
+        #ipdb.set_trace()
+        cls._load_id_file_cache()
+        #ipdb.set_trace()
+        
+        if str(idcode) in cls._desc_id_file_cache.keys():
+            fname = cls._desc_id_file_cache[str(idcode)]
+            desc = JTAGDeviceDescription(fname)
+            cls._desc_cache[fname] = desc
+            return desc
+        print "COULD NOT FIND ID %s" % idcode
+        base_bsdl_dir = os.path.join(adapt_base_dir, 'res', 'bsdl')
         bsdl_files = [os.path.join(dp, f) for dp, dn, filenames in 
                       os.walk(base_bsdl_dir) for f in filenames 
                       if os.path.splitext(f)[1] in ['.bsd','.bsdl']]
@@ -77,5 +119,8 @@ class JTAGDeviceDescription(object):
             else:
                 desc = JTAGDeviceDescription(fname)
                 cls._desc_cache[fname] = desc
+                cls._desc_id_file_cache[desc._idcode] = fname
+                #print "SAVING"
+                cls._save_id_file_cache()
             if desc.does_descriptor_apply_to_idcode(idcode):
                 return desc

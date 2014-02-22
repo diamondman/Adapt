@@ -118,24 +118,22 @@ class JTAGScanChain(object):
             self._controller.jtagEnable()
             self._controller.writeTMSBits('\x00\x5F', 9)
 
-            devices = []
+            self._devices = []
             idcode_str = self._controller.readTDOBits(32)
             while idcode_str != '\x00\x00\x00\x00':
                 Jdev = JTAGDevice(self, idcode_str)
-                devices.append(Jdev)
+                self._devices.append(Jdev)
                 idcode_str = self._controller.readTDOBits(32)
             self._controller.jtagDisable()
 
             #The chain comes out last first. Reverse it to get order.
-            devices.reverse()
-            for i, dev in enumerate(devices):
-                if dev.desc:
-                    print "        %d %s %s %s"%(i, dev.desc.manufacturer, 
-                                                 dev.desc._device_name, dev.desc._chip_package)
-                else:
-                    print "        %d UNIDENTIFIED DEVICE. ID: %s."%(i, dev._id)
-                    print "            Search for bsdl file: http://bsdl.info/list.htm?search=XXXX%s"%\
-                        bin(dev._id & 0xFFFFFFF)[2:].zfill(28)
+            self._devices.reverse()
+
+    def _jtagDisable(self):
+        self._controller.jtagDisable()
+
+    def _jtagEnable(self):
+        self._controller.jtagEnable()
             
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# $ANTLR 3.1 bsdl.g 2014-02-07 02:03:42
+# $ANTLR 3.1 bsdl.g 2014-02-08 13:25:29
 
 import sys
 from antlr3 import *
@@ -13,127 +13,127 @@ import sys
 HIDDEN = BaseRecognizer.HIDDEN
 
 # token types
-FUNCTION=64
-PACKAGE=87
-NAND=77
-INERTIAL=70
-SEVERITY=102
-WHILE=118
-ROR=100
+FUNCTION=63
+PACKAGE=86
+NAND=76
+INERTIAL=69
+SEVERITY=101
+WHILE=117
+ROR=99
 GENERIC=8
-MOD=76
-CASE=54
-CHAR=122
-NEW=78
-NOR=80
-NOT=81
-POSTPONED=88
-SUBTYPE=108
+MOD=75
+CASE=53
+CHAR=121
+NEW=77
+NOR=79
+NOT=80
+POSTPONED=87
+SUBTYPE=107
 EOF=-1
-ROL=99
-TYPE=111
+ROL=98
+TYPE=110
 WORD=30
-UNITS=113
-DOWNTO=58
-BEGIN=51
-LOOP=74
-RETURN=98
+UNITS=112
+DOWNTO=57
+BEGIN=50
+LOOP=73
+RETURN=97
 BOTH=22
-TRANSPORT=110
-IMPURE=69
-ICHAR=39
-BODY=53
-GENERATE=65
+TRANSPORT=109
+IMPURE=68
+ICHAR=122
+BODY=52
+GENERATE=64
 LINKAGE=35
-COMMENT=41
-SELECT=101
-REGISTER=94
-ARRAY=49
-SHARED=103
-EXIT=61
-RECORD=93
-GUARDED=67
-SRL=107
-SRA=106
-NULL=82
-XNOR=120
-ELSE=59
-ON=83
-WHITESPACE=40
+COMMENT=40
+SELECT=100
+REGISTER=93
+ARRAY=48
+SHARED=102
+EXIT=60
+RECORD=92
+GUARDED=66
+SRL=106
+SRA=105
+NULL=81
+XNOR=119
+ELSE=58
+ON=82
+WHITESPACE=39
 BUS=36
-WAIT=116
+WAIT=115
 OF=17
-FILE=62
-ASSERT=50
-ABS=43
-GROUP=66
-VARIABLE=115
+FILE=61
+ASSERT=49
+ABS=42
+GROUP=65
+VARIABLE=114
 OUT=32
-UNTIL=114
-USCORE=42
-OR=85
-ALIAS=46
+UNTIL=113
+USCORE=41
+OR=84
+ALIAS=45
 ANDSIGN=38
 CONSTANT=24
 USE=13
-ELSIF=60
+ELSIF=59
 END=7
 FALSE=20
 BIT_VECTOR=27
-OTHERS=86
-REPORT=97
-SLA=104
+OTHERS=85
+REPORT=96
+SLA=103
 ATTRIBUTE=16
 T__124=124
 T__123=123
-FOR=63
-CONFIGURATION=56
-LIBRARY=72
-SLL=105
-ARCHITECTURE=48
-AND=47
-IF=68
+FOR=62
+CONFIGURATION=55
+LIBRARY=71
+SLL=104
+ARCHITECTURE=47
+AND=46
+IF=67
 INOUT=33
 ENTITY=4
-PURE=91
-THEN=109
+PURE=90
+THEN=108
 IN=31
 COMMA=21
 IS=5
-REJECT=95
+REJECT=94
 EQUAL=11
 ALL=15
 SIGNAL=18
-ACCESS=44
+ACCESS=43
 CPAREN=12
-NEXT=79
+NEXT=78
 DIGIT=23
 DOT=14
-COMPONENT=55
-WITH=119
+COMPONENT=54
+WITH=118
 SCOLON=6
 FULLCASE_WORD=29
-XOR=121
+XOR=120
 TO=28
 OPAREN=9
-DISCONNECT=57
-RANGE=92
+DISCONNECT=56
+RANGE=91
 BUFFER=34
 PORT=25
-LITERAL=73
-REM=96
-AFTER=45
+LITERAL=72
+REM=95
+AFTER=44
 TRUE=19
-PROCEDURE=89
+PROCEDURE=88
 COLON=10
-OPEN=84
-LABEL=71
-WHEN=117
-BLOCK=52
-MAP=75
+OPEN=83
+LABEL=70
+WHEN=116
+BLOCK=51
+MAP=74
 BIT=26
-PROCESS=90
-UNAFFECTED=112
+PROCESS=89
+UNAFFECTED=111
 STRING=37
 
 # token names
@@ -143,8 +143,8 @@ tokenNames = [
     "CPAREN", "USE", "DOT", "ALL", "ATTRIBUTE", "OF", "SIGNAL", "TRUE", 
     "FALSE", "COMMA", "BOTH", "DIGIT", "CONSTANT", "PORT", "BIT", "BIT_VECTOR", 
     "TO", "FULLCASE_WORD", "WORD", "IN", "OUT", "INOUT", "BUFFER", "LINKAGE", 
-    "BUS", "STRING", "ANDSIGN", "ICHAR", "WHITESPACE", "COMMENT", "USCORE", 
-    "ABS", "ACCESS", "AFTER", "ALIAS", "AND", "ARCHITECTURE", "ARRAY", "ASSERT", 
+    "BUS", "STRING", "ANDSIGN", "WHITESPACE", "COMMENT", "USCORE", "ABS", 
+    "ACCESS", "AFTER", "ALIAS", "AND", "ARCHITECTURE", "ARRAY", "ASSERT", 
     "BEGIN", "BLOCK", "BODY", "CASE", "COMPONENT", "CONFIGURATION", "DISCONNECT", 
     "DOWNTO", "ELSE", "ELSIF", "EXIT", "FILE", "FOR", "FUNCTION", "GENERATE", 
     "GROUP", "GUARDED", "IF", "IMPURE", "INERTIAL", "LABEL", "LIBRARY", 
@@ -154,7 +154,7 @@ tokenNames = [
     "RETURN", "ROL", "ROR", "SELECT", "SEVERITY", "SHARED", "SLA", "SLL", 
     "SRA", "SRL", "SUBTYPE", "THEN", "TRANSPORT", "TYPE", "UNAFFECTED", 
     "UNITS", "UNTIL", "VARIABLE", "WAIT", "WHEN", "WHILE", "WITH", "XNOR", 
-    "XOR", "CHAR", "'e'", "'+'"
+    "XOR", "CHAR", "ICHAR", "'e'", "'+'"
 ]
 
 
@@ -1542,7 +1542,7 @@ class bsdlParser(Parser):
         )
 
     DFA10_max = DFA.unpack(
-        u"\1\36\2\52\2\36\1\44\1\52\1\33\1\14\1\11\2\uffff\1\27\1\34\2\27"
+        u"\1\36\2\51\2\36\1\44\1\51\1\33\1\14\1\11\2\uffff\1\27\1\34\2\27"
         u"\1\14"
         )
 
@@ -1557,14 +1557,14 @@ class bsdlParser(Parser):
             
     DFA10_transition = [
         DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\12\uffff"
         u"\1\3"),
-        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\12\uffff"
         u"\1\3"),
         DFA.unpack(u"\1\6\5\uffff\2\6"),
         DFA.unpack(u"\2\1"),
         DFA.unpack(u"\6\7"),
-        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\6\5\uffff\2\6\13\uffff"
+        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\6\5\uffff\2\6\12\uffff"
         u"\1\3"),
         DFA.unpack(u"\1\10\1\11"),
         DFA.unpack(u"\1\13\5\uffff\1\12"),
@@ -1596,7 +1596,7 @@ class bsdlParser(Parser):
         )
 
     DFA11_max = DFA.unpack(
-        u"\1\36\2\52\1\36\2\uffff\1\52"
+        u"\1\36\2\51\1\36\2\uffff\1\51"
         )
 
     DFA11_accept = DFA.unpack(
@@ -1610,14 +1610,14 @@ class bsdlParser(Parser):
             
     DFA11_transition = [
         DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\12\uffff"
         u"\1\3"),
-        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\13\uffff"
+        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\12\uffff"
         u"\1\3"),
         DFA.unpack(u"\1\6\5\uffff\2\6"),
         DFA.unpack(u""),
         DFA.unpack(u""),
-        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\6\5\uffff\2\6\13\uffff"
+        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\6\5\uffff\2\6\12\uffff"
         u"\1\3")
     ]
 
@@ -1702,10 +1702,10 @@ class bsdlParser(Parser):
     FOLLOW_TO_in_port_def930 = frozenset([23])
     FOLLOW_DIGIT_in_port_def932 = frozenset([12, 23])
     FOLLOW_CPAREN_in_port_def935 = frozenset([1])
-    FOLLOW_set_in_identifier952 = frozenset([1, 23, 29, 30, 42])
-    FOLLOW_set_in_identifier958 = frozenset([1, 23, 29, 30, 42])
+    FOLLOW_set_in_identifier952 = frozenset([1, 23, 29, 30, 41])
+    FOLLOW_set_in_identifier958 = frozenset([1, 23, 29, 30, 41])
     FOLLOW_USCORE_in_identifier968 = frozenset([23, 29, 30])
-    FOLLOW_set_in_identifier970 = frozenset([1, 23, 29, 30, 42])
+    FOLLOW_set_in_identifier970 = frozenset([1, 23, 29, 30, 41])
     FOLLOW_set_in_portmode0 = frozenset([1])
     FOLLOW_STRING_in_string1039 = frozenset([38])
     FOLLOW_ANDSIGN_in_string1041 = frozenset([37])

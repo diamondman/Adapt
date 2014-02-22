@@ -71,7 +71,7 @@ class JTAGController(object):
         tdo_bits = None
 
         h.bulkWrite(1, '\x09\x02\x0b\x00'+chr(return_tdo)+chr(DI)+\
-                        "".join([chr(count>>(8*i)) for i in range(4)]))
+                        "".join([chr((count>>(8*i))&0xff) for i in range(4)]))
         res = h.bulkRead(2, 2)
         if ord(res[1]) != 0:
             raise JTAGControlError("Uknown Issue writing TMS bits: %s", res)
@@ -86,13 +86,43 @@ class JTAGController(object):
 
         return tdo_bits
 
+    def writeTDIBits(self, buff, count, return_tdo=False, TMS=False):
+        if not self._jtagon:
+            raise JTAGControlError('JTAG Must be enabled first')
+        h = self._handle
+        byte_count = int(math.ceil(count/8.0))
+        tdo_bits = None
+
+        h.bulkWrite(1, '\x09\x02\x08\x00'+chr(return_tdo)+chr(TMS)+\
+                        "".join([chr((count>>(8*i))&0xff) for i in range(4)]))
+        res = h.bulkRead(2, 2)
+        if ord(res[1]) != 0:
+            raise JTAGControlError("Uknown Issue writing TDI bits: %s", res)
+
+        #WRITE DATA
+        h.bulkWrite(3, buff[::-1])
+
+        #GET DATA BACK
+        if return_tdo is True:
+            tdo_bits = h.bulkRead(4, byte_count)[::-1]
+            #print "TDI RES 0x"+"".join(["%02x"%ord(b) for b in tdo_bits])
+
+        #GET BACK STATS
+        h.bulkWrite(1, '\x03\x02' + chr(0x80|0x08) + '\x00')
+        res = h.bulkRead(2, 10)
+        #print res.__repr__() #I may check this later. Do not know how it could fail.
+
+        return tdo_bits
+
     def readTDOBits(self, count, TMS=False, TDI=False):
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         h = self._handle
         byte_count = int(math.ceil(count/8.0))
+        tdo_bits = None
 
-        h.bulkWrite(1, '\x09\x02\x09\x00'+chr(TMS)+chr(TDI)+"".join([chr(count>>(8*i)) for i in range(4)]))
+        h.bulkWrite(1, '\x09\x02\x09\x00'+chr(TMS)+chr(TDI)+\
+                        "".join([chr((count>>(8*i))&0xff) for i in range(4)]))
         res = h.bulkRead(2, 2)
         if ord(res[1]) != 0:
             raise JTAGControlError("Uknown Issue reading TDO bits: %s", res)
@@ -100,6 +130,7 @@ class JTAGController(object):
         tdo_bits = h.bulkRead(4, byte_count)[::-1]
         #print "0x"+"".join(["%02x"%ord(b) for b in tdo_bits])
 
+        #GET BACK STATS
         h.bulkWrite(1, '\x03\x02' + chr(0x80|0x09) + '\x00')
         res = h.bulkRead(2, 10)
         #print res.__repr__() #I may check this later. Do not know how it could fail.
