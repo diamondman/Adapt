@@ -32,265 +32,65 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a name="protocol-documentation-for-digilent-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-digilent-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for Digilent USB JTAG controllers.</h3>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
+	<p>Adapt is an attempt to make a general purpose and accessible tool for controlling configurable logic like FPGAs and CPLDs through various JTAG controllers on linux and maybe other systems later.</p>
+	<p>There are several complications to this goal. First off, every USB adapter for controlling JTAG has its own protocol, that protocol is often undocumented, and each target chip we would be configuring (while often compliant...ish with IEEE 1532) has its own quirks that bar an absolute general solution that can just 'figure out' what to do from available standards documentation such as IEEE 1149.1 or IEEE 1532 bsd compliant documents often distributed with the chips from the manufacturers. </p>
+	<p>The first two problem can be addressed by reversing as many of the USB controllers as reasonably possible. But simply implementing the controllers for these devices is not enough because there SHOULD BE DOCUMENTATION for these protocols, in case someone else wants to build something to address a failure in this project, and on general principal!</p>
+	<p>The final issue will likely involve chip family specific instructions (be it classes or config files) to handle the odd ways chips like to do things. These quirks are often documented as people need to be able to program the chips through JTAG from microcontrollers (a common use case), so we aren't alone in the dark here.</p>
+	<p>Current work focuses on controlling the common members of the Xilinx Coolrunner ii XC2CXXX family (primarily the 32, 64, 128, and 256), but other families and devices will follow mastery of the Coolrunner ii family.</p>
 
-<p>The following describes all understood messages in the Digilent's USB protocol for communicating with fpgas over JTAG on their development boards.</p>
+        <h3>
+<a name="protocol-documentation-for-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for various USB JTAG controllers.</h3>
+	<p>Note that some controllers do not come loaded with their full firmware and rely on the host computer to load the firmware to the device RAM. This is used to keep devices up to date and avoid manual firmware updates, though it requires configuring your system to flash the firmware everytime it is plugged in.</p>
+	<p>The most common controller microcontrollers in these JTAG controllers that require boot up flashing are the Cypress EZ-USB chip family. Luckily there is a convenient open source utility for loading the firmware onto these devices called fxload which can load an intel hex file onto the devices. </p>
+	<p>The primary complication with devices requiring firmware loading is not the act of loading the firmware, but distributing the copyrighted firmware binaries. For now, if you use Adapt, you will have to provide the firmware files from your own instalations of the private tools, or by following some steps that should be provided for getting the files.</p>
 
-<p>There are two main types of messages sent over USB: <em>Control</em> and <em>Bulk</em>.</p>
+	<table>
+	  <thead><tr>
+	      <th>Protocol Name</th>
+	      <th>Example Controllers</th>
+	      <th>Requires Firmware</th>
+	      <th>Documentation Status</th>
+	  </tr></thead>
 
-<h4>
-<a name="control-messages" class="anchor" href="#control-messages"><span class="octicon octicon-link"></span></a>Control Messages</h4>
+	  <tbody>
+	    <tr>
+	      <td><a href="cable_digilent_adept.html">Digilent Adept<a></td>
+	      <td>Basys2,<br>
+		CoolRunner 2 Starter 2,<br>
+		Atlys,<br>
+		Nexys2,<br>
+		Nexys3
+	      <td>Sometimes. The Atlys, and Nexys families often use EZ-USB chips.</td>
+	      <td>Complete except optional temp/voltage reading.</td>
+	    </tr>
+	    <tr>
+	      <td><a href="cable_xilinx_PCU.html">Xilinx Platform Cable 1<a></td>
+	      <td>XPCU DLC9G</td>
+	      <td>ALWAYS</td>
+	      <td>In Progress</td>
+	    </tr>
+	    <tr>
+	      <td><!--<a href="cable_Altera_USB_Blaster.html">-->Altera USB Blaster<!--<a>--></td>
+	      <td>XPCU DLC9G</td>
+	      <td>NO</td>
+	      <td>Not Started</td>
+	    </tr>
+	    <tr>
+	      <td><!--<a href="cable_OpenJTAG.html">-->OpenJTAG<!--<a>--></td>
+	      <td>OpenJTAG Controller</td>
+	      <td>No</td>
+	      <td>Not Started</td>
+	    </tr>
+	  </tbody>
+	</table>
 
-<p>These messages have nothing to do with JTAG and are all about reading data about the board/JTAG controller, or writing JTAG controller settings. None of the known messages of this type cause activity on JTAG pins connected to the target device. All of these messages are sent to USB endpoint <strong>0</strong>, and result in either data being sent to the device (OUT) or read from the device (IN). </p>
-
-<p>For those unfamiliar with how USB control messages are sent, there are 3 parameters every message transaction needs in addition to <strong>direction</strong>: <strong>Request Code</strong>, <strong>Value</strong>, and <strong>Length</strong>. <strong>Request</strong> code is the most obvious and can be considered the function being called. <strong>Value</strong> can be thought of as the parameter to the request. <strong>length</strong> is the number of bytes that will be sent to or received from the device depending on the direction of the transfer. Usually a given message has a known <strong>length</strong> for a <strong>Request Code</strong> so it is not hard to get these right.</p>
-
-<table>
-<thead><tr>
-<th>Name</th>
-<th>RQ*</th>
-<th>Direction</th>
-<th>Value</th>
-<th>Length</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>UNKNOWN</td>
-<td>A0</td>
-<td>OUT</td>
-<td>?</td>
-<td>?</td>
-<td>Commands seem to be some sort of control register write. Not used in the init of spartan 3 or Coolrunner 2.</td>
-</tr>
-<tr>
-<td>Product Name</td>
-<td>E1</td>
-<td>IN</td>
-<td>0</td>
-<td>28</td>
-<td>ASCII</td>
-</tr>
-<tr>
-<td>User Name</td>
-<td>E2</td>
-<td>IN</td>
-<td>0</td>
-<td>16</td>
-<td>ASCII</td>
-</tr>
-<tr>
-<td>Serial Number</td>
-<td>E4</td>
-<td>IN</td>
-<td>0</td>
-<td>12</td>
-<td>ASCII</td>
-</tr>
-<tr>
-<td>Firmware Version</td>
-<td>E6</td>
-<td>IN</td>
-<td>0</td>
-<td>2</td>
-<td>RAW BYTES Little Endian.</td>
-</tr>
-<tr>
-<td>UNKNOWN STATUS (MAC?)</td>
-<td>E7</td>
-<td>IN</td>
-<td>0</td>
-<td>8</td>
-<td>Seems to be some sort of status register effected by calls to A0 Value usually 0-&gt;xx:00:00:00:00:00:00:00. For the Basys2 board, the 64 bit values are</td>
-</tr>
-<tr>
-<td>Set OEM Seed</td>
-<td>E8</td>
-<td>OUT</td>
-<td>0</td>
-<td>2</td>
-<td>Sends random seed, or 14 if can't get uptime as source. EC is usually called after. After EC seed is set to 00.</td>
-</tr>
-<tr>
-<td>Product ID</td>
-<td>E9</td>
-<td>IN</td>
-<td>0</td>
-<td>4</td>
-<td>Reversed byte order for some reason RAW BYTES. Digilent adapter cables have BigE 000000xx. In normal cases, this last byte being between 0x20 and 0x40 has special meaning of some kind.</td>
-</tr>
-<tr>
-<td>OEM ID CHECK</td>
-<td>EC</td>
-<td>IN</td>
-<td>0</td>
-<td>4</td>
-<td>Takes value passed in from E8 and xors the bytes plus other stuff still researching. ??:??:??:yx where xy = e8(hi)^e8(lo). The four bytes spell Digi when xored with the xor of the bytes passed to E8. REVERSED so technically igiD. It also seems to support (these values return reversed) 0x356A92C7 and 0x586F656D.</td>
-</tr>
-</tbody>
-</table><h6>
-<a name="rq-is-request-code" class="anchor" href="#rq-is-request-code"><span class="octicon octicon-link"></span></a>(RQ is Request Code)</h6>
-
-<h4>
-<a name="bulk-messages" class="anchor" href="#bulk-messages"><span class="octicon octicon-link"></span></a>Bulk Messages</h4>
-
-<p>Most of the bulk messages get JTAG related details from the board. Some of them still only read details about the controller chip, but the really interesting commands require JTAG being enabled first.</p>
-
-<p>All messages that start these bulk transaction are sent to the same USB endpoint (1) and have this basic structure:</p>
-
-<p>SZ:CT:RQ:00:{Parameters to the request if any}</p>
-
-<p>SZ: The length of the message in bytes not including this length byte. (One less than the total length of the data returned).</p>
-
-<p>CT: Category or request. Almost always 0x02.</p>
-
-<p>RQ: Request Code</p>
-
-<h5>
-<a name="status-response-message-format" class="anchor" href="#status-response-message-format"><span class="octicon octicon-link"></span></a>Status Response message format:</h5>
-
-<p>BULK IN (USB ENDPOINT 2) 01:XX #Status code. 1 byte long. 00 known to be 'good'. 03 is a fail of some kind (when the device is already in use).</p>
-
-<h5>
-<a name="bulk-request-types" class="anchor" href="#bulk-request-types"><span class="octicon octicon-link"></span></a>Bulk request types.</h5>
-
-<p>All of the known bulk messages are similar, but among them, there are two primary types based on how the controller responds.</p>
-
-<ul>
-<li>
-<strong>Bulk Configuration Request:</strong> Requests that return a single message. These messages may be either a status code in the case of a command, or the raw data if querying a value. They all start with the same length byte as above.</li>
-<li>
-<strong>Bulk JTAG Control Request:</strong> The responses to these messages are much more complex and involve 4 or 5 messages .</li>
-</ul><h5>
-<a name="avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart" class="anchor" href="#avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart"><span class="octicon octicon-link"></span></a>AVD Response protocol (Note the variables here refer to labels below the next chart):</h5>
-
-<ol>
-<li>Initialization message (In table below).</li>
-<li>Status Code message (described above).</li>
-<li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 3.</li>
-<li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 4. Only sent if RV in init message is 1.</li>
-<li>03:02:ZZ:00 to USB Endpoint 1. ZZ = 80|RQ. RQ is the RQ of the init message. Requests number of bits transferred.</li>
-<li>SZ:FL:(XX:XX:XX:XX)* SZ = bitcount(FL)*4 + 1. FL is a bit field for 0x80 and 0x40. 0x80 requests for the number of bits sent. 0x40 Requests for the number of bits received. For each flag there is a 4 byte number for the number of bits.</li>
-</ol><h5>
-<a name="bulk-jtag-control-request-commands" class="anchor" href="#bulk-jtag-control-request-commands"><span class="octicon octicon-link"></span></a>Bulk JTAG Control Request Commands:</h5>
-
-<table>
-<thead><tr>
-<th>Name</th>
-<th>CT</th>
-<th>RQ</th>
-<th>Transaction Type</th>
-<th>SZ</th>
-<th>Parameters</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>ENABLE JTAG</td>
-<td>02</td>
-<td>00</td>
-<td>Simple</td>
-<td>3</td>
-<td>None</td>
-</tr>
-<tr>
-<td>DISABLE JTAG</td>
-<td>02</td>
-<td>01</td>
-<td>Simple</td>
-<td>4</td>
-<td>None</td>
-</tr>
-<tr>
-<td>PORT INFO</td>
-<td>02</td>
-<td>02</td>
-<td>Simple</td>
-<td>4</td>
-<td>1 byte detail type. <strong>0x01:</strong> Port Count. <strong>0x05:</strong> Port Properties.</td>
-</tr>
-<tr>
-<td>SET SPEED</td>
-<td>02</td>
-<td>03</td>
-<td>Simple</td>
-<td>7</td>
-<td>4 byte speed in bps</td>
-</tr>
-<tr>
-<td>GET SPEED</td>
-<td>02</td>
-<td>04</td>
-<td>Simple</td>
-<td>3</td>
-<td>None</td>
-</tr>
-<tr>
-<td>SET Tms Tdi Tdo</td>
-<td>02</td>
-<td>05</td>
-<td>Simple</td>
-<td>6</td>
-<td>MS:DI:DO One byte each.</td>
-</tr>
-<tr>
-<td>GET Tms Tdi Tdo Tck</td>
-<td>02</td>
-<td>06</td>
-<td>Simple</td>
-<td>3</td>
-<td>None</td>
-</tr>
-<tr>
-<td>Clock Tick</td>
-<td>02</td>
-<td>07</td>
-<td>Special (Status, Send 02:02:87 to endpoint 1. Status)</td>
-<td>9</td>
-<td>MS:DI:XX:XX:XX:XX In this case X implies clock cycles, but bits are shifted. </td>
-</tr>
-<tr>
-<td>WRITE TDI BITS</td>
-<td>02</td>
-<td>08</td>
-<td>ADV</td>
-<td>9</td>
-<td>RV:MS:XX:XX:XX:XX</td>
-</tr>
-<tr>
-<td>READ TDO BITS</td>
-<td>02</td>
-<td>09</td>
-<td>ADV</td>
-<td>9</td>
-<td>MS:DI:XX:XX:XX:XX</td>
-</tr>
-<tr>
-<td>WRITE TMS/TDI BITS</td>
-<td>02</td>
-<td>10</td>
-<td>ADV</td>
-<td>8</td>
-<td>RV:XX:XX:XX:XX</td>
-</tr>
-<tr>
-<td>WRITE TMS BITS</td>
-<td>02</td>
-<td>11</td>
-<td>ADV</td>
-<td>9</td>
-<td>RV:DI:XX:XX:XX:XX</td>
-</tr>
-</tbody>
-</table><h6>
-<a name="xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes" class="anchor" href="#xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes"><span class="octicon octicon-link"></span></a>(XX is the number of bits to transfer. Little Endian Number. 4 bytes.)</h6>
-
-<h6>
-<a name="ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-" class="anchor" href="#ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-"><span class="octicon octicon-link"></span></a>(MS, DI, DO, and CK are Boolean values for the state of the pins TMS, TDI, TDO, and TCK respectively. )</h6>
-
-<h6>
-<a name="rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data" class="anchor" href="#rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data"><span class="octicon octicon-link"></span></a>(RV is 1 if the values shifted out of TDO should be returned. This causes an additional packet to be sent from the device after the transfer of the provided input data.)</h6>
       </section>
     </div>
+
+
+
+
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Adapt : Linux USB JTAG controller for Digilent boards." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Adapt</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/diamondman/Adapt">View on GitHub</a>
+
+          <h1 id="project_title">Adapt</h1>
+          <h2 id="project_tagline">Linux USB JTAG controller for Digilent boards.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/diamondman/Adapt/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/diamondman/Adapt/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a name="protocol-documentation-for-digilent-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-digilent-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for Digilent USB JTAG controllers.</h3>
+
+<p>The following describes all understood messages in the Digilent's USB protocol for communicating with fpgas over JTAG on their development boards.</p>
+
+<p>Please note that some digilent boards (Atlys, and Nexys families, for example) use Cypress EZ-USB chips that require loading firmware every time they are powered on before they will work. This operation visible in usb packet dumbs by a large number of control messages with A0 as the Request value. These messages are not documented here because it is handled by the open source tool fxload.</p>
+
+<p>There are two main types of messages sent over USB: <em>Control</em> and <em>Bulk</em>.</p>
+
+<h4>
+<a name="control-messages" class="anchor" href="#control-messages"><span class="octicon octicon-link"></span></a>Control Messages</h4>
+
+<p>These messages have nothing to do with JTAG and are all about reading data about the board/JTAG controller, or writing JTAG controller settings. None of the known messages of this type cause activity on JTAG pins connected to the target device. All of these messages are sent to USB endpoint <strong>0</strong>, and result in either data being sent to the device (OUT) or read from the device (IN). </p>
+
+<p>For those unfamiliar with how USB control messages are sent, there are 3 parameters every message transaction needs in addition to <strong>direction</strong>: <strong>Request Code</strong>, <strong>Value</strong>, and <strong>Length</strong>. <strong>Request</strong> code is the most obvious and can be considered the function being called. <strong>Value</strong> can be thought of as the parameter to the request. <strong>length</strong> is the number of bytes that will be sent to or received from the device depending on the direction of the transfer. Usually a given message has a known <strong>length</strong> for a <strong>Request Code</strong> so it is not hard to get these right.</p>
+
+<table>
+<thead><tr>
+<th>Name</th>
+<th>RQ*</th>
+<th>Direction</th>
+<th>Value</th>
+<th>Length</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Product Name</td>
+<td>E1</td>
+<td>IN</td>
+<td>0</td>
+<td>28</td>
+<td>ASCII</td>
+</tr>
+<tr>
+<td>User Name</td>
+<td>E2</td>
+<td>IN</td>
+<td>0</td>
+<td>16</td>
+<td>ASCII</td>
+</tr>
+<tr>
+<td>Serial Number</td>
+<td>E4</td>
+<td>IN</td>
+<td>0</td>
+<td>12</td>
+<td>ASCII</td>
+</tr>
+<tr>
+<td>Firmware Version</td>
+<td>E6</td>
+<td>IN</td>
+<td>0</td>
+<td>2</td>
+<td>RAW BYTES Little Endian.</td>
+</tr>
+<tr>
+<td>UNKNOWN STATUS (MAC?)</td>
+<td>E7</td>
+<td>IN</td>
+<td>0</td>
+<td>8</td>
+<td>Seems to be some sort of status register effected by calls to A0 Value usually 0-&gt;xx:00:00:00:00:00:00:00. For the Basys2 board, the 64 bit values are</td>
+</tr>
+<tr>
+<td>Set OEM Seed</td>
+<td>E8</td>
+<td>OUT</td>
+<td>0</td>
+<td>2</td>
+<td>Sends random seed, or 14 if can't get uptime as source. EC is usually called after. After EC seed is set to 00.</td>
+</tr>
+<tr>
+<td>Product ID</td>
+<td>E9</td>
+<td>IN</td>
+<td>0</td>
+<td>4</td>
+<td>Reversed byte order for some reason RAW BYTES. Digilent adapter cables have BigE 000000xx. In normal cases, this last byte being between 0x20 and 0x40 has special meaning of some kind.</td>
+</tr>
+<tr>
+<td>OEM ID CHECK</td>
+<td>EC</td>
+<td>IN</td>
+<td>0</td>
+<td>4</td>
+<td>Takes value passed in from E8 and xors the bytes plus other stuff still researching. ??:??:??:yx where xy = e8(hi)^e8(lo). The four bytes spell Digi when xored with the xor of the bytes passed to E8. REVERSED so technically igiD. It also seems to support (these values return reversed) 0x356A92C7 and 0x586F656D.</td>
+</tr>
+</tbody>
+</table><h6>
+<a name="rq-is-request-code" class="anchor" href="#rq-is-request-code"><span class="octicon octicon-link"></span></a>(RQ is Request Code)</h6>
+
+<h4>
+<a name="bulk-messages" class="anchor" href="#bulk-messages"><span class="octicon octicon-link"></span></a>Bulk Messages</h4>
+
+<p>Most of the bulk messages get JTAG related details from the board. Some of them still only read details about the controller chip, but the really interesting commands require JTAG being enabled first.</p>
+
+<p>All messages that start these bulk transaction are sent to the same USB endpoint (1) and have this basic structure:</p>
+
+<p>SZ:CT:RQ:00:{Parameters to the request if any}</p>
+
+<p>SZ: The length of the message in bytes not including this length byte. (One less than the total length of the data returned).</p>
+
+<p>CT: Category or request. Almost always 0x02.</p>
+
+<p>RQ: Request Code</p>
+
+<h5>
+<a name="status-response-message-format" class="anchor" href="#status-response-message-format"><span class="octicon octicon-link"></span></a>Status Response message format:</h5>
+
+<p>BULK IN (USB ENDPOINT 2) 01:XX #Status code. 1 byte long. 00 known to be 'good'. 03 is a fail of some kind (when the device is already in use).</p>
+
+<h5>
+<a name="bulk-request-types" class="anchor" href="#bulk-request-types"><span class="octicon octicon-link"></span></a>Bulk request types.</h5>
+
+<p>All of the known bulk messages are similar, but among them, there are two primary types based on how the controller responds.</p>
+
+<ul>
+<li>
+<strong>Bulk Configuration Request:</strong> Requests that return a single message. These messages may be either a status code in the case of a command, or the raw data if querying a value. They all start with the same length byte as above.</li>
+<li>
+<strong>Bulk JTAG Control Request:</strong> The responses to these messages are much more complex and involve 4 or 5 messages .</li>
+</ul><h5>
+<a name="avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart" class="anchor" href="#avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart"><span class="octicon octicon-link"></span></a>AVD Response protocol (Note the variables here refer to labels below the next chart):</h5>
+
+<ol>
+<li>Initialization message (In table below).</li>
+<li>Status Code message (described above).</li>
+<li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 3.</li>
+<li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 4. Only sent if RV in init message is 1.</li>
+<li>03:02:ZZ:00 to USB Endpoint 1. ZZ = 80|RQ. RQ is the RQ of the init message. Requests number of bits transferred.</li>
+<li>SZ:FL:(XX:XX:XX:XX)* SZ = bitcount(FL)*4 + 1. FL is a bit field for 0x80 and 0x40. 0x80 requests for the number of bits sent. 0x40 Requests for the number of bits received. For each flag there is a 4 byte number for the number of bits.</li>
+</ol><h5>
+<a name="bulk-jtag-control-request-commands" class="anchor" href="#bulk-jtag-control-request-commands"><span class="octicon octicon-link"></span></a>Bulk JTAG Control Request Commands:</h5>
+
+<table>
+<thead><tr>
+<th>Name</th>
+<th>CT</th>
+<th>RQ</th>
+<th>Transaction Type</th>
+<th>SZ</th>
+<th>Parameters</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>ENABLE JTAG</td>
+<td>02</td>
+<td>00</td>
+<td>Simple</td>
+<td>3</td>
+<td>None</td>
+</tr>
+<tr>
+<td>DISABLE JTAG</td>
+<td>02</td>
+<td>01</td>
+<td>Simple</td>
+<td>4</td>
+<td>None</td>
+</tr>
+<tr>
+<td>PORT INFO</td>
+<td>02</td>
+<td>02</td>
+<td>Simple</td>
+<td>4</td>
+<td>1 byte detail type. <strong>0x01:</strong> Port Count. <strong>0x05:</strong> Port Properties.</td>
+</tr>
+<tr>
+<td>SET SPEED</td>
+<td>02</td>
+<td>03</td>
+<td>Simple</td>
+<td>7</td>
+<td>4 byte speed in bps</td>
+</tr>
+<tr>
+<td>GET SPEED</td>
+<td>02</td>
+<td>04</td>
+<td>Simple</td>
+<td>3</td>
+<td>None</td>
+</tr>
+<tr>
+<td>SET Tms Tdi Tdo</td>
+<td>02</td>
+<td>05</td>
+<td>Simple</td>
+<td>6</td>
+<td>MS:DI:DO One byte each.</td>
+</tr>
+<tr>
+<td>GET Tms Tdi Tdo Tck</td>
+<td>02</td>
+<td>06</td>
+<td>Simple</td>
+<td>3</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Clock Tick</td>
+<td>02</td>
+<td>07</td>
+<td>Special (Status, Send 02:02:87 to endpoint 1. Status)</td>
+<td>9</td>
+<td>MS:DI:XX:XX:XX:XX In this case X implies clock cycles, but bits are shifted. </td>
+</tr>
+<tr>
+<td>WRITE TDI BITS</td>
+<td>02</td>
+<td>08</td>
+<td>ADV</td>
+<td>9</td>
+<td>RV:MS:XX:XX:XX:XX</td>
+</tr>
+<tr>
+<td>READ TDO BITS</td>
+<td>02</td>
+<td>09</td>
+<td>ADV</td>
+<td>9</td>
+<td>MS:DI:XX:XX:XX:XX</td>
+</tr>
+<tr>
+<td>WRITE TMS/TDI BITS</td>
+<td>02</td>
+<td>10</td>
+<td>ADV</td>
+<td>8</td>
+<td>RV:XX:XX:XX:XX</td>
+</tr>
+<tr>
+<td>WRITE TMS BITS</td>
+<td>02</td>
+<td>11</td>
+<td>ADV</td>
+<td>9</td>
+<td>RV:DI:XX:XX:XX:XX</td>
+</tr>
+</tbody>
+</table><h6>
+<a name="xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes" class="anchor" href="#xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes"><span class="octicon octicon-link"></span></a>(XX is the number of bits to transfer. Little Endian Number. 4 bytes.)</h6>
+
+<h6>
+<a name="ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-" class="anchor" href="#ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-"><span class="octicon octicon-link"></span></a>(MS, DI, DO, and CK are Boolean values for the state of the pins TMS, TDI, TDO, and TCK respectively. )</h6>
+
+<h6>
+<a name="rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data" class="anchor" href="#rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data"><span class="octicon octicon-link"></span></a>(RV is 1 if the values shifted out of TDO should be returned. This causes an additional packet to be sent from the device after the transfer of the provided input data.)</h6>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Adapt maintained by <a href="https://github.com/diamondman">diamondman</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>

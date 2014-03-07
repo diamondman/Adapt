@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Adapt : Linux USB JTAG controller for Digilent boards." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Adapt</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/diamondman/Adapt">View on GitHub</a>
+
+          <h1 id="project_title">Adapt</h1>
+          <h2 id="project_tagline">Linux USB JTAG controller for Digilent boards.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/diamondman/Adapt/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/diamondman/Adapt/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a name="flashing-concerns" class="anchor" href="#flashing-concerns"><span class="octicon octicon-link"></span></a>Firmware concerns for the Xilinx Platform Cable USB JTAG controller.</h3>
+
+<p>The following describes all understood messages in Xilinx's USB protocol for communicating with devices over JTAG.</p>
+
+<p>This device uses Cypress EZ-USB chips, so it requires being flashed every time the device is powered on. The tool fxload will handle this, and you can easily set up UDEV rules in linux (or whatever other system your distribution uses) to automatically flash the device).</p>
+
+<p>The firmware hex file for this device can be found inside the linux install of ISE. There are several files with the same name at various locations, but ignore them and use the one at {Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_emb.hex. If you use the wrong file, it will either refuse to load, or appear to load but not re-enumerate properly and behave oddly despite the green light on the device lighting up.</p>
+
+<p>When the device is plugged in it appears as idVendor:03fd, idProduct:000d. These values identify the device as not flashed.</p>
+
+<p>Once the device is correctly flashed, it should automatically disconnect and reenumerate as idVendor:03fd, idProduct:0008. If it does not, something is wrong and the device will not work correctly:</p>
+
+<p>Here is a simple udev rule set for dealing with the initialization of the device, as well as setting the permissions.</p>
+<pre>SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="000d", MODE="666", RUN+="/sbin/fxload -v -t fx2 -I '/path/to/xusb_emb.hex' -D $tempnode"
+SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008", MODE="666"</pre>
+
+<h3>
+<a name="Firmware version notes" class="anchor" href="#firmware-version-notes"><span class="octicon octicon-link"></span></a>Firmware Version Notes</h3>
+
+<p>Due to the fact that the firmware of the Platform Cable is loaded at run time, every time, it is very possible that Xilinx could change the entire protocol on a whim and make this entire document wrong for future versions of the firmware. I do not know if Xilinx will do this, but since it is an option, I will make the following note.</p>
+
+<p><strong>Known Supported Firmware Version: 1028 (0x0404)</strong></p>
+
+<p>If you want to check the version of firmware you have, you can run the following commands replacing $PATH_TO_FIRMWARE_FILE with your hex file's path.</p>
+
+<pre>
+  FW_VERSION_STRING=`grep ":0219B900" <strong>$PATH_TO_FIRMWARE_FILE`</strong>;
+  FW_HEX_VERSION=${FW_VERSION_STRING:9:4};
+  printf "%d" 0x$FW_HEX_VERSION;
+</pre>
+
+<h3>
+<a name="protocol-documentation-for-xpcu1-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-xpcu1-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for the Xilinx Platform Cable USB JTAG controller.</h3>
+
+<p>The xilinx PCU1 protocol uses a mixture of control and bulk messages for its operations. Control messages do one of three things</p>
+<ul>
+  <li>Set a property (Enable the controller)</li>
+  <li>Read a property (The state of the JTAG lines)</li>
+  <li>Initialize a more complicated control message</li>
+</ul>
+
+<p>All messages seen so far have a Request code of 0xb0, and the actual operation being performed is specified by the Value field. The protocol likes to send control messages with no data (length field = 0). It instead passes arguments in through the 16 bit index field of the first packet of the control message, saving one packet per such message.</p>
+
+<p>Bulk messages are sent after the completion of a control message to set up the operation.</p>
+
+<p>Data is only returned from bulk operations if the setting is enabled. There doesn't appear to be any per request way of specifying a return besides to send a control message enabling/disabling data return.</p>
+
+<p><strong>Note:</strong> For all the known operations, the Request field is 0xB0.</p>
+<p><strong>Note:</strong> The Request Type of control messages is one of the following, given the direction of the request (To controller = Out):</p>
+<ul>
+  <li>OUT: 0x40</li>
+  <li>IN: 0xC0</li>
+</ul>
+
+<table>
+  <thead><tr>
+      <th>Name</th>
+      <th>Dir</th>
+      <th>Value (cmd)</th>
+      <th>Index (param)</th>
+      <th>Length</th>
+      <th>Description</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td>Device Enable</td>
+      <td>OUT</td>
+      <td>0x18</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Required before the device will behave normally. Before running this command, you seem to still be able to read GPIO states, but and transfer commands will do nothing.</td>
+    </tr>
+    <tr>
+      <td>Device Disable</td>
+      <td>OUT</td>
+      <td>0x10</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Not required, but you should clean up.</td>
+    </tr>
+    <tr>
+      <td><strike>Set Return Bulk</strike> Unknown</td>
+      <td>OUT</td>
+      <td>0x28</td>
+      <td><strike><strong>0x11:</strong> OFF<br><strong>0x12:</strong> ON</strike></td>
+      <td>0</td>
+      <td><strike>If on, causes some message sequences that include bulk_write to get data back on bulk EP 6.</strike> This seems to have been a coincidence. Whether the bulk jtag transmit return data is based on the data sent in the bulk part of the request.</td>
+    </tr>
+    <tr>
+      <td>Read GPIO</td>
+      <td>IN</td>
+      <td>0x38</td>
+      <td>0</td>
+      <td>1</td>
+      <td>Has some side effects. Not sure completely what they are, but when run after enabling the device, it will cause the GPIO lines to change to a default value of some kind. It will then report that TDO and TMS are high. Calling it again will show that only TDO is high, as will further calls. This instruction is not well understood and the name largely comes from other reverse engineering efforts.</td>
+    <tr>
+      <td rowspan="2">Bulk JTAG Transfer</td>
+      <td>OUT</td>
+      <td>0xa6</td>
+      <td>Number of bits to transfer</td>
+      <td>0</td>
+      <td>Starts a transfer</td>
+    </tr>
+    <tr>
+      <td colspan="5"><em>Bulk: OUT Endpoint: 2</em><br>
+	The data to put on the GPIO lines. The data consists of sets of two bytes where each four bits are a field. Each bit of the fields line up so each two byte message communicates 4 actions.<br>
+	<strong>0xABCD</strong><br>
+	<ul>
+	  <li>A: TMS field</li>
+	  <li>B: TDI flag</li>
+	  <li>C: Read TDO field</li>
+	  <li>D: Clock field</li>
+	</ul>
+	<p>TMS and TDI bits are relatively self explanatory and simply specify if those lines should be held low or high for the operation.</p>
+	<p>The TDO field is used to tell the Platform Cable that the tdo line should be sampled during this operation.</p>
+	<p>The Clock field is unique in that a 1 in a bit position signifies a full clock cycle and not just setting the state to low or high. If the clock field is 0b1111 There will be 4 full clock cycles (CLK: low->high then high->low). Consequently a 0 in the Clock field translates to no action on the CLK line for the operation. This approach effectively doubles the transfer rate since bits do not need to be wasted on lowering the clock, and we can send/receive up to 4 bits on TDI/TDO with TMS changes for every two bytes sent.</p>
+
+	<p>The four operations specified by a two byte message are run from least significant bit to most significant bit. Sending more than one two byte message will cause the left most one (First part sent over the wire) to be executed first.</p>
+	<h3>Example:</h3>
+	<p>This example will move the <a href="https://en.wikipedia.org/wiki/Joint_Test_Action_Group#Communications_model">TAP</a> state through TEST_LOGIC_RESET and end in RUN_TEST_IDLE.</p>
+	<code>Bits: 9</code><br>
+	<code>Data: 0x80:00:f0:0f:10:03</code>
+	<!--<img src="images/PCU1_oscope_1.png">-->
+	<br>
+	<code>xpcu_GPIO_transfer(dh, 9, '\x80\x00\xf0\x0f\x10\x03')</code>
+	<code>xpcu_GPIO_transfer(dh, 9, '\x00\x00\x00\x0f\x10\x03')</code>
+
+      </td>
+    </tr>
+
+    </tr>
+
+  </tbody>
+</table>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Adapt maintained by <a href="https://github.com/diamondman">diamondman</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
