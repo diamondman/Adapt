@@ -1,106 +1,110 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Adapt : Linux USB JTAG controller for Digilent boards." />
+    <head>
+        <meta charset='utf-8' />
+        <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+        <meta name="description" content="Adapt : Linux USB JTAG controller for Digilent boards." />
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+        <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Adapt</title>
-  </head>
+        <title>Adapt</title>
+    </head>
 
-  <body>
+    <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/diamondman/Adapt">View on GitHub</a>
+        <!-- HEADER -->
+        <div id="header_wrap" class="outer">
+            <header class="inner">
+                <a id="forkme_banner" href="https://github.com/diamondman/Adapt">View on GitHub</a>
 
-          <h1 id="project_title">Adapt</h1>
-          <h2 id="project_tagline">Linux USB JTAG controller for Digilent boards.</h2>
+                <h1 id="project_title">Adapt</h1>
+                <h2 id="project_tagline">Linux USB JTAG controller for Digilent boards.</h2>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/diamondman/Adapt/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/diamondman/Adapt/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+                <section id="downloads">
+                    <a class="zip_download_link" href="https://github.com/diamondman/Adapt/zipball/master">Download this project as a .zip file</a>
+                    <a class="tar_download_link" href="https://github.com/diamondman/Adapt/tarball/master">Download this project as a tar.gz file</a>
+                </section>
+            </header>
+        </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>
-<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
-	<p>Adapt is an attempt to make a general purpose and accessible tool for controlling configurable logic like FPGAs and CPLDs through various JTAG controllers on linux and maybe other systems later.</p>
-	<p>There are several complications to this goal. First off, every USB adapter for controlling JTAG has its own protocol, that protocol is often undocumented, and each target chip we would be configuring (while often compliant...ish with IEEE 1532) has its own quirks that bar an absolute general solution that can just 'figure out' what to do from available standards documentation such as IEEE 1149.1 or IEEE 1532 bsd compliant documents often distributed with the chips from the manufacturers. </p>
-	<p>The first two problem can be addressed by reversing as many of the USB controllers as reasonably possible. But simply implementing the controllers for these devices is not enough because there SHOULD BE DOCUMENTATION for these protocols, in case someone else wants to build something to address a failure in this project, and on general principal!</p>
-	<p>The final issue will likely involve chip family specific instructions (be it classes or config files) to handle the odd ways chips like to do things. These quirks are often documented as people need to be able to program the chips through JTAG from microcontrollers (a common use case), so we aren't alone in the dark here.</p>
-	<p>Current work focuses on controlling the common members of the Xilinx Coolrunner ii XC2CXXX family (primarily the 32, 64, 128, and 256), but other families and devices will follow mastery of the Coolrunner ii family.</p>
+        <!-- MAIN CONTENT -->
+        <div id="main_content_wrap" class="outer">
+            <section id="main_content" class="inner">
+                <h3>
+                    <a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
+                <p>Adapt is a general purpose, accessible tool for controlling configurable logic devices like FPGAs and CPLDs through various JTAG controllers. At the moment, it runs on Linux, but more platforms will follow shortly.</p>
+                <p>The current state of the tools for working with these devices presents several difficulties for creating a general purpose interface. The first problem concerns the JTAG controllers through which the devices are programmed. Every USB adapter for controlling JTAG has its own protocol, and that protocol is often undocumented. Secondly, once we are able to communicate with the target chip, each of them has its own functional deviations that prevent users or software from predicting the device's behaviour based on existing standards such as the IEEE 1149.1 or IEEE 1532 BSD compliant documents often distributed with the chips by the manufacturers.</p>
+                <p>The first problem of idiosyncratic protocols can be addressed by simply reverse-engineering as many of the USB controllers as reasonably possible and thoroughly documenting them. This is an important first step, and an auxiliary goal of this project is to do that work and preserve it in a common, community-driven repository.</p>
+                <p>However, once the protocols are known and documented, the final issue of each chip's unique deviation from the standard programming APIs remains. Solving this will similarly involve chip-family-specific instructions (be they classes or config files) to handle the divergent behaviour. When the protocols and available functions are known and documented for each device, it will finally be possile for users to create systems based on them with confidence and pleasure.</p>
+                <p>Ultimately, Adapt is intended as a framework to unite these configurations under a single interface, allowing the programmer to use a single, standards-based communication protocol and programming API for all FPGAs and related devices.</p>
 
-        <h3>
-<a name="protocol-documentation-for-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for various USB JTAG controllers.</h3>
-	<p>Note that some controllers do not come loaded with their full firmware and rely on the host computer to load the firmware to the device RAM. This is used to keep devices up to date and avoid manual firmware updates, though it requires configuring your system to flash the firmware everytime it is plugged in.</p>
-	<p>The most common controller microcontrollers in these JTAG controllers that require boot up flashing are the Cypress EZ-USB chip family. Luckily there is a convenient open source utility for loading the firmware onto these devices called fxload which can load an intel hex file onto the devices. </p>
-	<p>The primary complication with devices requiring firmware loading is not the act of loading the firmware, but distributing the copyrighted firmware binaries. For now, if you use Adapt, you will have to provide the firmware files from your own instalations of the private tools, or by following some steps that should be provided for getting the files.</p>
+                <h3>Status</h3>
+                <p>Work is currently focused on reversing, documenting, and re-implementing controllers for the common members of the Xilinx Coolrunner ii XC2CXXX family (primarily the 32, 64, 128, and 256), but other families and devices will followshortly. If you would like to add a controller or chip API module, have a look at the page on <a href="submitting_a_module.html">submitting a module,</a></p>
 
-	<table>
-	  <thead><tr>
-	      <th>Protocol Name</th>
-	      <th>Example Controllers</th>
-	      <th>Requires Firmware</th>
-	      <th>Documentation Status</th>
-	  </tr></thead>
+                <h3>
+                    <a name="protocol-documentation-for-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-usb-jtag-controllers"><span class="octicon octicon-link">Protocol documentation for various USB JTAG controllers.</span></a></h3>
+                <p>The following table provides an index to the documentation that has been assembled so far.</p> 
+                <p>Note that some controllers do not come loaded with their full firmware and rely on the host computer to load the firmware to the device RAM. This is used to keep devices up to date and avoid manual firmware updates, though it requires configuring your system to flash the firmware everytime it is plugged in.</p>
+                <p>The most common controller microcontrollers in these JTAG controllers that require boot up flashing are the Cypress EZ-USB chip family. Luckily there is a convenient open source utility for loading the firmware onto these devices called fxload which can load an intel hex file onto the devices. </p>
+                <p>The primary complication with devices requiring firmware loading is not the act of loading the firmware, but distributing the copyrighted firmware binaries. For now, if you use Adapt, you will have to provide the firmware files from your own instalations of the private tools, or by following some steps that should be provided for getting the files.</p>
 
-	  <tbody>
-	    <tr>
-	      <td><a href="cable_digilent_adept.html">Digilent Adept<a></td>
-	      <td>Basys2,<br>
-		CoolRunner 2 Starter 2,<br>
-		Atlys,<br>
-		Nexys2,<br>
-		Nexys3
-	      <td>Sometimes. The Atlys, and Nexys families often use EZ-USB chips.</td>
-	      <td>Complete except optional temp/voltage reading.</td>
-	    </tr>
-	    <tr>
-	      <td><a href="cable_xilinx_PCU.html">Xilinx Platform Cable 1<a></td>
-	      <td>XPCU DLC9G</td>
-	      <td>ALWAYS</td>
-	      <td>In Progress</td>
-	    </tr>
-	    <tr>
-	      <td><!--<a href="cable_Altera_USB_Blaster.html">-->Altera USB Blaster<!--<a>--></td>
-	      <td>XPCU DLC9G</td>
-	      <td>NO</td>
-	      <td>Not Started</td>
-	    </tr>
-	    <tr>
-	      <td><!--<a href="cable_OpenJTAG.html">-->OpenJTAG<!--<a>--></td>
-	      <td>OpenJTAG Controller</td>
-	      <td>No</td>
-	      <td>Not Started</td>
-	    </tr>
-	  </tbody>
-	</table>
+                <table>
+                    <thead><tr>
+                            <th>Protocol Name</th>
+                            <th>Example Controllers</th>
+                            <th>Requires Firmware</th>
+                            <th>Documentation Status</th>
+                    </tr></thead>
 
-      </section>
-    </div>
+                    <tbody>
+                        <tr>
+                            <td><a href="cable_digilent_adept.html">Digilent Adept<a></td>
+                                    <td>Basys2,<br>
+                                        CoolRunner 2 Starter 2,<br>
+                                        Atlys,<br>
+                                        Nexys2,<br>
+                                        Nexys3
+                                        <td>Sometimes. The Atlys, and Nexys families often use EZ-USB chips.</td>
+                                        <td>Complete except optional temp/voltage reading.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="cable_xilinx_PCU.html">Xilinx Platform Cable 1<a></td>
+                                                <td>XPCU DLC9G</td>
+                                                <td>ALWAYS</td>
+                                                <td>In Progress</td>
+                                            </tr>
+                                            <tr>
+                                                <td><!--<a href="cable_Altera_USB_Blaster.html">-->Altera USB Blaster<!--<a>--></td>
+                                                <td>XPCU DLC9G</td>
+                                                <td>NO</td>
+                                                <td>Not Started</td>
+                                            </tr>
+                                            <tr>
+                                                <td><!--<a href="cable_OpenJTAG.html">-->OpenJTAG<!--<a>--></td>
+                                                <td>OpenJTAG Controller</td>
+                                                <td>No</td>
+                                                <td>Not Started</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </section>
+                            </div>
 
 
 
 
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Adapt maintained by <a href="https://github.com/diamondman">diamondman</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
+                            <!-- FOOTER  -->
+                            <div id="footer_wrap" class="outer">
+                                <footer class="inner">
+                                    <p class="copyright">Adapt maintained by <a href="https://github.com/diamondman">diamondman</a></p>
+                                    <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+                                </footer>
+                            </div>
 
-    
 
-  </body>
-</html>
+
+                        </body>
+                    </html>

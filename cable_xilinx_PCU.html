@@ -131,7 +131,7 @@ SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008"
       <td rowspan="2">Bulk JTAG Transfer</td>
       <td>OUT</td>
       <td>0xa6</td>
-      <td>Number of bits to transfer</td>
+      <td>Number of bits to transfer minus 1 (0->1)</td>
       <td>0</td>
       <td>Starts a transfer</td>
     </tr>
@@ -150,14 +150,39 @@ SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008"
 	<p>The Clock field is unique in that a 1 in a bit position signifies a full clock cycle and not just setting the state to low or high. If the clock field is 0b1111 There will be 4 full clock cycles (CLK: low->high then high->low). Consequently a 0 in the Clock field translates to no action on the CLK line for the operation. This approach effectively doubles the transfer rate since bits do not need to be wasted on lowering the clock, and we can send/receive up to 4 bits on TDI/TDO with TMS changes for every two bytes sent.</p>
 
 	<p>The four operations specified by a two byte message are run from least significant bit to most significant bit. Sending more than one two byte message will cause the left most one (First part sent over the wire) to be executed first.</p>
-	<h3>Example:</h3>
-	<p>This example will move the <a href="https://en.wikipedia.org/wiki/Joint_Test_Action_Group#Communications_model">TAP</a> state through TEST_LOGIC_RESET and end in RUN_TEST_IDLE.</p>
-	<code>Bits: 9</code><br>
-	<code>Data: 0x80:00:f0:0f:10:03</code>
-	<!--<img src="images/PCU1_oscope_1.png">-->
-	<br>
-	<code>xpcu_GPIO_transfer(dh, 9, '\x80\x00\xf0\x0f\x10\x03')</code>
-	<code>xpcu_GPIO_transfer(dh, 9, '\x00\x00\x00\x0f\x10\x03')</code>
+	<h3>Example 1:</h3>
+	<p>This example will move the <a href="https://en.wikipedia.org/wiki/Joint_Test_Action_Group#Communications_model">TAP</a> state through TEST_LOGIC_RESET and end in RUN_TEST_IDLE. Red is TMS. Yellow is TCK.</p>
+	<code>Bits: 10</code><br>
+	<code>Data: 0x80:00:f0:0f:10:03</code><br>
+	<code>xpcu_GPIO_transfer(dh, 9, '\x80\x00\xf0\x0f\x10\x03')</code><br>
+	<h5>Disection (reading each column of the numbers lined up):</h5>
+	<code>0x8000</code><br><code>0xf00f</code><br><code>0x1003</code><br>
+	<strong>TMS:</strong> 0x8, 0xf, 0x1 Bin = <strong>1000 1111 0001</strong><br>
+	<strong>TDI:</strong> 0x0, 0x0, 0x0 (All 0 means TDI is always low. Ignoring for example.)<br>
+	<strong>TDO:</strong> 0x0, 0x0, 0x0 (All 0 means read no bits. Ignoring for example.)<br>
+	<strong>TXK:</strong> 0x0, 0xf, 0x3 Bin = <strong>0000 1111 0011</strong><br>
+	<h5>Reverse each 4 bit section bin(hijk)->bin(kjih):</h5>
+	<strong>TMS:</strong> 1000 1111 0001 -> <strong>0001 1111 1000</strong><br>
+	<strong>TXK:</strong> 0000 1111 0011 -> <strong>0000 1111 1100</strong>
+	<img src="images/xpcu/80_00_f0_0f_10_03_(9).png">
+
+	<h3>Example 2:</h3>
+	<code>Bits: 10</code><br>
+	<code>Data: 0x00:00:f0:0f:10:03</code><br>
+	<code>xpcu_GPIO_transfer(dh, 9, '\x00\x00\x00\x0f\x10\x03')</code><br>
+	<img src="images/xpcu/d0_00_f0_0f_10_03_(9).png">
+
+	<h3>Example 3:</h3>
+	<code>Bits: 10</code><br>
+	<code>Data: 0x00:00:f0:0f:10:03</code><br>
+	<code>xpcu_GPIO_transfer(dh, 9, '\x00\x00\x00\x0f\x10\x03')</code><br>
+	<img src="images/xpcu/00_00_00_0f_10_03_(9).png">
+
+	<h3>Example 4:</h3>
+	<code>Bits: 13</code><br>
+	<code>Data: 0x00:00:f0:0f:10:03</code><br>
+	<code>xpcu_GPIO_transfer(dh, 12, '\x80\x00\xf0\x0f\x10\x0b\x00\x01')</code><br>
+	<img src="images/xpcu/0x80_00_f0_0f_10_0b_00_01_(12).png">
 
       </td>
     </tr>
