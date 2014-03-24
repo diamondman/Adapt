@@ -182,6 +182,7 @@ SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008"
 	<code>Bits: 13</code><br>
 	<code>Data: 0x00:00:f0:0f:10:03</code><br>
 	<code>xpcu_GPIO_transfer(dh, 12, '\x80\x00\xf0\x0f\x10\x0b\x00\x01')</code><br>
+	<strong>Note:</strong> For two byte sections where all four state transitions are used, the Platform cable groups those bits and pushes any fractional section off a little while later (likely because of processing delay).
 	<img src="images/xpcu/0x80_00_f0_0f_10_0b_00_01_(12).png">
 
       </td>
