@@ -9,13 +9,14 @@
     :license: Pending, see LICENSE for more details.
 """
 
-import usb1
 import math
+
+from bitarray import bitarray
+
 
 class JTAGControlError(Exception):
     pass
 
-usbcontext = usb1.USBContext()
 
 class JTAGController(object):
     
@@ -36,6 +37,8 @@ class JTAGController(object):
 
         self._dev_handle = None
         self._jtagon = False
+
+        self._scanchain = None 
 
     def __repr__(self):
         return "%s(%s; uName: %s; SN: %s; FWver: %04x; PID: %08x)"%\
@@ -66,6 +69,10 @@ class JTAGController(object):
     def writeTMSBits(self, buff, count, return_tdo=False, DI=False):
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
+        if self._scanchain:
+            bits = bitarray(''.join([bin(ord(i))[2:].zfill(8) for i in buff])[-count:])
+            self._scanchain._tapTransition(bits)
+
         h = self._handle
         byte_count = int(math.ceil(count/8.0))
         tdo_bits = None
@@ -89,6 +96,9 @@ class JTAGController(object):
     def writeTDIBits(self, buff, count, return_tdo=False, TMS=False):
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
+        if self._scanchain:
+            bits = bitarray(('1' if TMS else '0')*count)
+            self._scanchain._tapTransition(bits)
         h = self._handle
         byte_count = int(math.ceil(count/8.0))
         tdo_bits = None
@@ -117,6 +127,9 @@ class JTAGController(object):
     def readTDOBits(self, count, TMS=False, TDI=False):
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
+        if self._scanchain:
+            bits = bitarray(('1' if TMS else '0')*count)
+            self._scanchain._tapTransition(bits)
         h = self._handle
         byte_count = int(math.ceil(count/8.0))
         tdo_bits = None
@@ -136,8 +149,6 @@ class JTAGController(object):
         #print res.__repr__() #I may check this later. Do not know how it could fail.
 
         return tdo_bits
-        
-        
 
     @property
     def _handle(self):
@@ -149,25 +160,6 @@ class JTAGController(object):
         if self._dev_handle:
             self._dev_handle.close()
 
-    @classmethod
-    def getAttachedControllers(cls):
-        controllers = []
-        for device in usbcontext.getDeviceList(skip_on_error=True):
-            if device.getVendorID() == 0x1443:
-                controller = cls(device)
-                controllers.append(controller)
-        return controllers
 
 
-if __name__ == "__main__":
-    controllers = JTAGController.getAttachedControllers()
-    print "USB Controllers:"
-    for i, c in enumerate(controllers):
-        print "  %d %s"%(i, c)
-        c.jtagEnable()
-        c.writeTMSBits('\x00\x5F', 9) #Transition to SHIFT_DR state.
-        idcode = c.readTDOBits(32)
-        while idcode != '\x00\x00\x00\x00':
-            print("    Device 0x%08x"%sum([(ord(idcode[b])<<(8*b)) for b in range(len(idcode))]))
-            idcode = c.readTDOBits(32)
-        c.jtagDisable()
+__filter__ = [((0x1443, None),JTAGController)]

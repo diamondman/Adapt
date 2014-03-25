@@ -1,5 +1,25 @@
-from digilentdriver import JTAGController
 from jtagDeviceDescription import JTAGDeviceDescription
+
+import time
+from bitarray import bitarray
+
+def gc(addr):
+    return (addr>>1)^addr
+
+def pstatus(resflags):
+    print "STATUS: "+("" if (ord(resflags)&0b11000011==1) else "INVALID_STATUS ")+\
+        ("ISCDIS " if ord(resflags)&32 else "")+("ISCEN " if ord(resflags)&16 else "")+\
+        ("SECURE " if ord(resflags)&8 else "")+("DONE " if ord(resflags)&4 else "")
+
+def build_byte_align_buff(bit_count):
+    bitmod = bit_count%8
+    if bitmod == 0: 
+        rdiff = bitarray()
+        print "NO BUFF NEEDED", rdiff
+    else:
+        rdiff = bitarray(8-bitmod)
+        rdiff.setall(False)
+    return rdiff
 
 class JTAGStateMachine(object):
     STATE_TLR = 0
@@ -82,7 +102,11 @@ class JTAGStateMachine(object):
         elif self._state == self.STATE_UPDATE_IR:
             if bit:     self._state = self.STATE_SELECT_DR
             else:       self._state = self.STATE_IDLE
-        print "STATE:", self.STATE_NAMES[self._state]
+        #print "STATE:", self.state
+
+    @property
+    def state(self):
+        return self.STATE_NAMES.get(self._state, "UNKNOWN STATE!")
 
 class JTAGDevice(object):
     def __init__(self, chain, idcode):
@@ -105,9 +129,130 @@ class JTAGDevice(object):
 
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
+    def erase(self):
+        #import ipdb
+        con = self._chain._controller
+        self._chain._jtagEnable()
+        #print self.desc._instructions
+        
+        cmd_isce = self.desc._instructions['ISC_ENABLE']
+        cmd_iscd = self.desc._instructions['ISC_DISABLE']
+        cmd_iscerase = self.desc._instructions['ISC_ERASE']
+        print cmd_isce, cmd_iscd, cmd_iscerase
+        
+        #ipdb.set_trace()
+        con.writeTMSBits('\x00\xDF', 10) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\x68', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_ENABLE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+    
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\x6D', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_ERASE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+        
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISCHARGE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+        
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_INIT
+        con.writeTMSBits('\x1b', 5) #init pulse
+        con.writeTMSBits('\x00', 8) #RUN
+        time.sleep(0.01)
+    
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\x40', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISABLE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+    
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\xff', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #BYPASS
+        con.writeTMSBits('\xFF', 8) #RUN
+        time.sleep(0.01)
+    
+        #time.sleep(2)
+        self._chain._jtagDisable()
+
+    def program(self, data_array):
+        import ipdb
+        con = self._chain._controller
+        self._chain._jtagEnable()
+        
+        #ipdb.set_trace()
+        con.writeTMSBits('\x00\xDF', 10) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\x68', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_ENABLE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+    
+        for i,r in enumerate(data_array):
+            addr = bitarray(bin(gc(i))[2:].zfill(7))
+            addr.reverse()
+    
+            #print "\nLOADING(%s:%s) ="%(i,addr), r
+            con.writeTMSBits('\x03', 4) #Get to ShiftIR
+            pstatus(con.writeTDIBits('\x6A', 7, return_tdo=True))#first ins bits
+            con.writeTDIBits('\x01', 1, TMS=True) #ISC_PROGRAM
+            con.writeTMSBits('\x03', 4) #Get to ShiftDR without running
+            
+            buffered_r = build_byte_align_buff(len(r)) + r
+            buffered_addr = build_byte_align_buff(len(addr)) + addr
+    
+            con.writeTDIBits(buffered_r.tobytes(), len(r), return_tdo=True).__repr__()
+            con.writeTDIBits(buffered_addr.tobytes(), len(addr)-1, return_tdo=True) #ISC_PROGRAM
+            con.writeTDIBits(chr(addr[0]), 1, TMS=True, return_tdo=True) #ISC_PROGRAM
+            
+            con.writeTMSBits('\x01', 8) #RUN
+            time.sleep(0.01)
+        
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISCHARGE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+        
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_INIT
+        con.writeTMSBits('\x1b', 5) #init pulse
+        con.writeTMSBits('\x00', 8) #RUN
+        time.sleep(0.01)
+    
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        con.writeTDIBits('\x40', 7, return_tdo=True).__repr__()
+        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISABLE
+        con.writeTMSBits('\x01', 8) #RUN
+        time.sleep(0.01)
+    
+        #ipdb.set_trace()
+        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        pstatus(con.writeTDIBits('\xff', 7, return_tdo=True))
+        con.writeTDIBits('\x01', 1, TMS=True) #BYPASS
+        con.writeTMSBits('\xFF', 8) #RUN
+        time.sleep(0.01)
+        
+        self._chain._jtagDisable()
+
 class JTAGScanChain(object):
     def __init__(self, controller):
         self._controller = controller
+        self._controller._scanchain = self #This might necessitate a factory
         self._sm = JTAGStateMachine()
         self._hasinit = False
         self._devices = []
@@ -134,9 +279,20 @@ class JTAGScanChain(object):
 
     def _jtagEnable(self):
         self._controller.jtagEnable()
-            
+
+    def _tapTransition(self, bits):
+        #print "Bits:", bits
+        statetrans = [self._sm.state]
+        for bit in bits[::-1]:
+            #print "Transitioning TMS->%s"%bit
+            self._sm.transition(bit)
+            #if statetrans[-1]!=self._sm.state:
+            statetrans.append(self._sm.state)
+        #print "TAP:",self._sm.state
+        #print "TAP State Change:", "->".join(statetrans)
 
 if __name__ == "__main__":
+    from digilentdriver import JTAGController
     controllers = JTAGController.getAttachedControllers()
     print "USB Controllers:"
     for i, c in enumerate(controllers):
