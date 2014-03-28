@@ -266,7 +266,8 @@ class JTAGScanChain(object):
 
             self._devices = []
             idcode_str = self._controller.readTDOBits(32)
-            while idcode_str != '\x00\x00\x00\x00':
+            while idcode_str != '\x00\x00\x00\x00' and\
+                    idcode_str != '\xff\xff\xff\xff':
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
                 idcode_str = self._controller.readTDOBits(32)
