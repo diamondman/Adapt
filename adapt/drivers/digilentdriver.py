@@ -18,7 +18,7 @@ class JTAGControlError(Exception):
     pass
 
 
-class JTAGController(object):
+class DigilentAdeptController(object):
     
     def __init__(self, dev):
         self._dev = dev
@@ -162,4 +162,4 @@ class JTAGController(object):
 
 
 
-__filter__ = [((0x1443, None),JTAGController)]
+__filter__ = [((0x1443, None),DigilentAdeptController)]

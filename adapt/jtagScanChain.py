@@ -110,6 +110,7 @@ class JTAGStateMachine(object):
 
 class JTAGDevice(object):
     def __init__(self, chain, idcode):
+        #print "IDCODE", idcode.__repr__()
         if not isinstance(chain, JTAGScanChain):
             raise ValueError("JTAGDevice requires an instnace of JTAGScanChain")
         self._chain = chain
