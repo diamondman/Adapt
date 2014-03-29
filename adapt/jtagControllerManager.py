@@ -26,23 +26,25 @@ if not driver_count:
         print '\033[93m'+'Your ADAPT_HOME env variable was not set. '\
             'This is likely why the drivers could not be loaded.'+'\033[0m'
 
-def getAttachedControllers():
+def getAttachedControllers(cname=None):
     controllers = []
     for device in usbcontext.getDeviceList(skip_on_error=True):
         vid_dict = _controllerfilter.get(device.getVendorID())
         if vid_dict:
-            #print "Found VID Dict:",vid_dict
             driver_class = vid_dict.get(device.getProductID(), vid_dict.get(None))
-            #print "RESULT DRIVER:", driver_class
             if driver_class:
-                #print "Found Driver for %04x:%04x: %s"%(device.getVendorID(), 
-                #                                        device.getProductID(), 
-                #                                        driver_class)
                 controller = driver_class(device)
                 controllers.append(controller)
             else:
                 print "No Driver Found for %04x:%04x"%(device.getVendorID(), device.getProductID())
-        else:
-            pass
-    return controllers
+
+    if not cname:
+        return controllers
+    
+    filteredcontrollers = []
+    for controller in controllers:
+        if controller.name == cname:
+            filteredcontrollers.append(controller)
+    return filteredcontrollers
+
 

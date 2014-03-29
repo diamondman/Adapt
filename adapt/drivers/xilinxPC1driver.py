@@ -68,10 +68,10 @@ class PlatformCable1Driver(object):
         h = self._dev.open()
 
         self.serialNumber = '000000000000'#h.controlRead(0xC0, 0xE4, 0, 0, 12)
-        self.userName = 'PC1'#h.controlRead(0xC0, 0xE2, 0, 0, 16).replace('\x00', '').replace('\xFF', '')
+        self.name = 'PC1_'+self.serialNumber[-4:] #h.controlRead(0xC0, 0xE2, 0, 0, 16).replace('\x00', '').replace('\xFF', '')
         #This is probably subtly wrong...
         #pidraw = h.controlRead(0xC0, 0xE9, 0, 0, 4)
-        self.productId = 0#(ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|(ord(pidraw[2])<<8)|ord(pidraw[3])
+        self.productId = 0#(ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|(ord(pidraw[2])<<8)|ord(pidraw[3]) #%08xo
 
         self.productName = 'Platform Cable 1'#h.controlRead(0xC0, 0xE1, 0, 0, 28).replace('\x00', '').replace('\xFF', '')
         #firmwareraw = h.controlRead(0xC0, 0xE6, 0, 0, 2)
@@ -84,13 +84,12 @@ class PlatformCable1Driver(object):
         self._scanchain = None 
 
     def __repr__(self):
-        return "%s(%s; uName: %s; SN: %s; FWver: %04x; PID: %08x)"%\
+        return "%s(%s; Name: %s; SN: %s; FWver: %04x)"%\
                                          (self.__class__.__name__,
                                           self.productName,
-                                          self.userName,
+                                          self.name,
                                           self.serialNumber,
-                                          self.firmwareVersion,
-                                          self.productId)
+                                          self.firmwareVersion)
 
     def jtagEnable(self):
         h = self._handle

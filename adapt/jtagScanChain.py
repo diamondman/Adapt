@@ -131,6 +131,9 @@ class JTAGDevice(object):
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
     def erase(self):
+        if self._id != 0x16d4c093:
+            print "This operation is only supported on the Xilinx XC2C256 for now."
+            sys.exit(1)
         #import ipdb
         con = self._chain._controller
         self._chain._jtagEnable()
@@ -188,7 +191,10 @@ class JTAGDevice(object):
         self._chain._jtagDisable()
 
     def program(self, data_array):
-        import ipdb
+        if self._id != 0x16d4c093:
+            print "This operation is only supported on the Xilinx XC2C256 for now."
+            sys.exit(1)
+        #import ipdb
         con = self._chain._controller
         self._chain._jtagEnable()
         
