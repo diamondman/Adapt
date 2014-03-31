@@ -36,25 +36,15 @@ def xpcu_GPIO_transfer(dh, bit_count, data):
         if bytes_ret%2: bytes_ret += 1
         return dh.bulkRead(6, bytes_ret, timeout=1000)
 
-def calcbits1():
-    buff, count = '\x00\x5F', 9
-    bits = bitarray(''.join([bin(ord(i))[2:].zfill(8) for i in buff])[-count:])
-    #print 'bits:',bits
-
-def calcbits2():
-    buff, count = '\x00\x5F', 9
-    databits = bitarray(buff)
-    lendiff = count-len(databits)
-    if lendiff:
-        databits = bitarray('0'*lendiff)+databits
-    #print 'data:',databits
-
 def bitfieldify(buff, count):
     #bits = bitarray(''.join([bin(ord(i))[2:].zfill(8) for i in buff])[-count:])
-    databits = bitarray(buff)
-    lendiff = count-len(databits)
-    if lendiff:
-        databits = bitarray('0'*lendiff)+databits
+    databits = bitarray()
+    for byte_ in buff:
+        databits.extend(bin(ord(byte_))[2:].zfill(8))
+        #databits.fromstring(byte_)
+    lendiff = len(databits)-count
+    if count:
+        databits = databits[lendiff:]
     return databits    
 
 class JTAGControlError(Exception):

@@ -9,6 +9,4 @@
     :license: Pending, see LICENSE for more details.
 """
 
-__version__ = '0.0.10-dev'
-
-from adapt.digilentdriver import JTAGController
+__version__ = '0.0.11-dev'
