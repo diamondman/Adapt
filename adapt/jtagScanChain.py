@@ -95,6 +95,9 @@ class JTAGStateMachine(object):
         15:'UPDATE_IR'
         }
 
+    oldwin = 0
+    newwin = 0
+
     def __init__(self):
         self._state = self.STATE_PRE5
         self._statestr = "_PRE5"
@@ -168,9 +171,17 @@ class JTAGStateMachine(object):
             else:       self._state = self.STATE_PRE5
         t2 = time.time()-t
         print "STATEOLD:", self.state, t2
-        print "WINNER:", ("NEW" if t2<t1 else "OLD")
+        print "WINNER:", ("OLD" if t2<t1 else "NEW"), "by", abs(t2-t1)
 
+        if t2<t1:
+            self.oldwin += 1
+        else:
+            self.newwin += 1
+
+        print "OLDWINS:", self.oldwin
+        print "NEWWINS:", self.newwin
         print
+
     @property
     def state(self):
         return self.STATE_NAMES.get(self._state, "UNKNOWN STATE!")
