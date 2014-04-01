@@ -4,6 +4,9 @@ import time
 import math
 from bitarray import bitarray
 
+NULL_ID_CODES = ['\x00\x00\x00\x00',
+                 '\xFF\xFF\xFF\xFF']
+
 def gc(addr):
     return (addr>>1)^addr
 
@@ -170,60 +173,32 @@ class JTAGDevice(object):
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
         
-        chain = self._chain
-        con = chain._controller
-        chain.jtagEnable()
+        self._chain.jtagEnable()
         
-        chain.transition_TAP("SHIFTIR")
-        pstatus(con.writeTDIBits('\x68', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_ENABLE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
+        pstatus(self.run_TAP_instruction("ISC_ENABLE", readback=True, extraruncycles=8))
     
         for i,r in enumerate(data_array):
             addr = bitarray(bin(gc(i))[2:].zfill(7))
             addr.reverse()
     
-            #print "\nLOADING(%s:%s) ="%(i,addr), r
-            con.writeTMSBits('\x03', 4) #Get to ShiftIR
-            pstatus(con.writeTDIBits('\x6A', 7, return_tdo=True))#first ins bits
-            con.writeTDIBits('\x01', 1, TMS=True) #ISC_PROGRAM
-            con.writeTMSBits('\x03', 4) #Get to ShiftDR without running
-            
             buffered_r = build_byte_align_buff(len(r)) + r
             buffered_addr = build_byte_align_buff(len(addr)) + addr
-    
-            con.writeTDIBits(buffered_r.tobytes(), len(r), return_tdo=True).__repr__()
-            con.writeTDIBits(buffered_addr.tobytes(), len(addr)-1, return_tdo=True) #ISC_PROGRAM
-            con.writeTDIBits(chr(addr[0]), 1, TMS=True, return_tdo=True) #ISC_PROGRAM
-            
-            con.writeTMSBits('\x01', 8) #RUN
-            time.sleep(0.01)
+
+            pstatus(self.run_TAP_instruction("ISC_PROGRAM", readback=True, execute=False))
+            self._chain.write_DR_bits(buffered_r.tobytes(), len(r), readback=True, finish=False)
+            self._chain.write_DR_bits(buffered_addr.tobytes(), len(addr), readback=True)
+            self._chain.run_TAP_idle(8)
+
+        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8))
         
-        chain.transition_TAP("SHIFTIR")
-        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISCHARGE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
-        
-        chain.transition_TAP("SHIFTIR")
-        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_INIT
-        con.writeTMSBits('\x1b', 5) #init pulse
-        con.writeTMSBits('\x00', 8) #RUN
-        time.sleep(0.01)
-    
-        chain.transition_TAP("SHIFTIR")
-        con.writeTDIBits('\x40', 7, return_tdo=True).__repr__()
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISABLE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
-    
-        chain.transition_TAP("SHIFTIR")
-        pstatus(con.writeTDIBits('\xff', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #BYPASS
-        con.writeTMSBits('\xFF', 8) #RUN
-        time.sleep(0.01)
+        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, execute=False))
+        self._chain.transition_TAP("UPDATEDR")
+        self._chain.run_TAP_idle(8)
+
+        pstatus(self.run_TAP_instruction("ISC_DISABLE", readback=True, extraruncycles=8))
+
+        pstatus(self.run_TAP_instruction("BYPASS", readback=True))
+        self._chain.transition_TAP("TLR") 
         
         self._chain.jtagDisable()
 
@@ -241,7 +216,7 @@ class JTAGScanChain(object):
 
             self.jtagEnable()
             idcode_str = self.read_DR_bits(32)
-            while idcode_str not in ('\x00\x00\x00\x00', '\xff\xff\xff\xff'):
+            while idcode_str not in NULL_ID_CODES:
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
                 idcode_str = self.read_DR_bits(32)
@@ -258,6 +233,18 @@ class JTAGScanChain(object):
         remainder = (ord(data[0])&(pow(2,rbit)))>>rbit
         self._controller.writeTDIBits(chr(remainder), 1, TMS=True)
         return res
+
+    def write_DR_bits(self, data, count, readback=False, finish=True):
+        if self._sm.state != "SHIFTDR":
+            self.transition_TAP("SHIFTDR")
+        if not finish:
+            return self._controller.writeTDIBits(data, count, return_tdo=readback)
+        else:
+            res = self._controller.writeTDIBits(data, count-1, return_tdo=readback)
+            rbit = 7 if count%8 == 0 else count%8-1
+            remainder = (ord(data[0])&(pow(2,rbit)))>>rbit
+            self._controller.writeTDIBits(chr(remainder), 1, TMS=True)
+            return res #TODO fix return
 
     def read_DR_bits(self, count):
         if self._sm.state != "SHIFTDR":
@@ -300,3 +287,4 @@ class JTAGScanChain(object):
             statetrans.append(self._sm.state)
         #print "TAP:",self._sm.state
         #print "TAP State Change:", "->".join(statetrans)
+
