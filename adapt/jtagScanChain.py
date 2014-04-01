@@ -1,6 +1,7 @@
 from jtagDeviceDescription import JTAGDeviceDescription
 
 import time
+import math
 from bitarray import bitarray
 
 def gc(addr):
@@ -49,142 +50,63 @@ class JTAGStateMachine(object):
         "UPDATEIR": ["RTI","DRSCAN"]
         }
 
-    STATE_PRE5 = -5
-    STATE_PRE4 = -4
-    STATE_PRE3 = -3
-    STATE_PRE2 = -2
-    STATE_PRE1 = -1
-    STATE_TLR = 0
-    STATE_IDLE = 1
-    STATE_SELECT_DR = 2
-    STATE_CAPTURE_DR = 3
-    STATE_SHIFT_DR = 4
-    STATE_EXIT1_DR = 5
-    STATE_PAUSE_DR = 6
-    STATE_EXIT2_DR = 7
-    STATE_UPDATE_DR = 8
-    STATE_SELECT_IR = 9
-    STATE_CAPTURE_IR = 10
-    STATE_SHIFT_IR = 11
-    STATE_EXIT1_IR = 12
-    STATE_PAUSE_IR = 13
-    STATE_EXIT2_IR = 14
-    STATE_UPDATE_IR = 15
-
-    STATE_NAMES = {
-        -5:'_PRE5',
-        -4:'_PRE4',
-        -3:'_PRE3',
-        -2:'_PRE2',
-        -1:'_PRE1',
-        0:'TLR',
-        1:'IDLE',
-        2:'SELECT_DR',
-        3:'CAPTURE_DR',
-        4:'SHIFT_DR',
-        5:'EXIT1_DR',
-        6:'PAUSE_DR',
-        7:'EXIT2_DR',
-        8:'UPDATE_DR' ,
-        9:'SELECT_IR' ,
-        10:'CAPTURE_IR',
-        11:'SHIFT_IR',
-        12:'EXIT1_IR',
-        13:'PAUSE_IR',
-        14:'EXIT2_IR',
-        15:'UPDATE_IR'
-        }
-
-    oldwin = 0
-    newwin = 0
-
     def __init__(self):
-        self._state = self.STATE_PRE5
         self._statestr = "_PRE5"
 
-    def transition(self, bit):
-        t = time.time()
+    def transition_bit(self, bit):
         choice = self.states.get(self._statestr, None)
         if choice is not None:
             self._statestr = choice[bit]
-        t1 = time.time()-t
-        print "STATENEW:", self._statestr, t1
-
-        t = time.time()
-        if self._state == self.STATE_TLR:
-            if not bit: self._state = self.STATE_IDLE
-        elif self._state == self.STATE_IDLE:
-            if bit:     self._state = self.STATE_SELECT_DR
-        elif self._state == self.STATE_SELECT_DR:
-            if bit:     self._state = self.STATE_SELECT_IR
-            else:       self._state = self.STATE_CAPTURE_DR
-        elif self._state == self.STATE_CAPTURE_DR:
-            if bit:     self._state = self.STATE_EXIT1_DR
-            else:       self._state = self.STATE_SHIFT_DR
-        elif self._state == self.STATE_SHIFT_DR:
-            if bit:     self._state = self.STATE_EXIT1_DR
-        elif self._state == self.STATE_EXIT1_DR:
-            if bit:     self._state = self.STATE_UPDATE_DR
-            else:       self._state = self.STATE_PAUSE_DR
-        elif self._state == self.STATE_PAUSE_DR:
-            if bit:     self._state = self.STATE_EXIT2_DR
-        elif self._state == self.STATE_EXIT2_DR:
-            if bit:     self._state = self.STATE_UPDATE_DR
-            else:       self._state = self.STATE_SHIFT_DR
-        elif self._state == self.STATE_UPDATE_DR:
-            if bit:     self._state = self.STATE_SELECT_DR
-            else:       self._state = self.STATE_IDLE
-        elif self._state == self.STATE_SELECT_IR:
-            if bit:     self._state = self.STATE_TLR
-            else:       self._state = self.STATE_CAPTURE_IR
-        elif self._state == self.STATE_CAPTURE_IR:
-            if bit:     self._state = self.STATE_EXIT1_IR
-            else:       self._state = self.STATE_SHIFT_IR
-        elif self._state == self.STATE_SHIFT_IR:
-            if bit:     self._state = self.STATE_EXIT1_IR
-        elif self._state == self.STATE_EXIT1_IR:
-            if bit:     self._state = self.STATE_UPDATE_IR
-            else:       self._state = self.STATE_PAUSE_IR
-        elif self._state == self.STATE_PAUSE_IR:
-            if bit:     self._state = self.STATE_EXIT2_IR
-        elif self._state == self.STATE_EXIT2_IR:
-            if bit:     self._state = self.UPDATE_IR
-            else:       self._state = self.SHIFT_IR
-        elif self._state == self.STATE_UPDATE_IR:
-            if bit:     self._state = self.STATE_SELECT_DR
-            else:       self._state = self.STATE_IDLE
-
-        elif self._state == self.STATE_PRE5:
-            if bit:     self._state = self.STATE_PRE4
-            else:       self._state = self.STATE_PRE5
-        elif self._state == self.STATE_PRE4:
-            if bit:     self._state = self.STATE_PRE3
-            else:       self._state = self.STATE_PRE5
-        elif self._state == self.STATE_PRE3:
-            if bit:     self._state = self.STATE_PRE2
-            else:       self._state = self.STATE_PRE5
-        elif self._state == self.STATE_PRE2:
-            if bit:     self._state = self.STATE_PRE1
-            else:       self._state = self.STATE_PRE5
-        elif self._state == self.STATE_PRE1:
-            if bit:     self._state = self.STATE_TLR
-            else:       self._state = self.STATE_PRE5
-        t2 = time.time()-t
-        print "STATEOLD:", self.state, t2
-        print "WINNER:", ("OLD" if t2<t1 else "NEW"), "by", abs(t2-t1)
-
-        if t2<t1:
-            self.oldwin += 1
-        else:
-            self.newwin += 1
-
-        print "OLDWINS:", self.oldwin
-        print "NEWWINS:", self.newwin
-        print
 
     @property
     def state(self):
-        return self.STATE_NAMES.get(self._state, "UNKNOWN STATE!")
+        return self._statestr
+
+    @state.setter
+    def state(self, value):
+        if value in self.states:
+            self._statestr = value
+        else:
+            raise ValueError("%s is not a valid state for this state machine"%value)
+
+    @classmethod
+    def find_shortest_path(cls, start, end, path=None):
+        path = (path or []) + [start]
+        if start == end:
+            return path
+        if not cls.states.has_key(start):
+            return None
+        shortest = None
+        for node in cls.states[start]:
+            if node not in path:
+                newpath = cls.find_shortest_path(node, end, path)
+                if newpath:
+                    if not shortest or len(newpath) < len(shortest):
+                        shortest = newpath
+        return shortest
+    
+    @classmethod
+    def get_steps_from_nodes_path(cls, path):
+        steps = []
+        last_node = path[0]
+        for node in path[1:]:
+            steps.append(cls.states.get(last_node).index(node))
+            last_node = node
+        return bitarray(steps)
+
+    def calc_transition_to_state(self, newstate):
+        if newstate not in self.states:
+            raise ValueError("%s is not a valid state for this state machine"%newstate)
+
+        path = self.find_shortest_path(self._statestr, newstate)
+        if not path:
+            raise ValueError("No path to the requested state.")
+        res = self.get_steps_from_nodes_path(path)
+        res.reverse()
+        return res
+
+    def __repr__(self):
+        return "<%s (State: %s)>"%(self.__class__.__name__, self.state)
 
 class JTAGDevice(object):
     def __init__(self, chain, idcode):
@@ -208,76 +130,51 @@ class JTAGDevice(object):
 
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
+    def run_TAP_instruction(self, insname, readback=False, execute=True, extraruncycles=0):
+        self._chain.transition_TAP("SHIFTIR")
+        ins = self.desc._instructions[insname]
+        res = self._chain.write_IR_bits(ins.tobytes(), 
+                                        self.desc._instruction_length, 
+                                        readback=readback)
+        if execute:
+            self._chain.run_TAP_idle(extraruncycles+1)
+        if readback:
+            return res
+
     def erase(self):
         if self._id != 0x16d4c093:
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
-        #import ipdb
-        con = self._chain._controller
-        self._chain._jtagEnable()
-        #print self.desc._instructions
         
-        cmd_isce = self.desc._instructions['ISC_ENABLE']
-        cmd_iscd = self.desc._instructions['ISC_DISABLE']
-        cmd_iscerase = self.desc._instructions['ISC_ERASE']
-        print cmd_isce, cmd_iscd, cmd_iscerase
+        self._chain.jtagEnable()
+
+        pstatus(self.run_TAP_instruction("ISC_ENABLE", readback=True, extraruncycles=8))
+    
+        pstatus(self.run_TAP_instruction("ISC_ERASE", readback=True, extraruncycles=8))
+
+        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8))
         
-        #ipdb.set_trace()
-        con.writeTMSBits('\x00\xDF', 10) #Get to ShiftIR
-        pstatus(con.writeTDIBits('\x68', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_ENABLE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
-    
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
-        pstatus(con.writeTDIBits('\x6D', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_ERASE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
+        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, execute=False))
+        self._chain.transition_TAP("UPDATEDR")
+        self._chain.run_TAP_idle(8)
+
+        pstatus(self.run_TAP_instruction("ISC_DISABLE", readback=True, extraruncycles=8))
+
+        pstatus(self.run_TAP_instruction("BYPASS", readback=True))
+        self._chain.transition_TAP("TLR")
         
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
-        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISCHARGE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
-        
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
-        pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_INIT
-        con.writeTMSBits('\x1b', 5) #init pulse
-        con.writeTMSBits('\x00', 8) #RUN
-        time.sleep(0.01)
-    
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
-        pstatus(con.writeTDIBits('\x40', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISABLE
-        con.writeTMSBits('\x01', 8) #RUN
-        time.sleep(0.01)
-    
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
-        pstatus(con.writeTDIBits('\xff', 7, return_tdo=True))
-        con.writeTDIBits('\x01', 1, TMS=True) #BYPASS
-        con.writeTMSBits('\xFF', 8) #RUN
-        time.sleep(0.01)
-    
-        #time.sleep(2)
-        self._chain._jtagDisable()
+        self._chain.jtagDisable()
 
     def program(self, data_array):
         if self._id != 0x16d4c093:
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
-        #import ipdb
-        con = self._chain._controller
-        self._chain._jtagEnable()
         
-        #ipdb.set_trace()
-        con.writeTMSBits('\x00\xDF', 10) #Get to ShiftIR
+        chain = self._chain
+        con = chain._controller
+        chain.jtagEnable()
+        
+        chain.transition_TAP("SHIFTIR")
         pstatus(con.writeTDIBits('\x68', 7, return_tdo=True))
         con.writeTDIBits('\x01', 1, TMS=True) #ISC_ENABLE
         con.writeTMSBits('\x01', 8) #RUN
@@ -303,36 +200,32 @@ class JTAGDevice(object):
             con.writeTMSBits('\x01', 8) #RUN
             time.sleep(0.01)
         
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        chain.transition_TAP("SHIFTIR")
         pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
         con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISCHARGE
         con.writeTMSBits('\x01', 8) #RUN
         time.sleep(0.01)
         
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        chain.transition_TAP("SHIFTIR")
         pstatus(con.writeTDIBits('\xF0', 7, return_tdo=True))
         con.writeTDIBits('\x01', 1, TMS=True) #ISC_INIT
         con.writeTMSBits('\x1b', 5) #init pulse
         con.writeTMSBits('\x00', 8) #RUN
         time.sleep(0.01)
     
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        chain.transition_TAP("SHIFTIR")
         con.writeTDIBits('\x40', 7, return_tdo=True).__repr__()
         con.writeTDIBits('\x01', 1, TMS=True) #ISC_DISABLE
         con.writeTMSBits('\x01', 8) #RUN
         time.sleep(0.01)
     
-        #ipdb.set_trace()
-        con.writeTMSBits('\x03', 4) #Get to ShiftIR
+        chain.transition_TAP("SHIFTIR")
         pstatus(con.writeTDIBits('\xff', 7, return_tdo=True))
         con.writeTDIBits('\x01', 1, TMS=True) #BYPASS
         con.writeTMSBits('\xFF', 8) #RUN
         time.sleep(0.01)
         
-        self._chain._jtagDisable()
+        self._chain.jtagDisable()
 
 class JTAGScanChain(object):
     def __init__(self, controller):
@@ -344,26 +237,57 @@ class JTAGScanChain(object):
 
     def init_chain(self):
         if not self._hasinit:
-            #Set state to SHIFT_DR through TLR
-            self._controller.jtagEnable()
-            self._controller.writeTMSBits('\x00\x5F', 9)
-
             self._devices = []
-            idcode_str = self._controller.readTDOBits(32)
-            while idcode_str != '\x00\x00\x00\x00' and\
-                    idcode_str != '\xff\xff\xff\xff':
+
+            self.jtagEnable()
+            idcode_str = self.read_DR_bits(32)
+            while idcode_str not in ('\x00\x00\x00\x00', '\xff\xff\xff\xff'):
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
-                idcode_str = self._controller.readTDOBits(32)
-            self._controller.jtagDisable()
+                idcode_str = self.read_DR_bits(32)
+            self.jtagDisable()
 
             #The chain comes out last first. Reverse it to get order.
             self._devices.reverse()
 
-    def _jtagDisable(self):
+    def write_IR_bits(self, data, count, readback=False):
+        self.transition_TAP("SHIFTIR")
+
+        res = self._controller.writeTDIBits(data, count-1, return_tdo=readback)
+        rbit = 7 if count%8 == 0 else count%8-1
+        remainder = (ord(data[0])&(pow(2,rbit)))>>rbit
+        self._controller.writeTDIBits(chr(remainder), 1, TMS=True)
+        return res
+
+    def read_DR_bits(self, count):
+        if self._sm.state != "SHIFTDR":
+            self.transition_TAP("SHIFTDR")
+        return self._controller.readTDOBits(count)
+
+    def transition_TAP(self, state):
+        data = self._sm.calc_transition_to_state(state)
+        bufferz = bitarray('0'*(8-(len(data)%8)))
+        datastr = (bufferz+data).tobytes()
+
+        self._controller.writeTMSBits(datastr, len(data))
+
+        #print data
+        #print data.tobytes().__repr__()
+        #print bufferz.__repr__()
+        #print datastr.__repr__()
+
+    def run_TAP_idle(self, cycles):
+        self.transition_TAP("RTI")
+        if cycles>1:
+            self._controller.writeTMSBits('\x00'*int(math.ceil(cycles/8.0)), 
+                                                 cycles-1)
+
+    def jtagDisable(self):
+        self._sm.state = "_PRE5"
         self._controller.jtagDisable()
 
-    def _jtagEnable(self):
+    def jtagEnable(self):
+        self._sm.state = "_PRE5"
         self._controller.jtagEnable()
 
     def _tapTransition(self, bits):
@@ -371,18 +295,8 @@ class JTAGScanChain(object):
         statetrans = [self._sm.state]
         for bit in bits[::-1]:
             #print "Transitioning TMS->%s"%bit
-            self._sm.transition(bit)
+            self._sm.transition_bit(bit)
             #if statetrans[-1]!=self._sm.state:
             statetrans.append(self._sm.state)
         #print "TAP:",self._sm.state
         #print "TAP State Change:", "->".join(statetrans)
-
-if __name__ == "__main__":
-    from digilentdriver import JTAGController
-    controllers = JTAGController.getAttachedControllers()
-    print "USB Controllers:"
-    for i, c in enumerate(controllers):
-        print "  %d %s"%(i, c)
-        chain = JTAGScanChain(c)
-        chain.init_chain()
-
