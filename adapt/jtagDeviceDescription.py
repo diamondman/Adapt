@@ -15,8 +15,8 @@ class JTAGDeviceDescription(object):
     and is necessary to check if the bsdl file applies to the device in question.
 
     It is highly likely that if you are thinking of creating instances of this class
-    outside of the file it is defined in, that you are doing it wrong. Call the 
-    static get_descriptor_for_idcode method on this class to search for the correct 
+    outside of the file it is defined in, that you are doing it wrong. Call the
+    static get_descriptor_for_idcode method on this class to search for the correct
     descriptor for an idcode."""
     _desc_cache = {}
     _desc_id_file_cache = {}
@@ -31,7 +31,7 @@ class JTAGDeviceDescription(object):
             raise Exception('BSDL files must provide the IDCODE_REGISTER register.')
 
         idcode = attributes.get('IDCODE_REGISTER', None)
-        self._idcode = None 
+        self._idcode = None
         self._idcode_mask = None
         self._manufacturer_id = None
         if idcode:
@@ -93,16 +93,16 @@ class JTAGDeviceDescription(object):
     def get_descriptor_for_idcode(cls, idcode):
         """Use this method to find bsdl descriptions for devices.
         The caching on this method drastically lower the execution
-        time when there are a lot of bsdl files and more than one 
-        device. May move it into a metaclass to make it more 
+        time when there are a lot of bsdl files and more than one
+        device. May move it into a metaclass to make it more
         transparent."""
-        idcode = idcode&0x0fffffff        
+        idcode = idcode&0x0fffffff
 
         #import ipdb
         #ipdb.set_trace()
         cls._load_id_file_cache()
         #ipdb.set_trace()
-        
+
         if str(idcode) in cls._desc_id_file_cache.keys():
             fname = cls._desc_id_file_cache[str(idcode)]
             desc = JTAGDeviceDescription(fname)
@@ -110,8 +110,8 @@ class JTAGDeviceDescription(object):
             return desc
         print "COULD NOT FIND ID %s" % idcode
         base_bsdl_dir = os.path.join(adapt_base_dir, 'res', 'bsdl')
-        bsdl_files = [os.path.join(dp, f) for dp, dn, filenames in 
-                      os.walk(base_bsdl_dir) for f in filenames 
+        bsdl_files = [os.path.join(dp, f) for dp, dn, filenames in
+                      os.walk(base_bsdl_dir) for f in filenames
                       if os.path.splitext(f)[1] in ['.bsd','.bsdl']]
         for fname in bsdl_files:
             if fname in cls._desc_cache:

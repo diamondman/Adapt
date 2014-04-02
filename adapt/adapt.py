@@ -10,13 +10,13 @@ import jedparse
 def main():
     parser = argparse.ArgumentParser(description='General purpose tool for configuring FPGAs, '\
                                          'CPLDs, and Microcontrollers.', prog='adapt')
-    parser.add_argument('--enum', dest='action', action='store_const', const=enum, default=enum, 
+    parser.add_argument('--enum', dest='action', action='store_const', const=enum, default=enum,
                         help="Enumerate the attached controllers. Causes no JTAG activity.")
-    parser.add_argument('-i','--init', dest='action', action='store_const', const=init, 
+    parser.add_argument('-i','--init', dest='action', action='store_const', const=init,
                         help="Initiate all or a specific JTAG controller to list its chain.")
-    parser.add_argument('-e','--erase', dest='action', action='store_const', const=erase, 
+    parser.add_argument('-e','--erase', dest='action', action='store_const', const=erase,
                         help="Erase the specified device.")
-    parser.add_argument('-p','--program', dest='action', action='store_const', const=program, 
+    parser.add_argument('-p','--program', dest='action', action='store_const', const=program,
                         help="Program the specified device. For some devices, this command also erases before programming.")
 
     parser.add_argument('-cname', '--controllername', dest='cname', type=str,
@@ -73,7 +73,7 @@ def erase(pargs):
     chain.init_chain()
 
     dev = chain._devices[pargs.din]
-    print "Preparing to erase (%s)(%s:%s)"%(controller.productName, 
+    print "Preparing to erase (%s)(%s:%s)"%(controller.productName,
                                               dev.desc.manufacturer,
                                               dev.desc._device_name)
     dev.erase()
@@ -89,7 +89,7 @@ def program(pargs):
     chain.init_chain()
 
     dev = chain._devices[pargs.din]
-    print "Preparing to program (%s)(%s:%s)"%(controller.productName, 
+    print "Preparing to program (%s)(%s:%s)"%(controller.productName,
                                               dev.desc.manufacturer,
                                               dev.desc._device_name)
     print "Parsing programming file..."
@@ -119,7 +119,7 @@ def program(pargs):
                 outbf[j] = 1
         outbuffers.append(outbf)
     print "Loads required", len(outbuffers)
-    
+
     print "Erasing device..."
     dev.erase()
     print "Programming device..."
@@ -135,7 +135,7 @@ def listdevices(chain, indentspaces=8):
     indent = (" "*indentspaces)
     for di, dev in enumerate(chain._devices):
         if dev.desc:
-            print indent+"%d %s %s %s (%08x)"%(di, dev.desc.manufacturer, 
+            print indent+"%d %s %s %s (%08x)"%(di, dev.desc.manufacturer,
                                          dev.desc._device_name, dev.desc._chip_package,
                                               dev._id)
         else:

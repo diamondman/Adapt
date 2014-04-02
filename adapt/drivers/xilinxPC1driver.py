@@ -14,7 +14,7 @@ from bitarray import bitarray
 
 PROG = 8
 TCK = 4
-TMS = 2 
+TMS = 2
 TDI = 1
 TDO = 1
 
@@ -28,6 +28,8 @@ def xpcu_get_GPIO_state(dh):
     return ord(dh.controlRead(0xc0, 0xb0, 0x38, 0, 1))
 
 def xpcu_GPIO_transfer(dh, bit_count, data):
+    if bit_count < 0: #TODO Move this to a superclass
+        raise ValueError()
     #bytes_ret = int(math.ceil(''.join([bin(ord(data[i*2+1:i*2+2])>>4)[2:] for i in xrange(len(data)/2)]).count('1')/8.0))
     bytes_ret = int(math.ceil(bin(sum([(ord(data[i*2+1:i*2+2])>>4)<<4*i for i in xrange(len(data)/2)]))[2:].count('1')/8.0))
     dh.controlWrite(0x40, 0xb0, 0xa6, bit_count, '')
@@ -45,14 +47,14 @@ def bitfieldify(buff, count):
     lendiff = len(databits)-count
     if count:
         databits = databits[lendiff:]
-    return databits    
+    return databits
 
 class JTAGControlError(Exception):
     pass
 
 
 class PlatformCable1Driver(object):
-    
+
     def __init__(self, dev):
         self._dev = dev
         h = self._dev.open()
@@ -71,7 +73,7 @@ class PlatformCable1Driver(object):
         self._dev_handle = None
         self._jtagon = False
 
-        self._scanchain = None 
+        self._scanchain = None
 
     def __repr__(self):
         return "%s(%s; Name: %s; SN: %s; FWver: %04x)"%\
@@ -91,16 +93,13 @@ class PlatformCable1Driver(object):
         if not self._jtagon: return
         self._jtagon = False
         xpcu_enable_output(self._handle, False)
-        
+
     def writeTMSBits(self, buff, count, return_tdo=False, TDI=False):
-        #print "WRITE TDI(rTDO:%s, TDI:%s, TMS:%s)"%(return_tdo, TDI, buff.__repr__())
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         tmsbits = bitfieldify(buff, count)
         if self._scanchain:
             self._scanchain._tapTransition(tmsbits)
-
-        #print 'data:',tmsbits
 
         outbits = bitarray()
         for i in xrange(int(math.ceil(len(tmsbits)/4.0))):
@@ -111,21 +110,16 @@ class PlatformCable1Driver(object):
             outbits.extend(4*('1' if return_tdo else '0'))
             outbits.extend('1111')
 
-        #print "OUTBYTES:",outbits.tobytes().__repr__()
         ret = xpcu_GPIO_transfer(self._handle, count-1, outbits.tobytes())
-        #print "RETURNED:", ret.__repr__()
         if ret:
             return ret[::-1]
 
     def writeTDIBits(self, buff, count, return_tdo=False, TMS=False):
-        #print "WRITE TDI(rTDO:%s, TMS:%s, TDI:%s)"%(return_tdo, TMS, buff.__repr__())
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         tdibits = bitfieldify(buff, count)
         if self._scanchain:
             self._scanchain._tapTransition(bitarray(count*('1' if TMS else '0')))
-
-        #print 'tdidata:',tdibits
 
         outbits = bitarray()
         for i in xrange(int(math.ceil(len(tdibits)/4.0))):
@@ -136,15 +130,12 @@ class PlatformCable1Driver(object):
             outbits.extend('1111' if return_tdo else '0000')
             outbits.extend('1111')
 
-        #print "OUTBYTES:",outbits.tobytes().__repr__()
         ret = xpcu_GPIO_transfer(self._handle, count-1, outbits.tobytes())
-        #print "RETURNED:", ret.__repr__()
         if ret:
             return ret[::-1]
 
 
     def readTDOBits(self, count, TMS=False, TDI=False):
-        #print "READ TDO(TMS:%s, TDI:%s)"%(TMS, TDI)
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         if self._scanchain:
@@ -157,9 +148,7 @@ class PlatformCable1Driver(object):
             outbits.extend('1111')
             outbits.extend('1111')
 
-        #print "OUTBYTES:",outbits.tobytes().__repr__()
         ret = xpcu_GPIO_transfer(self._handle, count-1, outbits.tobytes())
-        #print "RETURNED:", ret.__repr__()
         if ret:
             return ret[::-1]
 

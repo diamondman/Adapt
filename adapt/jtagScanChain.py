@@ -11,7 +11,7 @@ def gc(addr):
     return (addr>>1)^addr
 
 def pstatus(resflags):
-    print resflags.__repr__()
+    #print resflags.__repr__()
     if len(resflags)>1:
         resflags = resflags[0]
     print "STATUS: "+("" if (ord(resflags)&0b11000011==1) else "INVALID_STATUS ")+\
@@ -20,7 +20,7 @@ def pstatus(resflags):
 
 def build_byte_align_buff(bit_count):
     bitmod = bit_count%8
-    if bitmod == 0: 
+    if bitmod == 0:
         rdiff = bitarray()
         print "NO BUFF NEEDED", rdiff
     else:
@@ -35,21 +35,21 @@ class JTAGStateMachine(object):
         "_PRE3": ["_PRE5", "_PRE2"],
         "_PRE2": ["_PRE5", "_PRE1"],
         "_PRE1": ["_PRE5", "TLR"],
-        "TLR": ["RTI", "TLR"], 
-        "RTI": ["RTI", "DRSCAN"], 
-        "DRSCAN": ["CAPTUREDR", "IRSCAN"], 
-        "CAPTUREDR": ["SHIFTDR","EXIT1DR"], 
-        "SHIFTDR": ["SHIFTDR","EXIT1DR"], 
-        "EXIT1DR": ["PAUSEDR","UPDATEDR"], 
-        "PAUSEDR": ["PAUSEDR","EXIT2DR"], 
-        "EXIT2DR": ["SHIFTDR","UPDATEDR"], 
-        "UPDATEDR": ["RTI","DRSCAN"], 
-        "IRSCAN": ["CAPTUREIR","TLR"], 
-        "CAPTUREIR": ["SHIFTIR","EXIT1IR"], 
-        "SHIFTIR": ["SHIFTIR","EXIT1IR"], 
-        "EXIT1IR": ["PAUSEIR","UPDATEIR"], 
-        "PAUSEIR": ["PAUSEIR","EXIT2IR"], 
-        "EXIT2IR": ["SHIFTIR","UPDATEIR"], 
+        "TLR": ["RTI", "TLR"],
+        "RTI": ["RTI", "DRSCAN"],
+        "DRSCAN": ["CAPTUREDR", "IRSCAN"],
+        "CAPTUREDR": ["SHIFTDR","EXIT1DR"],
+        "SHIFTDR": ["SHIFTDR","EXIT1DR"],
+        "EXIT1DR": ["PAUSEDR","UPDATEDR"],
+        "PAUSEDR": ["PAUSEDR","EXIT2DR"],
+        "EXIT2DR": ["SHIFTDR","UPDATEDR"],
+        "UPDATEDR": ["RTI","DRSCAN"],
+        "IRSCAN": ["CAPTUREIR","TLR"],
+        "CAPTUREIR": ["SHIFTIR","EXIT1IR"],
+        "SHIFTIR": ["SHIFTIR","EXIT1IR"],
+        "EXIT1IR": ["PAUSEIR","UPDATEIR"],
+        "PAUSEIR": ["PAUSEIR","EXIT2IR"],
+        "EXIT2IR": ["SHIFTIR","UPDATEIR"],
         "UPDATEIR": ["RTI","DRSCAN"]
         }
 
@@ -87,7 +87,7 @@ class JTAGStateMachine(object):
                     if not shortest or len(newpath) < len(shortest):
                         shortest = newpath
         return shortest
-    
+
     @classmethod
     def get_steps_from_nodes_path(cls, path):
         steps = []
@@ -113,7 +113,6 @@ class JTAGStateMachine(object):
 
 class JTAGDevice(object):
     def __init__(self, chain, idcode):
-        #print "IDCODE", idcode.__repr__()
         if not isinstance(chain, JTAGScanChain):
             raise ValueError("JTAGDevice requires an instnace of JTAGScanChain")
         self._chain = chain
@@ -134,10 +133,9 @@ class JTAGDevice(object):
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
     def run_TAP_instruction(self, insname, readback=False, execute=True, extraruncycles=0):
-        self._chain.transition_TAP("SHIFTIR")
         ins = self.desc._instructions[insname]
-        res = self._chain.write_IR_bits(ins.tobytes(), 
-                                        self.desc._instruction_length, 
+        res = self._chain.write_IR_bits(ins.tobytes(),
+                                        self.desc._instruction_length,
                                         readback=readback)
         if execute:
             self._chain.run_TAP_idle(extraruncycles+1)
@@ -148,15 +146,15 @@ class JTAGDevice(object):
         if self._id != 0x16d4c093:
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
-        
+
         self._chain.jtagEnable()
 
         pstatus(self.run_TAP_instruction("ISC_ENABLE", readback=True, extraruncycles=8))
-    
+
         pstatus(self.run_TAP_instruction("ISC_ERASE", readback=True, extraruncycles=8))
 
         pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8))
-        
+
         pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, execute=False))
         self._chain.transition_TAP("UPDATEDR")
         self._chain.run_TAP_idle(8)
@@ -165,22 +163,22 @@ class JTAGDevice(object):
 
         pstatus(self.run_TAP_instruction("BYPASS", readback=True))
         self._chain.transition_TAP("TLR")
-        
+
         self._chain.jtagDisable()
 
     def program(self, data_array):
         if self._id != 0x16d4c093:
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
-        
+
         self._chain.jtagEnable()
-        
+
         pstatus(self.run_TAP_instruction("ISC_ENABLE", readback=True, extraruncycles=8))
-    
+
         for i,r in enumerate(data_array):
             addr = bitarray(bin(gc(i))[2:].zfill(7))
             addr.reverse()
-    
+
             buffered_r = build_byte_align_buff(len(r)) + r
             buffered_addr = build_byte_align_buff(len(addr)) + addr
 
@@ -190,7 +188,7 @@ class JTAGDevice(object):
             self._chain.run_TAP_idle(8)
 
         pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8))
-        
+
         pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, execute=False))
         self._chain.transition_TAP("UPDATEDR")
         self._chain.run_TAP_idle(8)
@@ -198,8 +196,8 @@ class JTAGDevice(object):
         pstatus(self.run_TAP_instruction("ISC_DISABLE", readback=True, extraruncycles=8))
 
         pstatus(self.run_TAP_instruction("BYPASS", readback=True))
-        self._chain.transition_TAP("TLR") 
-        
+        self._chain.transition_TAP("TLR")
+
         self._chain.jtagDisable()
 
 class JTAGScanChain(object):
@@ -227,11 +225,12 @@ class JTAGScanChain(object):
 
     def write_IR_bits(self, data, count, readback=False):
         self.transition_TAP("SHIFTIR")
-
         res = self._controller.writeTDIBits(data, count-1, return_tdo=readback)
+
         rbit = 7 if count%8 == 0 else count%8-1
         remainder = (ord(data[0])&(pow(2,rbit)))>>rbit
         self._controller.writeTDIBits(chr(remainder), 1, TMS=True)
+
         return res
 
     def write_DR_bits(self, data, count, readback=False, finish=True):
@@ -252,21 +251,18 @@ class JTAGScanChain(object):
         return self._controller.readTDOBits(count)
 
     def transition_TAP(self, state):
+        if state == self._sm.state:
+            return
         data = self._sm.calc_transition_to_state(state)
         bufferz = bitarray('0'*(8-(len(data)%8)))
         datastr = (bufferz+data).tobytes()
 
         self._controller.writeTMSBits(datastr, len(data))
 
-        #print data
-        #print data.tobytes().__repr__()
-        #print bufferz.__repr__()
-        #print datastr.__repr__()
-
     def run_TAP_idle(self, cycles):
         self.transition_TAP("RTI")
         if cycles>1:
-            self._controller.writeTMSBits('\x00'*int(math.ceil(cycles/8.0)), 
+            self._controller.writeTMSBits('\x00'*int(math.ceil(cycles/8.0)),
                                                  cycles-1)
 
     def jtagDisable(self):
@@ -278,13 +274,8 @@ class JTAGScanChain(object):
         self._controller.jtagEnable()
 
     def _tapTransition(self, bits):
-        #print "Bits:", bits
         statetrans = [self._sm.state]
         for bit in bits[::-1]:
-            #print "Transitioning TMS->%s"%bit
             self._sm.transition_bit(bit)
             #if statetrans[-1]!=self._sm.state:
             statetrans.append(self._sm.state)
-        #print "TAP:",self._sm.state
-        #print "TAP State Change:", "->".join(statetrans)
-

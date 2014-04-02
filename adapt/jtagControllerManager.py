@@ -10,7 +10,7 @@ _modules = []
 
 driver_count = 0
 base_dir = environ.get('ADAPT_HOME', '')
-for loader, module_name, is_pkg in pkgutil.iter_modules([join(base_dir,'adapt/drivers'), 
+for loader, module_name, is_pkg in pkgutil.iter_modules([join(base_dir,'adapt/drivers'),
                                                          join(base_dir, 'drivers')]):
     driver_count += 1
     module = loader.find_module(module_name).load_module(module_name)
@@ -40,7 +40,7 @@ def getAttachedControllers(cname=None):
 
     if not cname:
         return controllers
-    
+
     filteredcontrollers = []
     for controller in controllers:
         if controller.name == cname:
