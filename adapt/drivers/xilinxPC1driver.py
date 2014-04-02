@@ -30,13 +30,37 @@ def xpcu_get_GPIO_state(dh):
 def xpcu_GPIO_transfer(dh, bit_count, data):
     if bit_count < 0: #TODO Move this to a superclass
         raise ValueError()
-    #bytes_ret = int(math.ceil(''.join([bin(ord(data[i*2+1:i*2+2])>>4)[2:] for i in xrange(len(data)/2)]).count('1')/8.0))
-    bytes_ret = int(math.ceil(bin(sum([(ord(data[i*2+1:i*2+2])>>4)<<4*i for i in xrange(len(data)/2)]))[2:].count('1')/8.0))
+    #print "DATALEN:", len(data), "BITCOUNT (0->1):", bit_count
+    bits_ret = bin(sum([((ord(data[i*2+1:i*2+2])>>4) & (( 1<< min(4, (bit_count+1)-(i*4)) )-1) )<<4*i 
+                        for i in xrange(len(data)/2)])).count('1')
+
+    #bits_ret = bin(sum([(ord(data[i*2+1:i*2+2])>>4)<<4*i 
+    #                    for i in xrange(len(data)/2)])).count('1')
     dh.controlWrite(0x40, 0xb0, 0xa6, bit_count, '')
     bytec = dh.bulkWrite(2, data, timeout=1000)
-    if bytes_ret:
-        if bytes_ret%2: bytes_ret += 1
-        return dh.bulkRead(6, bytes_ret, timeout=1000)
+    if bits_ret:
+        bytes_wanted = int(math.ceil(bits_ret/8.0))
+        bytes_expected = bytes_wanted +(1 if bytes_wanted%2 else 0)
+
+        ret = dh.bulkRead(6, bytes_expected, timeout=1000)
+
+        if not bits_ret%8 and not bytes_wanted%2:
+            return ret
+        #print ret.__repr__()
+        if bytes_wanted != bytes_expected:
+            ret = ret[1:]
+        #print bits_ret
+        if bits_ret%8:
+            #print "Trimming bits of ", ret.__repr__()
+            ret_ba = bitarray()
+            for byte_ in ret:
+                ret_ba.extend(bin(ord(byte_))[2:].zfill(8))
+            #print "Bits:", ret_ba
+            ret_ba = bitarray('0')+ret_ba[:-1]
+            #print "post trim:", ret_ba
+            ret = ret_ba.tobytes()
+            #print ret
+        return ret
 
 def bitfieldify(buff, count):
     #bits = bitarray(''.join([bin(ord(i))[2:].zfill(8) for i in buff])[-count:])
@@ -100,6 +124,7 @@ class PlatformCable1Driver(object):
         tmsbits = bitfieldify(buff, count)
         if self._scanchain:
             self._scanchain._tapTransition(tmsbits)
+        print "TMS bits:", tmsbits
 
         outbits = bitarray()
         for i in xrange(int(math.ceil(len(tmsbits)/4.0))):

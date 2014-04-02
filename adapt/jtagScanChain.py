@@ -10,10 +10,15 @@ NULL_ID_CODES = ['\x00\x00\x00\x00',
 def gc(addr):
     return (addr>>1)^addr
 
+def graycode_buff(num, fillcount):
+    buff = bitarray(bin(gc(num))[2:].zfill(fillcount))
+    buff.reverse()
+    return buff
+
 def pstatus(resflags):
     #print resflags.__repr__()
-    if len(resflags)>1:
-        resflags = resflags[0]
+    #if len(resflags)>1:
+    #    resflags = resflags[0]
     print "STATUS: "+("" if (ord(resflags)&0b11000011==1) else "INVALID_STATUS ")+\
         ("ISCDIS " if ord(resflags)&32 else "")+("ISCEN " if ord(resflags)&16 else "")+\
         ("SECURE " if ord(resflags)&8 else "")+("DONE " if ord(resflags)&4 else "")
@@ -132,13 +137,21 @@ class JTAGDevice(object):
 
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
-    def run_TAP_instruction(self, insname, readback=False, execute=True, extraruncycles=0):
+    def run_TAP_instruction(self, insname, readback=False, execute=True, 
+                            extraruncycles=0, arg=None, argbits=None):
         ins = self.desc._instructions[insname]
+        print "TAPins:", insname, ins
         res = self._chain.write_IR_bits(ins.tobytes(),
                                         self.desc._instruction_length,
                                         readback=readback)
+
         if execute:
+            if arg is not None and argbits is not None:
+                self._chain.transition_TAP("UPDATEDR")
+                if argbits>0:
+                    self._chain.write_DR_bits(arg, argbits)
             self._chain.run_TAP_idle(extraruncycles+1)
+
         if readback:
             return res
 
@@ -147,21 +160,27 @@ class JTAGDevice(object):
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
 
+        #import ipdb
+        #ipdb.set_trace()
+
         self._chain.jtagEnable()
 
         pstatus(self.run_TAP_instruction("ISC_ENABLE", readback=True, extraruncycles=8))
 
         pstatus(self.run_TAP_instruction("ISC_ERASE", readback=True, extraruncycles=8))
 
-        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8))
+        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8)) #DISCHARGE
+        time.sleep(0.1)
 
-        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, execute=False))
-        self._chain.transition_TAP("UPDATEDR")
-        self._chain.run_TAP_idle(8)
+        pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8, 
+                                         arg='', argbits=0))
+        time.sleep(0.1)
+        
 
         pstatus(self.run_TAP_instruction("ISC_DISABLE", readback=True, extraruncycles=8))
 
         pstatus(self.run_TAP_instruction("BYPASS", readback=True))
+
         self._chain.transition_TAP("TLR")
 
         self._chain.jtagDisable()
@@ -176,15 +195,15 @@ class JTAGDevice(object):
         pstatus(self.run_TAP_instruction("ISC_ENABLE", readback=True, extraruncycles=8))
 
         for i,r in enumerate(data_array):
-            addr = bitarray(bin(gc(i))[2:].zfill(7))
-            addr.reverse()
+            addr = graycode_buff(i, 7)
 
-            buffered_r = build_byte_align_buff(len(r)) + r
-            buffered_addr = build_byte_align_buff(len(addr)) + addr
+            combinedlen = len(addr)+len(r)
+            buffered_combined = build_byte_align_buff(combinedlen)+addr+r
 
             pstatus(self.run_TAP_instruction("ISC_PROGRAM", readback=True, execute=False))
-            self._chain.write_DR_bits(buffered_r.tobytes(), len(r), readback=True, finish=False)
-            self._chain.write_DR_bits(buffered_addr.tobytes(), len(addr), readback=True)
+            #print "DRBITSHIFTREADY"
+            self._chain.write_DR_bits(buffered_combined.tobytes(), combinedlen)
+            #print "DRBITSHIFTEND"
             self._chain.run_TAP_idle(8)
 
         pstatus(self.run_TAP_instruction("ISC_INIT", readback=True, extraruncycles=8))
@@ -196,6 +215,7 @@ class JTAGDevice(object):
         pstatus(self.run_TAP_instruction("ISC_DISABLE", readback=True, extraruncycles=8))
 
         pstatus(self.run_TAP_instruction("BYPASS", readback=True))
+
         self._chain.transition_TAP("TLR")
 
         self._chain.jtagDisable()
