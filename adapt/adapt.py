@@ -77,6 +77,7 @@ def erase(pargs):
                                               dev.desc.manufacturer,
                                               dev.desc._device_name)
     dev.erase()
+    print "Finished Erase."
 
 def program(pargs):
     print "ADAPT JTAG DEVICE PROGRAMMER"
@@ -125,6 +126,7 @@ def program(pargs):
     print "Programming device..."
     dev.program(outbuffers)
 
+    print "Finished Programming."
 
 
 

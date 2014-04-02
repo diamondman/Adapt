@@ -124,7 +124,7 @@ class PlatformCable1Driver(object):
         tmsbits = bitfieldify(buff, count)
         if self._scanchain:
             self._scanchain._tapTransition(tmsbits)
-        print "TMS bits:", tmsbits
+        #print "TMS bits:", tmsbits
 
         outbits = bitarray()
         for i in xrange(int(math.ceil(len(tmsbits)/4.0))):
