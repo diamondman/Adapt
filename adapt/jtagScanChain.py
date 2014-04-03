@@ -141,15 +141,14 @@ class JTAGDevice(object):
                             loop=0, arg=None, argbits=None, delay=0, expret=None):
         ins = self.desc._instructions[insname]
         #print "TAPins:", insname, ins
-        res = self._chain.write_IR_bits(ins.tobytes(),
-                                        self.desc._instruction_length,
-                                        read=read)
+        res = self._chain.write_IR_bits(ins, read=read)
 
         if execute:
-            if argbits is not None:
+            if arg is not None:
                 self._chain.transition_TAP("UPDATEDR")
-                if argbits>0:
-                    self._chain.write_DR_bits(arg, argbits)
+                if len(arg)>0:
+                    fulldata = build_byte_align_buff(len(arg))+arg
+                    self._chain.write_DR_bits(fulldata.tobytes(), len(arg))
             self._chain.run_TAP_idle(loop+1)
 
         if delay:
@@ -174,7 +173,7 @@ class JTAGDevice(object):
 
         self.run_TAP_instruction("ISC_INIT", loop=8, delay=0.01) #DISCHARGE
 
-        self.run_TAP_instruction("ISC_INIT", loop=8, argbits=0, delay=0.01)
+        self.run_TAP_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
         self.run_TAP_instruction("ISC_DISABLE", loop=8, delay=0.01, expret='\x11')
 
@@ -194,16 +193,12 @@ class JTAGDevice(object):
         self.run_TAP_instruction("ISC_ENABLE", loop=8)
 
         for i,r in enumerate(data_array):
-            addr = graycode_buff(i, 7)
-            combinedlen = len(addr)+len(r)
-            fulldata = build_byte_align_buff(combinedlen)+addr+r
-
-            self.run_TAP_instruction("ISC_PROGRAM", arg=fulldata.tobytes(), 
-                                     argbits=combinedlen, loop=8)
+            pline = graycode_buff(i, 7)+r
+            self.run_TAP_instruction("ISC_PROGRAM", arg=pline, loop=8)
 
         self.run_TAP_instruction("ISC_INIT", loop=8)
 
-        self.run_TAP_instruction("ISC_INIT", loop=8, argbits=0, delay=0.01)
+        self.run_TAP_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
         self.run_TAP_instruction("ISC_DISABLE", loop=8, expret='\x15')
 
@@ -236,13 +231,14 @@ class JTAGScanChain(object):
             #The chain comes out last first. Reverse it to get order.
             self._devices.reverse()
 
-    def write_IR_bits(self, data, count, read=False):
+    def write_IR_bits(self, data, read=False):
         self.transition_TAP("SHIFTIR")
-        res = self._controller.writeTDIBits(data, count-1, return_tdo=read)
+        count = len(data)
+        res = 'X' #To be fixed
+        if count > 1:
+            res = self._controller.writeTDIBits(data.tobytes(), count-1, return_tdo=read)
 
-        rbit = 7 if count%8 == 0 else count%8-1
-        remainder = (ord(data[0])&(pow(2,rbit)))>>rbit
-        self._controller.writeTDIBits(chr(remainder), 1, TMS=True)
+        self._controller.writeTDIBits(chr(data[0]), 1, TMS=True)
 
         return res
 
