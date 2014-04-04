@@ -66,7 +66,11 @@ class DigilentAdeptController(object):
         if ord(res[1]) != 0:
             raise JTAGControlError()
 
-    def writeTMSBits(self, buff, count, return_tdo=False, DI=False):
+    def writeTMSBits(self, buff1, return_tdo=False, DI=False):
+        count = len(buff1)
+        bufferz = bitarray('0'*(8-(len(buff1)%8)))
+        buff = (bufferz+buff1).tobytes()
+
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         if self._scanchain:

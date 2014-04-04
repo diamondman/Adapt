@@ -143,12 +143,10 @@ class JTAGDevice(object):
         #print "TAPins:", insname, ins
         res = self._chain.write_IR_bits(ins, read=read)
 
+        if arg is not None:
+            self._chain.write_DR_bits(arg)
+ 
         if execute:
-            if arg is not None:
-                self._chain.transition_TAP("UPDATEDR")
-                if len(arg)>0:
-                    fulldata = build_byte_align_buff(len(arg))+arg
-                    self._chain.write_DR_bits(fulldata.tobytes(), len(arg))
             self._chain.run_TAP_idle(loop+1)
 
         if delay:
@@ -233,46 +231,43 @@ class JTAGScanChain(object):
 
     def write_IR_bits(self, data, read=False):
         self.transition_TAP("SHIFTIR")
-        count = len(data)
         res = 'X' #To be fixed
-        if count > 1:
-            res = self._controller.writeTDIBits(data.tobytes(), count-1, return_tdo=read)
+        if len(data) > 1:
+            res = self._controller.writeTDIBits(data.tobytes(), len(data)-1, return_tdo=read)
 
         self._controller.writeTDIBits(chr(data[0]), 1, TMS=True)
 
         return res
 
-    def write_DR_bits(self, data, count, read=False, finish=True):
-        if self._sm.state != "SHIFTDR":
-            self.transition_TAP("SHIFTDR")
+    def write_DR_bits(self, data, read=False, finish=True):
+        self.transition_TAP("SHIFTDR")
+        if len(data) == 0:
+            return
+
+        data1 = (build_byte_align_buff(len(data))+data).tobytes()
+
         if not finish:
-            return self._controller.writeTDIBits(data, count, return_tdo=read)
+            return self._controller.writeTDIBits(data1, len(data), return_tdo=read)
         else:
-            res = self._controller.writeTDIBits(data, count-1, return_tdo=read)
-            rbit = 7 if count%8 == 0 else count%8-1
-            remainder = (ord(data[0])&(pow(2,rbit)))>>rbit
-            self._controller.writeTDIBits(chr(remainder), 1, TMS=True)
+            res = self._controller.writeTDIBits(data1, len(data)-1, return_tdo=read)
+            self._controller.writeTDIBits(chr(data[0]), 1, TMS=True)
             return res #TODO fix return
 
     def read_DR_bits(self, count):
-        if self._sm.state != "SHIFTDR":
-            self.transition_TAP("SHIFTDR")
+        self.transition_TAP("SHIFTDR")
         return self._controller.readTDOBits(count)
 
     def transition_TAP(self, state):
         if state == self._sm.state:
             return
-        data = self._sm.calc_transition_to_state(state)
-        bufferz = bitarray('0'*(8-(len(data)%8)))
-        datastr = (bufferz+data).tobytes()
 
-        self._controller.writeTMSBits(datastr, len(data))
+        data = self._sm.calc_transition_to_state(state)
+        self._controller.writeTMSBits(data)
 
     def run_TAP_idle(self, cycles):
         self.transition_TAP("RTI")
         if cycles>1:
-            self._controller.writeTMSBits('\x00'*int(math.ceil(cycles/8.0)),
-                                                 cycles-1)
+            self._controller.writeTMSBits(bitarray('0'*(cycles-1)))
 
     def jtagDisable(self):
         self._sm.state = "_PRE5"

@@ -118,7 +118,12 @@ class PlatformCable1Driver(object):
         self._jtagon = False
         xpcu_enable_output(self._handle, False)
 
-    def writeTMSBits(self, buff, count, return_tdo=False, TDI=False):
+    def writeTMSBits(self, buff1, return_tdo=False, TDI=False):
+        count = len(buff1)
+        
+        bufferz = bitarray('0'*(8-(len(buff1)%8)))
+        buff = (bufferz+buff1).tobytes()
+
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         tmsbits = bitfieldify(buff, count)
