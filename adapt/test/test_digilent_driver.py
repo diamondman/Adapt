@@ -16,3 +16,6 @@ class TestDigilent(unittest.TestCase):
     def setUp(self):
         """Emulate device connection"""
         pass
+
+    def test_1(self):
+        pass

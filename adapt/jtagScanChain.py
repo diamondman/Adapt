@@ -138,9 +138,8 @@ class JTAGDevice(object):
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
     def run_TAP_instruction(self, insname, read=True, execute=True, 
-                            loop=0, arg=None, argbits=None, delay=0, expret=None):
+                            loop=0, arg=None, delay=0, expret=None):
         ins = self.desc._instructions[insname]
-        #print "TAPins:", insname, ins
         res = self._chain.write_IR_bits(ins, read=read)
 
         if arg is not None:
@@ -154,7 +153,7 @@ class JTAGDevice(object):
 
         if read:
             if expret and res != expret:
-                print "MISMATCH status on ins %s. Expected %a"%(insname, res.__repr__())
+                print "MISMATCH status on ins %s. Expected %s"%(insname, res.__repr__())
                 pstatus(res)
             return res
 
@@ -163,7 +162,7 @@ class JTAGDevice(object):
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
 
-        self._chain.jtagEnable()
+        self._chain.jtag_enable()
 
         self.run_TAP_instruction("ISC_ENABLE", loop=8, delay=0.01)
 
@@ -179,14 +178,14 @@ class JTAGDevice(object):
 
         self._chain.transition_TAP("TLR")
 
-        self._chain.jtagDisable()
+        self._chain.jtag_disable()
 
     def program(self, data_array):
         if self._id != 0x16d4c093:
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
 
-        self._chain.jtagEnable()
+        self._chain.jtag_enable()
 
         self.run_TAP_instruction("ISC_ENABLE", loop=8)
 
@@ -204,7 +203,7 @@ class JTAGDevice(object):
 
         self._chain.transition_TAP("TLR")
 
-        self._chain.jtagDisable()
+        self._chain.jtag_disable()
 
 class JTAGScanChain(object):
     def __init__(self, controller):
@@ -218,13 +217,13 @@ class JTAGScanChain(object):
         if not self._hasinit:
             self._devices = []
 
-            self.jtagEnable()
+            self.jtag_enable()
             idcode_str = self.read_DR_bits(32)
             while idcode_str not in NULL_ID_CODES:
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
                 idcode_str = self.read_DR_bits(32)
-            self.jtagDisable()
+            self.jtag_disable()
 
             #The chain comes out last first. Reverse it to get order.
             self._devices.reverse()
@@ -233,9 +232,9 @@ class JTAGScanChain(object):
         self.transition_TAP("SHIFTIR")
         res = 'X' #To be fixed
         if len(data) > 1:
-            res = self._controller.writeTDIBits(data.tobytes(), len(data)-1, return_tdo=read)
+            res = self._controller.write_tdi_bits(data[1:], return_tdo=read)
 
-        self._controller.writeTDIBits(chr(data[0]), 1, TMS=True)
+        self._controller.write_tdi_bits(data[0:1], TMS=True)
 
         return res
 
@@ -244,42 +243,39 @@ class JTAGScanChain(object):
         if len(data) == 0:
             return
 
-        data1 = (build_byte_align_buff(len(data))+data).tobytes()
-
         if not finish:
-            return self._controller.writeTDIBits(data1, len(data), return_tdo=read)
+            return self._controller.write_tdi_bits(data, return_tdo=read)
         else:
-            res = self._controller.writeTDIBits(data1, len(data)-1, return_tdo=read)
-            self._controller.writeTDIBits(chr(data[0]), 1, TMS=True)
+            res = self._controller.write_tdi_bits(data[1:], return_tdo=read)
+            self._controller.write_tdi_bits(data[0:1], TMS=True)
             return res #TODO fix return
 
     def read_DR_bits(self, count):
         self.transition_TAP("SHIFTDR")
-        return self._controller.readTDOBits(count)
+        return self._controller.read_tdo_bits(count)
 
     def transition_TAP(self, state):
         if state == self._sm.state:
             return
 
         data = self._sm.calc_transition_to_state(state)
-        self._controller.writeTMSBits(data)
+        self._controller.write_tms_bits(data)
 
     def run_TAP_idle(self, cycles):
         self.transition_TAP("RTI")
         if cycles>1:
-            self._controller.writeTMSBits(bitarray('0'*(cycles-1)))
+            self._controller.write_tms_bits(bitarray('0'*(cycles-1)))
 
-    def jtagDisable(self):
+    def jtag_disable(self):
         self._sm.state = "_PRE5"
-        self._controller.jtagDisable()
+        self._controller.jtag_disable()
 
-    def jtagEnable(self):
+    def jtag_enable(self):
         self._sm.state = "_PRE5"
-        self._controller.jtagEnable()
+        self._controller.jtag_enable()
 
-    def _tapTransition(self, bits):
+    def _tap_transition_driver_trigger(self, bits):
         statetrans = [self._sm.state]
         for bit in bits[::-1]:
             self._sm.transition_bit(bit)
-            #if statetrans[-1]!=self._sm.state:
             statetrans.append(self._sm.state)
