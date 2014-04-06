@@ -5,7 +5,9 @@ import math
 from bitarray import bitarray
 
 NULL_ID_CODES = ['\x00\x00\x00\x00',
-                 '\xFF\xFF\xFF\xFF']
+                 '\xFF\xFF\xFF\xFF',
+                 bitarray('11111111111111111111111111111111'),
+                 bitarray('00000000000000000000000000000000')]
 
 def gc(addr):
     return (addr>>1)^addr
@@ -19,9 +21,17 @@ def pstatus(resflags):
     #print resflags.__repr__()
     #if len(resflags)>1:
     #    resflags = resflags[0]
-    print "STATUS: "+("" if (ord(resflags)&0b11000011==1) else "INVALID_STATUS ")+\
-        ("ISCDIS " if ord(resflags)&32 else "")+("ISCEN " if ord(resflags)&16 else "")+\
-        ("SECURE " if ord(resflags)&8 else "")+("DONE " if ord(resflags)&4 else "")
+    if not resflags&bitarray('11000011'):
+        print resflags, bitarray('11000011')
+        print resflags&bitarray('11000011')
+        print
+    print "STATUS: "+("" if (resflags&bitarray('11000011')==1) else "INVALID_STATUS ")+\
+        ("ISCDIS " if resflags[-6] else "")+("ISCEN " if resflags[-5] else "")+\
+        ("SECURE " if resflags[-4] else "")+("DONE " if resflags[-3] else "")
+
+    #print "STATUS: "+("" if (ord(resflags)&0b11000011==1) else "INVALID_STATUS ")+\
+    #    ("ISCDIS " if ord(resflags)&32 else "")+("ISCEN " if ord(resflags)&16 else "")+\
+    #    ("SECURE " if ord(resflags)&8 else "")+("DONE " if ord(resflags)&4 else "")
 
 def build_byte_align_buff(bit_count):
     bitmod = bit_count%8
@@ -124,36 +134,48 @@ class JTAGDevice(object):
 
         if isinstance(idcode, int):
             self._id = idcode
+        elif isinstance(idcode, bitarray):
+            if len(idcode)==32:
+                idcode_ = idcode.tobytes()
+                self._id = (ord(idcode_[0])<<24)|(ord(idcode_[1])<<16)|\
+                    (ord(idcode_[2])<<8)|ord(idcode_[3])
+            else:
+                raise ValueError("JTAGDevice idcode parameter must be an "
+                                 "int, a string of length 4, or a bitarray "
+                                 "of 32 bits (%s len: %s)"%(idcode,len(idcode)))
         elif isinstance(idcode, str):
             if len(idcode)==4:
                 self._id = (ord(idcode[0])<<24)|(ord(idcode[1])<<16)|\
                     (ord(idcode[2])<<8)|ord(idcode[3])
             else:
                 raise ValueError("JTAGDevice idcode parameter must be an "
-                                 "int or string of length 4. (%s)"%self._id)
+                                 "int, a string of length 4, or a bitarray "
+                                 "of 32 bits (%s len: %s)"%(idcode,len(idcode)))
         else:
             raise ValueError("JTAGDevice idcode parameter must be an int or "
                              "string of length 4. (Invalid Type: %s)"%type(idcode))
 
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
-    def run_TAP_instruction(self, insname, read=True, execute=True, 
+    def run_tap_instruction(self, insname, read=True, execute=True, 
                             loop=0, arg=None, delay=0, expret=None):
         ins = self.desc._instructions[insname]
-        res = self._chain.write_IR_bits(ins, read=read)
+        res = self._chain.write_ir_bits(ins, read=read)
 
         if arg is not None:
-            self._chain.write_DR_bits(arg)
+            self._chain.write_dr_bits(arg)
  
         if execute:
-            self._chain.run_TAP_idle(loop+1)
+            self._chain.run_tap_idle(loop+1)
 
         if delay:
             time.sleep(delay)
 
         if read:
             if expret and res != expret:
-                print "MISMATCH status on ins %s. Expected %s"%(insname, res.__repr__())
+                print "MISMATCH status on ins %s. Expected %s"%(insname, expret.__repr__())
+                print "GOT:", res
+                print
                 pstatus(res)
             return res
 
@@ -164,19 +186,19 @@ class JTAGDevice(object):
 
         self._chain.jtag_enable()
 
-        self.run_TAP_instruction("ISC_ENABLE", loop=8, delay=0.01)
+        self.run_tap_instruction("ISC_ENABLE", loop=8, delay=0.01)
 
-        self.run_TAP_instruction("ISC_ERASE", loop=8, delay=0.01)
+        self.run_tap_instruction("ISC_ERASE", loop=8, delay=0.01)
 
-        self.run_TAP_instruction("ISC_INIT", loop=8, delay=0.01) #DISCHARGE
+        self.run_tap_instruction("ISC_INIT", loop=8, delay=0.01) #DISCHARGE
 
-        self.run_TAP_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
+        self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
-        self.run_TAP_instruction("ISC_DISABLE", loop=8, delay=0.01, expret='\x11')
+        self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01, expret=bitarray('00010001'))
 
-        self.run_TAP_instruction("BYPASS", delay=0.01, expret='!')
+        self.run_tap_instruction("BYPASS", delay=0.01, expret=bitarray('00100001'))
 
-        self._chain.transition_TAP("TLR")
+        self._chain.transition_tap("TLR")
 
         self._chain.jtag_disable()
 
@@ -187,21 +209,21 @@ class JTAGDevice(object):
 
         self._chain.jtag_enable()
 
-        self.run_TAP_instruction("ISC_ENABLE", loop=8)
+        self.run_tap_instruction("ISC_ENABLE", loop=8)
 
         for i,r in enumerate(data_array):
             pline = graycode_buff(i, 7)+r
-            self.run_TAP_instruction("ISC_PROGRAM", arg=pline, loop=8)
+            self.run_tap_instruction("ISC_PROGRAM", arg=pline, loop=8)
 
-        self.run_TAP_instruction("ISC_INIT", loop=8)
+        self.run_tap_instruction("ISC_INIT", loop=8)
 
-        self.run_TAP_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
+        self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
-        self.run_TAP_instruction("ISC_DISABLE", loop=8, expret='\x15')
+        self.run_tap_instruction("ISC_DISABLE", loop=8, expret=bitarray('00010101'))
 
-        self.run_TAP_instruction("BYPASS", expret='%')
+        self.run_tap_instruction("BYPASS", expret=bitarray('00100101'))
 
-        self._chain.transition_TAP("TLR")
+        self._chain.transition_tap("TLR")
 
         self._chain.jtag_disable()
 
@@ -218,28 +240,28 @@ class JTAGScanChain(object):
             self._devices = []
 
             self.jtag_enable()
-            idcode_str = self.read_DR_bits(32)
+            idcode_str = self.read_dr_bits(32)
             while idcode_str not in NULL_ID_CODES:
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
-                idcode_str = self.read_DR_bits(32)
+                idcode_str = self.read_dr_bits(32)
             self.jtag_disable()
 
             #The chain comes out last first. Reverse it to get order.
             self._devices.reverse()
 
-    def write_IR_bits(self, data, read=False):
-        self.transition_TAP("SHIFTIR")
-        res = 'X' #To be fixed
+    def write_ir_bits(self, data, read=False):
+        self.transition_tap("SHIFTIR")
         if len(data) > 1:
-            res = self._controller.write_tdi_bits(data[1:], return_tdo=read)
+            res = self._controller.write_tdi_bits(data[1:], return_tdo=read)[1:]
+        else:
+            res = bitarray()
 
-        self._controller.write_tdi_bits(data[0:1], TMS=True)
+        return self._controller.write_tdi_bits(data[0:1], TMS=True, return_tdo=read)[7:]+res
+        
 
-        return res
-
-    def write_DR_bits(self, data, read=False, finish=True):
-        self.transition_TAP("SHIFTDR")
+    def write_dr_bits(self, data, read=False, finish=True):
+        self.transition_tap("SHIFTDR")
         if len(data) == 0:
             return
 
@@ -250,19 +272,19 @@ class JTAGScanChain(object):
             self._controller.write_tdi_bits(data[0:1], TMS=True)
             return res #TODO fix return
 
-    def read_DR_bits(self, count):
-        self.transition_TAP("SHIFTDR")
+    def read_dr_bits(self, count):
+        self.transition_tap("SHIFTDR")
         return self._controller.read_tdo_bits(count)
 
-    def transition_TAP(self, state):
+    def transition_tap(self, state):
         if state == self._sm.state:
             return
 
         data = self._sm.calc_transition_to_state(state)
         self._controller.write_tms_bits(data)
 
-    def run_TAP_idle(self, cycles):
-        self.transition_TAP("RTI")
+    def run_tap_idle(self, cycles):
+        self.transition_tap("RTI")
         if cycles>1:
             self._controller.write_tms_bits(bitarray('0'*(cycles-1)))
 

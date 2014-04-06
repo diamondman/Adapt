@@ -73,9 +73,13 @@ class PlatformCable1Driver(object):
             outbits.extend(4*('1' if return_tdo else '0'))
             outbits.extend('1111')
 
-        ret = self.xpcu_GPIO_transfer(len(buff)-1, outbits.tobytes())
-        if ret:
-            return ret[::-1]
+        tdo_bytes = self.xpcu_GPIO_transfer(len(buff)-1, outbits.tobytes())
+        if tdo_bytes:
+            tdo_bytes = tdo_bytes[::-1]
+            tdo_bits = bitarray()
+            for byte_ in tdo_bytes:
+                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
+            return tdo_bits
 
     def write_tdi_bits(self, buff, return_tdo=False, TMS=False):
         if not self._jtagon:
@@ -92,9 +96,14 @@ class PlatformCable1Driver(object):
             outbits.extend('1111' if return_tdo else '0000')
             outbits.extend('1111')
 
-        ret = self.xpcu_GPIO_transfer(len(buff)-1, outbits.tobytes())
-        if ret:
-            return ret[::-1]
+        tdo_bytes = self.xpcu_GPIO_transfer(len(buff)-1, outbits.tobytes())
+
+        if tdo_bytes:
+            tdo_bytes = tdo_bytes[::-1]
+            tdo_bits = bitarray()
+            for byte_ in tdo_bytes:
+                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
+            return tdo_bits
 
 
     def read_tdo_bits(self, count, TMS=False, TDI=False):
@@ -110,9 +119,13 @@ class PlatformCable1Driver(object):
             outbits.extend('1111')
             outbits.extend('1111')
 
-        ret = self.xpcu_GPIO_transfer(count-1, outbits.tobytes())
-        if ret:
-            return ret[::-1]
+        tdo_bytes = self.xpcu_GPIO_transfer(count-1, outbits.tobytes())
+        if tdo_bytes:
+            tdo_bytes = tdo_bytes[::-1]
+            tdo_bits = bitarray()
+            for byte_ in tdo_bytes:
+                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
+            return tdo_bits
 
 
     @property

@@ -97,10 +97,12 @@ def program(pargs):
     jeddata = jedparse.parse_file(pargs.file)
     bits = jeddata['fuses']
 
+    print "Loading map file..."
     mapf = open('/media/F02472C324728BFA/Xilinx/14.7/ISE_DS/ISE/xbr/data/xc2c256.map' )
     reader = csv.reader(mapf, delimiter='\t')
     mapdata = [row for row in reader]
 
+    print "Translating programming file to bitstream..."
     outbuffers = []
     for i in range(len(mapdata[0])):
         outbf = bitarray(1364)

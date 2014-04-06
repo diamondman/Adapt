@@ -13,6 +13,12 @@ import math
 
 from bitarray import bitarray
 
+def blen2Blen(bcount):
+    return int(math.ceil(bcount/8.0))
+
+def len2Blen(buff):
+    return int(math.ceil(len(buff)/8.0))
+
 def build_byte_align_buff(buff):
     bitmod = len(buff)%8
     if bitmod == 0:
@@ -93,7 +99,8 @@ class DigilentAdeptController(object):
 
         tdo_bits = None
         if return_tdo:
-            tdo_bits = h.bulkRead(4, int(math.ceil(len(data)/8.0)))[::-1]
+            res = h.bulkRead(4, len2Blen(data))[::-1]
+            tdo_bits = bitarray(res) # TODO check for trimming
 
         h.bulkWrite(1, '\x03\x02' + chr(0x80|0x0b) + '\x00')
         h.bulkRead(2, 6) #Not checking for now
@@ -120,8 +127,10 @@ class DigilentAdeptController(object):
         #GET DATA BACK
         tdo_bits = None
         if return_tdo is True:
-            byte_count = int(math.ceil(len(buff)/8.0))
-            tdo_bits = self._handle.bulkRead(4, byte_count)[::-1]
+            tdo_bytes = self._handle.bulkRead(4, len2Blen(buff))[::-1]
+            tdo_bits = bitarray()
+            for byte_ in tdo_bytes:
+                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
 
         #GET BACK STATS
         self._handle.bulkWrite(1, '\x03\x02' + chr(0x80|0x08) + '\x00')
@@ -135,23 +144,23 @@ class DigilentAdeptController(object):
         if self._scanchain:
             bits = bitarray(('1' if TMS else '0')*count)
             self._scanchain._tap_transition_driver_trigger(bits)
-        h = self._handle
-        byte_count = int(math.ceil(count/8.0))
-        tdo_bits = None
 
-        h.bulkWrite(1, '\x09\x02\x09\x00'+chr(TMS)+chr(TDI)+\
+        #START REQUEST
+        self._handle.bulkWrite(1, '\x09\x02\x09\x00'+chr(TMS)+chr(TDI)+\
                         "".join([chr((count>>(8*i))&0xff) for i in range(4)]))
-        res = h.bulkRead(2, 2)
+        res = self._handle.bulkRead(2, 2)
         if ord(res[1]) != 0:
             raise JTAGControlError("Uknown Issue reading TDO bits: %s", res)
 
-        tdo_bits = h.bulkRead(4, byte_count)[::-1]
-        #print "0x"+"".join(["%02x"%ord(b) for b in tdo_bits])
+        #READ TDO DATA BACK
+        tdo_bytes = self._handle.bulkRead(4, blen2Blen(count))[::-1]
+        tdo_bits = bitarray()
+        for byte_ in tdo_bytes:
+            tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
 
         #GET BACK STATS
-        h.bulkWrite(1, '\x03\x02' + chr(0x80|0x09) + '\x00')
-        res = h.bulkRead(2, 10)
-        #print res.__repr__() #I may check this later. Do not know how it could fail.
+        self._handle.bulkWrite(1, '\x03\x02' + chr(0x80|0x09) + '\x00')
+        res = self._handle.bulkRead(2, 10)
 
         return tdo_bits
 
