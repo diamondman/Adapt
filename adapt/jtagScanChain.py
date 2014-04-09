@@ -9,14 +9,6 @@ NULL_ID_CODES = ['\x00\x00\x00\x00',
                  bitarray('11111111111111111111111111111111'),
                  bitarray('00000000000000000000000000000000')]
 
-def gc(addr):
-    return (addr>>1)^addr
-
-def graycode_buff(num, fillcount):
-    buff = bitarray(bin(gc(num))[2:].zfill(fillcount))
-    buff.reverse()
-    return buff
-
 def pstatus(resflags):
     #print resflags.__repr__()
     #if len(resflags)>1:
@@ -25,7 +17,7 @@ def pstatus(resflags):
         print resflags, bitarray('11000011')
         print resflags&bitarray('11000011')
         print
-    print "STATUS: "+("" if (resflags&bitarray('11000011')==1) else "INVALID_STATUS ")+\
+    print "STATUS: "+("" if (resflags&bitarray('11000011')==bitarray('00000001')) else "INVALID_STATUS ")+\
         ("ISCDIS " if resflags[-6] else "")+("ISCEN " if resflags[-5] else "")+\
         ("SECURE " if resflags[-4] else "")+("DONE " if resflags[-3] else "")
 
@@ -202,24 +194,23 @@ class JTAGDevice(object):
 
         self._chain.jtag_disable()
 
-    def program(self, data_array):
+    def program(self, bitstream):
         if self._id != 0x16d4c093:
             print "This operation is only supported on the Xilinx XC2C256 for now."
             sys.exit(1)
 
         self._chain.jtag_enable()
 
-        self.run_tap_instruction("ISC_ENABLE", loop=8)
+        self.run_tap_instruction("ISC_ENABLE", loop=8, delay=0.01)
 
-        for i,r in enumerate(data_array):
-            pline = graycode_buff(i, 7)+r
-            self.run_tap_instruction("ISC_PROGRAM", arg=pline, loop=8)
+        for i,r in enumerate(bitstream.segments):
+            self.run_tap_instruction("ISC_PROGRAM", arg=r, loop=8, delay=0.01)
 
-        self.run_tap_instruction("ISC_INIT", loop=8)
+        self.run_tap_instruction("ISC_INIT", loop=8, delay=0.01)
 
         self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
-        self.run_tap_instruction("ISC_DISABLE", loop=8, expret=bitarray('00010101'))
+        self.run_tap_instruction("ISC_DISABLE", loop=8, expret=bitarray('00010101'), delay=0.01)
 
         self.run_tap_instruction("BYPASS", expret=bitarray('00100101'))
 
@@ -301,3 +292,4 @@ class JTAGScanChain(object):
         for bit in bits[::-1]:
             self._sm.transition_bit(bit)
             statetrans.append(self._sm.state)
+

@@ -1,11 +1,10 @@
 import sys
-import csv
 import argparse
 from bitarray import bitarray
 
 from jtagScanChain import JTAGScanChain
+from jedparse import JedecConfigFile
 import jtagControllerManager
-import jedparse
 
 def main():
     parser = argparse.ArgumentParser(description='General purpose tool for configuring FPGAs, '\
@@ -94,39 +93,16 @@ def program(pargs):
                                               dev.desc.manufacturer,
                                               dev.desc._device_name)
     print "Parsing programming file..."
-    jeddata = jedparse.parse_file(pargs.file)
-    bits = jeddata['fuses']
-
-    print "Loading map file..."
-    mapf = open('/media/F02472C324728BFA/Xilinx/14.7/ISE_DS/ISE/xbr/data/xc2c256.map' )
-    reader = csv.reader(mapf, delimiter='\t')
-    mapdata = [row for row in reader]
+    jed = JedecConfigFile(pargs.file)
 
     print "Translating programming file to bitstream..."
-    outbuffers = []
-    for i in range(len(mapdata[0])):
-        outbf = bitarray(1364)
-        outbf.setall(False)
-        for j in range(len(mapdata)):
-            v = mapdata[j][i]
-            if v.isdigit():
-                #if int(v) not in [0,681,682,1363]:
-                outbf[j] = bits[int(v)]
-            elif v == "done_0":
-                outbf[j] = 1
-                outbf[0] = 1
-            elif v == "done_1":
-                outbf[j] = 0
-                outbf[j+1:] = 1
-            elif "sec_" in v:
-                outbf[j] = 1
-        outbuffers.append(outbf)
-    print "Loads required", len(outbuffers)
+    bitstream = jed.to_bitstream('/media/F02472C324728BFA/Xilinx/14.7/ISE_DS/ISE/xbr/data/xc2c256.map')
+    print "Loads required", len(bitstream.segments)
 
     print "Erasing device..."
     dev.erase()
     print "Programming device..."
-    dev.program(outbuffers)
+    dev.program(bitstream)
 
     print "Finished Programming."
 
