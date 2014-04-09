@@ -17,6 +17,7 @@ class JedecConfigFile(object):
         self.fuses = bitarray()
 
         with open(path) as f:
+            last_addr = 0
             for line in f:
                 line = line.replace('\n', '').replace('\r','')
         
@@ -48,6 +49,11 @@ class JedecConfigFile(object):
                 if term == 'L':
                     space_index = line.index(' ')
                     addr = int(line[1:space_index])
+                    addr_diff = addr-len(self.fuses)
+                    if addr_diff<0:
+                        raise Exception("Addresses for fuse bits must monotonically increase")
+                    if addr_diff:
+                        self.fuses += bitarray(('1' if self.default_fuse else '0')*addr_diff)
                     data = bitarray(line[space_index+1:])
                     self.fuses += data
                 elif term == 'N':
@@ -80,14 +86,23 @@ class JedecConfigFile(object):
                 else:
                     raise NotImplementedError
 
+        fuselen_diff = self.fuse_count-len(self.fuses)
+        if fuselen_diff>0:
+            print "ADDING", fuselen_diff
+            self.fuses += bitarray(('1' if self.default_fuse else '0')*fuselen_diff)
+        if fuselen_diff<0:
+            raise Exception("Too many bits provided in jed file fuses")
+
+
     def to_bitstream(self, mappath):
         print "Loading map file..."
         mapf = open(mappath)
         reader = csv.reader(mapf, delimiter='\t')
         mapdata = [row for row in reader]
         
-        f = open('/home/diamondman/CPLDTest/lastadaptprog.dat', 'w')
-        print len(mapdata)
+        #f = open('/home/diamondman/CPLDTest/lastadaptprog.dat', 'w')
+
+        print "Translating programming file to bitstream..."
         outbuffers = []
         for i in range(len(mapdata[0])):
             outbf = bitarray(1364)
@@ -108,10 +123,10 @@ class JedecConfigFile(object):
                     outbf[j] = 1
                 elif v == "":
                     outbf[j] = 1
-            f.write(outbf.to01()+"\n")
+            #f.write(outbf.to01()+"\n")
             outbuffers.append(graycode_buff(i, 7)+outbf)
 
-        f.close()
+        #f.close()
         return BitStream(outbuffers)
 
 

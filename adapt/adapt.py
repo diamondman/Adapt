@@ -95,9 +95,8 @@ def program(pargs):
     print "Parsing programming file..."
     jed = JedecConfigFile(pargs.file)
 
-    print "Translating programming file to bitstream..."
     bitstream = jed.to_bitstream('/media/F02472C324728BFA/Xilinx/14.7/ISE_DS/ISE/xbr/data/xc2c256.map')
-    print "Loads required", len(bitstream.segments)
+    #print "Loads required", len(bitstream.segments)
 
     print "Erasing device..."
     dev.erase()
