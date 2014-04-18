@@ -26,7 +26,8 @@ setup(
     platforms='any',
     license='LICENSE',
     install_requires=[
-        'libusb1 >= 1.0.11.10499'
+        'libusb1 >= 1.0.11.10499',
+        'bitarray == 0.8.1'
     ],
     description="Linux USB JTAG controller for Digilent boards",
     long_description=open(os.path.join(os.path.dirname(__file__),

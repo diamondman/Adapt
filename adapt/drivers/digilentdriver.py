@@ -9,29 +9,9 @@
     :license: Pending, see LICENSE for more details.
 """
 
-import math
-
 from bitarray import bitarray
 
-def blen2Blen(bcount):
-    return int(math.ceil(bcount/8.0))
-
-def len2Blen(buff):
-    return int(math.ceil(len(buff)/8.0))
-
-def build_byte_align_buff(buff):
-    bitmod = len(buff)%8
-    if bitmod == 0:
-        rdiff = bitarray()
-        #print "NO BUFF NEEDED", rdiff
-    else:
-        rdiff = bitarray(8-bitmod)
-        rdiff.setall(False)
-    return rdiff+buff
-
-class JTAGControlError(Exception):
-    pass
-
+from jtagUtils import blen2Blen, buff2Blen, JTAGControlError, build_byte_align_buff
 
 class DigilentAdeptController(object):
 
@@ -40,12 +20,15 @@ class DigilentAdeptController(object):
         h = self._dev.open()
 
         self.serialNumber = h.controlRead(0xC0, 0xE4, 0, 0, 12)
-        self.name = h.controlRead(0xC0, 0xE2, 0, 0, 16).replace('\x00', '').replace('\xFF', '')
+        self.name = h.controlRead(0xC0, 0xE2, 0, 0, 16)\
+            .replace('\x00', '').replace('\xFF', '')
         #This is probably subtly wrong...
         pidraw = h.controlRead(0xC0, 0xE9, 0, 0, 4)
-        self.productId = (ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|(ord(pidraw[2])<<8)|ord(pidraw[3]) #%08x
+        self.productId = (ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|\
+            (ord(pidraw[2])<<8)|ord(pidraw[3]) #%08x
 
-        self.productName = h.controlRead(0xC0, 0xE1, 0, 0, 28).replace('\x00', '').replace('\xFF', '')
+        self.productName = h.controlRead(0xC0, 0xE1, 0, 0, 28)\
+            .replace('\x00', '').replace('\xFF', '')
         firmwareraw = h.controlRead(0xC0, 0xE6, 0, 0, 2)
         self.firmwareVersion = (ord(firmwareraw[1])<<8)|ord(firmwareraw[0])
         h.close()
@@ -99,7 +82,7 @@ class DigilentAdeptController(object):
 
         tdo_bits = None
         if return_tdo:
-            res = h.bulkRead(4, len2Blen(data))[::-1]
+            res = h.bulkRead(4, buff2Blen(data))[::-1]
             tdo_bits = bitarray(res) # TODO check for trimming
 
         h.bulkWrite(1, '\x03\x02' + chr(0x80|0x0b) + '\x00')
@@ -127,7 +110,7 @@ class DigilentAdeptController(object):
         #GET DATA BACK
         tdo_bits = None
         if return_tdo is True:
-            tdo_bytes = self._handle.bulkRead(4, len2Blen(buff))[::-1]
+            tdo_bytes = self._handle.bulkRead(4, buff2Blen(buff))[::-1]
             tdo_bits = bitarray()
             for byte_ in tdo_bytes:
                 tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))

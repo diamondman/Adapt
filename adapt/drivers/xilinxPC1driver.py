@@ -12,14 +12,14 @@
 import math
 from bitarray import bitarray
 
+from jtagUtils import JTAGControlError
+
 PROG = 8
 TCK = 4
 TMS = 2
 TDI = 1
 TDO = 1
 
-class JTAGControlError(Exception):
-    pass
 
 
 class PlatformCable1Driver(object):

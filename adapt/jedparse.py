@@ -2,6 +2,8 @@
 from bitarray import bitarray
 import csv
 
+from jtagUtils import graycode_buff
+
 class JedecConfigFile(object):
     def __init__(self, path):
         self.entity_started = False
@@ -100,7 +102,6 @@ class JedecConfigFile(object):
         reader = csv.reader(mapf, delimiter='\t')
         mapdata = [row for row in reader]
         
-        #f = open('/home/diamondman/CPLDTest/lastadaptprog.dat', 'w')
 
         print "Translating programming file to bitstream..."
         outbuffers = []
@@ -123,25 +124,14 @@ class JedecConfigFile(object):
                     outbf[j] = 1
                 elif v == "":
                     outbf[j] = 1
-            #f.write(outbf.to01()+"\n")
             outbuffers.append(graycode_buff(i, 7)+outbf)
 
-        #f.close()
         return BitStream(outbuffers)
 
 
 class BitStream(object):
     def __init__(self, segments):
         self.segments = segments
-
-def gc(addr):
-    return (addr>>1)^addr
-
-def graycode_buff(num, fillcount):
-    buff = bitarray(bin(gc(num))[2:].zfill(fillcount))
-    buff.reverse()
-    return buff
-
 
 if __name__ == "__main__":
     import sys
