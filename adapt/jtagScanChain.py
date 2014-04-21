@@ -8,7 +8,7 @@ from jtagStateMachine import JTAGStateMachine
 from primative import Level1Primative, Level2Primative, Level3Primative, Executable,\
     DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE,\
     DefaultRunInstructionPrimative,\
-    DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative,\
+    DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative, DefaultReadDRPrimative, \
     DefaultLoadDRPrimative, DefaultLoadReadRegisterPrimative
 from jtagDevice import JTAGDevice
 from command_queue import CommandQueue
@@ -19,6 +19,7 @@ class JTAGScanChain(object):
         if not hasattr(self, cls_._function_name):
             def adder(*args, **kwargs):
                 self._command_queue.append(cls_(*args, **kwargs))
+                return self._command_queue.get_return()
             setattr(self, cls_._function_name, adder)
             self._lv2_primatives[cls_._function_name] = cls_
             #print "Adding %s OK"%cls_
@@ -52,30 +53,31 @@ class JTAGScanChain(object):
                 print "WTF", primative
 
         for primative_cls in [DefaultChangeTAPStatePrimative,
-                          DefaultLoadIRPrimative,
-                          DefaultLoadDRPrimative,
-                          DefaultLoadReadRegisterPrimative]:
+                              DefaultLoadIRPrimative,
+                              DefaultReadDRPrimative,
+                              DefaultLoadDRPrimative,
+                              DefaultLoadReadRegisterPrimative]:
             self.gen_prim_adder(primative_cls)
 
-    def init_chain2(self):
+    def init_chain(self, mock=False):
         if not self._hasinit:
+            if mock:
+                self._devices = [JTAGDevice(self, bitarray('00000110110101001000000010010011')),
+                                 JTAGDevice(self, bitarray('00000110111001011000000010010011'))]
+                return
+
             self._devices = []
 
             self.jtag_enable()
-            idcode_str = self.read_dr_bits(32)
+            idcode_str = self.read_dr(32)
             while idcode_str not in NULL_ID_CODES:
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
-                idcode_str = self.read_dr_bits(32)
+                idcode_str = self.read_dr(32)
             self.jtag_disable()
 
             #The chain comes out last first. Reverse it to get order.
             self._devices.reverse()
-
-    def init_chain(self):
-        if not self._hasinit:
-            self._devices = [JTAGDevice(self, bitarray('00000110110101001000000010010011')),
-                             JTAGDevice(self, bitarray('00000110111001011000000010010011'))]
 
     def flush(self):
         self._command_queue.flush()

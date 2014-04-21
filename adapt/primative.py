@@ -110,37 +110,65 @@ class DefaultChangeTAPStatePrimative(Level2Primative):
 
 class DefaultLoadReadRegisterPrimative(Level2Primative):
     _function_name = '_load_register'
-    def __init__(self, data, read=False):
+    def __init__(self, data, read=False, TMSLast=True, bitcount=None):
         super(DefaultLoadReadRegisterPrimative, self).__init__()
         self.data = data
         self.read = read
+        self.TMSLast = TMSLast
+        self.bitcount=bitcount
 
     def _stage(self, fsm_state):
         super(DefaultLoadReadRegisterPrimative, self)._stage(fsm_state)
-        return fsm_state in ["SHIFTIR", "SHIFTDR"]
+        if fsm_state not in ["SHIFTIR", "SHIFTDR"]:
+            return False
+
+        if not ((self.bitcount if self.bitcount else len(self.data))>0):
+            print "FUCK!"
+            return False
+        return True
 
     def _commit(self, command_queue):
         super(DefaultLoadReadRegisterPrimative, self)._commit(command_queue)
-        command_queue.fsm.transition_bit(1)
+        if self.TMSLast:
+            command_queue.fsm.transition_bit(1)
         return self.read
 
     @property
     def required_effect(self):
         if not self._staged:
             raise Exception("required_effect is only available after staging")
-        return [SEQUENCE,
-                SEQUENCE,
+        return [SEQUENCE if self.TMSLast else ZERO,
+                CONSTANT if self.bitcount else SEQUENCE,
                 ONE if self.read else DOESNOTMATTER] #TMS TDI TDO
 
     def get_effect_bits(self):
-        return [len(self.data),
-                self.data,
-                bitarray((len(self.data)-1)*'0'+"1"), 
-                self.read]
+        TMS = 0
+        if self.TMSLast:
+            TMS = bitarray((len(self.data)-1)*'0'+"1")
+        return [self.bitcount if self.bitcount else len(self.data),
+                TMS, #TMS
+                self.data, #TDI
+                self.read] #TDO
 
     def __repr__(self):
-        return "<LOAD/READREGISTER(%s bits, %sRead)>"%(len(self.data),
-                                                       '' if self.read else 'No')
+        return "<LOAD/READREGISTER(%s bits, %sRead)>"%(
+            self.bitcount if self.bitcount else len(self.data),
+            '' if self.read else 'No')
+
+class DefaultReadDRPrimative(Level2Primative):
+    _function_name = 'read_dr'
+    _is_macro = True
+    def __init__(self, bitcount):
+        super(DefaultReadDRPrimative, self).__init__()
+        self.bitcount = bitcount
+
+    def _expand_macro(self, command_queue):
+        return [command_queue.sc._lv2_primatives.get('transition_tap')("SHIFTDR"),
+                command_queue.sc._lv2_primatives.get('_load_register')(
+                    False, read=True, TMSLast=False, bitcount=self.bitcount)]
+
+    def __repr__(self):
+        return "<ReadDR(%s bits)>"%(len(self.data))
 
 class DefaultLoadDRPrimative(Level2Primative):
     _function_name = 'load_dr'

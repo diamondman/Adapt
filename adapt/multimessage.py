@@ -9,7 +9,7 @@ from drivers.openjtagdriver import OpenJtagDriver
 if __name__ == '__main__':
     for driver in [DigilentAdeptController, XilinxPC1Driver, OpenJtagDriver]:
         sc = JTAGScanChain(driver(None, True))
-        sc.init_chain()
+        sc.init_chain(True)
         dev0 = sc._devices[0]
 
         #dev0.run_tap_instruction("ISC_ENABLE", loop=8, delay=0.01, read=False)

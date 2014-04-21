@@ -12,6 +12,7 @@ class CommandQueue(object):
         self.queue = []
         self.fsm = JTAGStateMachine()
         self.sc = sc
+        self._return_queue = []
 
     def flatten_macro(self, item):
         if not item._is_macro:
@@ -80,3 +81,12 @@ class CommandQueue(object):
         #        print "Need to render down", p
         self.sc._controller.execute(self.queue)
         self.queue = []
+
+    def get_return(self):
+        res = self._return_queue
+        self._return_queue = []
+        if len(res)==1:
+            return res[0]
+        elif len(res)>1:
+            return res
+        return None

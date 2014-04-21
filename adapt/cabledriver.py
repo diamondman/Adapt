@@ -7,5 +7,11 @@ class CableDriver(object):
             print "  Executing", p
             func = getattr(self, p._driver_function_name, None)
             args, kwargs = p._get_args()
+            if not func:
+                raise Exception("Registered function %s not found on class %s"%
+                                (p._driver_function_name, p.__class__))
             if not getattr(self, 'mock', False):
-                func(*args, **kwargs) #TODO pass in stuff
+                res = func(*args, **kwargs) #TODO pass in stuff
+                if res:
+                    #print "RES", res
+                    self._scanchain._command_queue._return_queue.append(res)
