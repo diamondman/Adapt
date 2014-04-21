@@ -50,10 +50,13 @@ class Executable(object):
 class Level1Primative(Primative):
     _layer = 1
     _effect = [0, 0, 0]
+    def __repr__(self):
+        return "<%s(TMS:%s; TDI:%s; TDO:%s)>"%(self.__class__.__name__, self.tms, self.tdi, self.tdo)
 class Level2Primative(Primative):
     _layer = 2
 class Level3Primative(Primative):
     _layer = 3
+    _is_macro = True
 
 class CommandQueue(object):
     def __init__(self, sc):
@@ -71,14 +74,51 @@ class CommandQueue(object):
             return queue
 
     def append(self, prim):
-        flattened_macro = self.flatten_macro(prim)
-        #print "MACRO:", prim, "=>", flattened_macro
-        for item in flattened_macro:
+        for item in self.flatten_macro(prim):
             if item._stage(self.fsm.state):
                 if not item._staged:
                     raise Exception("Primative not marked as staged after calling _stage.")
-                self.queue.append(item)
+
                 commit_res = item._commit(self)
+                if isinstance(item, Executable):
+                    self.queue.append(item)
+                else:
+                    print "Need to render down", item
+                    possible_prims = []
+                    reqef = item.required_effect
+        
+                    #print ('  \033[95m%s %s %s\033[94m'%tuple(reqef)).replace('0', '-'), item,'\033[0m'
+                    for p1 in self.sc._lv1_primatives:
+                        ef = p1._effect
+                        efstyledstr = ''
+                        worststyle = 0
+                        for i in xrange(3):
+                            if reqef[i] is None:
+                                reqef[i] = 0
+    
+                            curstyle = 0
+                            if (ef[i]&reqef[i]) is not reqef[i]:
+                                curstyle = 1 if ef[i]==CONSTANT else 2
+    
+                            #efstyledstr += "%s%s "%(styles.get(curstyle), ef[i])
+                            if curstyle > worststyle:
+                                worststyle = curstyle
+    
+                        if worststyle == 0:
+                            possible_prims.append(p1)
+                        #print " ",efstyledstr, styles.get(worststyle)+p1.__name__+"\033[0m"
+        
+                    if not len(possible_prims):
+                        raise Exception('Unable to match Primative to lower level Primative.')
+                    best_prim = possible_prims[0]
+                    for prim in possible_prims[1:]:
+                        if sum(prim._effect)<sum(best_prim._effect):
+                            best_prim = prim
+                    #print "    POSSIBILITIES:", [p.__name__ for p in possible_prims]
+                    print "    WINNER:", best_prim.__name__
+                    bits = item.get_effect_bits()
+                    self.queue.append(best_prim(*bits))
+
                 if not item._committed:
                     raise Exception("Primative not marked as committed after calling _commit.")
                 if commit_res:
@@ -86,70 +126,37 @@ class CommandQueue(object):
 
     def flush(self):
         print "FLUSHING", self.queue
-        for p in self.queue:
-            self.sc._controller.execute(self.queue)
-            self.queue = []
+        #for p in self.queue:
+        #    if not isinstance(p, Executable):
+        #        print "Need to render down", p
+        self.sc._controller.execute(self.queue)
+        self.queue = []
 
-##########################################################################################
-"""            possible_prims = []
-            reqef = p.required_effect
-
-            #print ('  \033[95m%s %s %s\033[94m'%tuple(reqef)).replace('0', '-'), p, '\033[0m'
-            for p1 in self.sc._controller._primatives:
-                if issubclass(p1, Level1Primative):
-                    ef = p1._effect
-                    efstyledstr = ''
-                    worststyle = 0
-                    for i in xrange(3):
-                        if reqef[i] is None:
-                            reqef[i] = 0
-                    
-                        curstyle = 0
-                        if (ef[i]&reqef[i]) is not reqef[i]:
-                            curstyle = 1 if ef[i]==CONSTANT else 2
-                        
-                        efstyledstr += "%s%s "%(styles.get(curstyle), ef[i])
-                        if curstyle > worststyle:
-                            worststyle = curstyle
-                    
-                    if worststyle == 0:
-                        possible_prims.append(p1)
-                    #print " ",efstyledstr, styles.get(worststyle)+p1.__name__+"\033[0m"
-
-            if not len(possible_prims):
-                raise Exception('Unable to match Primative to lower level Primative.')
-            best_prim = possible_prims[0]
-            for prim in possible_prims[1:]:
-                if sum(prim._effect)<sum(best_prim._effect):
-                    best_prim = prim
-            print "    POSSIBILITIES:", [p.__name__ for p in possible_prims]
-            print "    WINNER:", best_prim.__name__
-            """
 ##########################################################################################
 
 class DefaultRunInstructionPrimative(Level3Primative):
-    _is_macro = True
-    def __init__(self, insname, read=True, execute=True, 
+    def __init__(self, device, insname, read=True, execute=True,
                  loop=0, arg=None, delay=0, expret=None):
         super(DefaultRunInstructionPrimative, self).__init__()
         self.insname = insname
-        self.inscode = bitarray('11001010')
+        self.inscode = device.desc._instructions[insname]
         self.read = read
         self.execute = execute
         self.arg = arg
 
     def _expand_macro(self, command_queue):
         macro = [command_queue.sc._lv2_primatives.get('load_ir')(self.inscode, read=self.read)]
-        if self.execute:
-            macro.append(command_queue.sc._lv2_primatives.get('transition_tap')("RTI"))
 
         if self.arg is not None:
             macro.append(command_queue.sc._lv2_primatives.get('load_dr')(self.arg, False))
 
+        if self.execute:
+            macro.append(command_queue.sc._lv2_primatives.get('transition_tap')("RTI"))
+
         #TODO ADD DELAY
         #TODO ADD READ
         return macro
-    
+
 
 class JTAGDevice(object):
     def __init__(self, chain, idcode):
@@ -178,7 +185,8 @@ class JTAGDevice(object):
         self.desc = JTAGDeviceDescription.get_descriptor_for_idcode(self._id)
 
     def run_tap_instruction(self, *args, **kwargs):
-        self._chain._command_queue.append(DefaultRunInstructionPrimative(*args, **kwargs))
+        self._chain._command_queue.append(
+            DefaultRunInstructionPrimative(self, *args, **kwargs))
 
 ##########################################################################################
 
@@ -202,15 +210,17 @@ class DefaultChangeTAPStatePrimative(Level2Primative):
 
     @property
     def required_effect(self):
-        """TMS, TDI, TDO"""
         if not self._staged:
             raise Exception("required_effect is only available after staging")
         return [SEQUENCE,
                 ZERO,
                 DOESNOTMATTER]
 
+    def get_effect_bits(self):
+        return [self._bits, 0, 0]
+
     def __repr__(self):
-        return "<TAPTransition(%s=>%s)>"%(self._startstate if self._startstate 
+        return "<TAPTransition(%s=>%s)>"%(self._startstate if self._startstate
                                           else '?', self._targetstate)
 
 class DefaultLoadReadRegisterPrimative(Level2Primative):
@@ -233,12 +243,17 @@ class DefaultLoadReadRegisterPrimative(Level2Primative):
     def required_effect(self):
         if not self._staged:
             raise Exception("required_effect is only available after staging")
-        return [SEQUENCE, 
-                SEQUENCE, 
+        return [SEQUENCE,
+                SEQUENCE,
                 ONE if self.read else DOESNOTMATTER] #TMS TDI TDO
 
+    def get_effect_bits(self):
+        return [self.data,
+                bitarray((len(self.data)-1)*'0'+"1"), 
+                self.read]
+
     def __repr__(self):
-        return "<LOAD/READREGISTER(%s bits, %sRead)>"%(len(self.data), 
+        return "<LOAD/READREGISTER(%s bits, %sRead)>"%(len(self.data),
                                                        '' if self.read else 'No')
 
 class DefaultLoadDRPrimative(Level2Primative):
@@ -254,7 +269,7 @@ class DefaultLoadDRPrimative(Level2Primative):
                 command_queue.sc._lv2_primatives.get('_load_register')(self.data, read=self.read)]
 
     def __repr__(self):
-        return "<LoadDR(%s bits, %sRead)>"%(len(self.data), 
+        return "<LoadDR(%s bits, %sRead)>"%(len(self.data),
                                             '' if self.read else 'No')
 
 class DefaultLoadIRPrimative(Level2Primative):
@@ -271,7 +286,7 @@ class DefaultLoadIRPrimative(Level2Primative):
 
 
     def __repr__(self):
-        return "<LoadIR(%s bits, %sRead)>"%(len(self.data), 
+        return "<LoadIR(%s bits, %sRead)>"%(len(self.data),
                                             '' if self.read else 'No')
 
 class ScanChain(object):
@@ -288,7 +303,7 @@ class ScanChain(object):
 
     def __init__(self, controller):
         print "Starting a scan chain with", controller
- 
+
         self._devices = []
         self._hasinit = False
         self._sm = JTAGStateMachine()
@@ -311,7 +326,7 @@ class ScanChain(object):
             else:
                 print "WTF", primative
 
-        for primative_cls in [DefaultChangeTAPStatePrimative, 
+        for primative_cls in [DefaultChangeTAPStatePrimative,
                           DefaultLoadIRPrimative,
                           DefaultLoadDRPrimative,
                           DefaultLoadReadRegisterPrimative]:
@@ -331,26 +346,36 @@ class ScanChain(object):
 class DigilentWriteTMSPrimative(Level1Primative, Executable):
     """TMS, TDI, TDO"""
     _effect = [SEQUENCE, CONSTANT, CONSTANT]
+    def __init__(self, tms, tdi, tdo):
+        self.tms, self.tdi, self.tdo = tms, tdi, tdo
 
 class DigilentWriteTDIPrimative(Level1Primative, Executable):
     """TMS, TDI, TDO"""
     _effect = [CONSTANT, SEQUENCE, CONSTANT]
+    def __init__(self, tms, tdi, tdo):
+        self.tms, self.tdi, self.tdo = tms, tdi, tdo
 
 class DigilentWriteTMSTDIPrimative(Level1Primative, Executable):
     """TMS, TDI, TDO"""
     _effect = [SEQUENCE, SEQUENCE, CONSTANT]
+    def __init__(self, tms, tdi, tdo):
+        self.tms, self.tdi, self.tdo = tms, tdi, tdo
 
 class DigilentReadTDOPrimative(Level1Primative, Executable):
     """TMS, TDI, TDO"""
     _effect = [CONSTANT, CONSTANT, ONE]
+    def __init__(self, tms, tdi, tdo):
+        self.tms, self.tdi, self.tdo = tms, tdi, tdo
 
 class LIESTDIHighPrimative(Level1Primative, Executable):
     """TMS, TDI, TDO"""
     _effect = [CONSTANT, ONE, ONE]
+    def __init__(self, tms, tdi, tdo):
+        self.tms, self.tdi, self.tdo = tms, tdi, tdo
 
 class DigilentDriver(CableDriver):
-    _primatives = [DigilentWriteTDIPrimative, DigilentWriteTMSPrimative, 
-                   DigilentWriteTMSTDIPrimative, DigilentReadTDOPrimative, 
+    _primatives = [DigilentWriteTDIPrimative, DigilentWriteTMSPrimative,
+                   DigilentWriteTMSTDIPrimative, DigilentReadTDOPrimative,
                    LIESTDIHighPrimative]
 
 
@@ -359,6 +384,8 @@ class XPC1TransferPrimative(Level1Primative, Executable):
     _max_bits = 65536
     """TMS, TDI, TDO"""
     _effect = [SEQUENCE, SEQUENCE, SEQUENCE]
+    def __init__(self, tms, tdi, tdo):
+        self.tms, self.tdi, self.tdo = tms, tdi, tdo
 
 class XilinxPC1Driver(CableDriver):
     _primatives = [XPC1TransferPrimative]
@@ -382,7 +409,7 @@ class OpenJtagChangeTAPStatePrimative(Level2Primative, Executable):
         return False
 
     def __repr__(self):
-        return "<OpenJtag TAPTransition(%s=>%s)>"%(self._startstate if self._startstate 
+        return "<OpenJtag TAPTransition(%s=>%s)>"%(self._startstate if self._startstate
                                           else '?', self._targetstate)
 
 class OpenJtagLoadReadRegisterPrimative(Level2Primative, Executable):
@@ -402,7 +429,7 @@ class OpenJtagLoadReadRegisterPrimative(Level2Primative, Executable):
         return self.read
 
     def __repr__(self):
-        return "<OpenJtag LOAD/READREGISTER(%s bits, %sRead)>"%(len(self.data), 
+        return "<OpenJtag LOAD/READREGISTER(%s bits, %sRead)>"%(len(self.data),
                                                        '' if self.read else 'No')
 
 class OpenJtagDriver(CableDriver):
@@ -415,19 +442,15 @@ if __name__ == '__main__':
     for driver in [DigilentDriver, XilinxPC1Driver, OpenJtagDriver]:
         sc = ScanChain(driver())
         sc.init_chain()
-    
-        #sc.load_ir(bitarray('11001010'))
-        #sc.transition_tap("RTI")
-        
         dev0 = sc._devices[0]
-        dev0.run_tap_instruction("ISC_ENABLE")
-        #sc.transition_tap("SHIFTIR")
-        #sc.load_ir(bitarray('11001010'), read=True)
-        #sc.transition_tap("RTI")
-    
-        #sc.transition_tap("SHIFTIR")
-        #sc.load_ir(bitarray('11001010'))
-        #sc.transition_tap("RTI")
-    
+
+        #dev0.run_tap_instruction("ISC_ENABLE", loop=8, delay=0.01, read=False)
+        #dev0.run_tap_instruction("ISC_ERASE", loop=8, delay=0.01, read=False)
+        dev0.run_tap_instruction("ISC_INIT", loop=8, delay=0.01, read=False) #DISCHARGE
+        dev0.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01, read=False)
+        #dev0.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01, expret=bitarray('00010001'))
+        #dev0.run_tap_instruction("BYPASS", delay=0.01, expret=bitarray('00100001'))
+        #sc.transition_tap("TLR")
+
         sc.flush()
         print
