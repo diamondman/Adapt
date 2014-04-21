@@ -12,27 +12,80 @@
 from bitarray import bitarray
 
 from jtagUtils import blen2Blen, buff2Blen, JTAGControlError, build_byte_align_buff
+from cabledriver import CableDriver
+from primative import Level1Primative, Executable,\
+    DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE
 
-class DigilentAdeptController(object):
+class DigilentWriteTMSPrimative(Level1Primative, Executable):
+    _driver_function_name = 'write_tms_bits'
+    """TMS, TDI, TDO"""
+    _effect = [SEQUENCE, CONSTANT, CONSTANT]
+    def __init__(self, count, tms, tdi, tdo):
+        self.count, self.tms, self.tdi, self.tdo = count, tms, tdi, tdo
+    def _get_args(self):
+        return [self.tms], {'return_tdo':self.tdo, 'TDI': self.tdi}
 
-    def __init__(self, dev):
+class DigilentWriteTDIPrimative(Level1Primative, Executable):
+    _driver_function_name = 'write_tdi_bits'
+    """TMS, TDI, TDO"""
+    _effect = [CONSTANT, SEQUENCE, CONSTANT]
+    def __init__(self, count, tms, tdi, tdo):
+        self.count, self.tms, self.tdi, self.tdo = count, tms, tdi, tdo
+    def _get_args(self):
+        return [self.tdi], {'return_tdo':self.tdo, 'TMS': self.tms}
+
+class DigilentWriteTMSTDIPrimative(Level1Primative, Executable):
+    _driver_function_name = 'write_tms_tdi_bits'
+    """TMS, TDI, TDO"""
+    _effect = [SEQUENCE, SEQUENCE, CONSTANT]
+    def __init__(self, count, tms, tdi, tdo):
+        self.count, self.tms, self.tdi, self.tdo = count, tms, tdi, tdo
+    def _get_args(self):
+        return [self.tms, self.tdi], {'return_tdo':self.tdo}
+
+class DigilentReadTDOPrimative(Level1Primative, Executable):
+    _driver_function_name = 'read_tdo_bits'
+    """TMS, TDI, TDO"""
+    _effect = [CONSTANT, CONSTANT, ONE]
+    def __init__(self, count, tms, tdi, tdo):
+        self.count, self.tms, self.tdi, self.tdo = count, tms, tdi, tdo
+    def _get_args(self):
+        return [self.count], {'TMS': self.tms, 'TDI': self.tdi}
+
+class LIESTDIHighPrimative(Level1Primative, Executable):
+    _driver_function_name = 'lies_lies'
+    """TMS, TDI, TDO"""
+    _effect = [CONSTANT, ONE, ONE]
+    def __init__(self, count, tms, tdi, tdo):
+        self.count, self.tms, self.tdi, self.tdo = count, tms, tdi, tdo
+    def _get_args(self):
+        return [], {}
+
+
+class DigilentAdeptController(CableDriver):
+    _primatives = [DigilentWriteTDIPrimative, DigilentWriteTMSPrimative,
+                   DigilentWriteTMSTDIPrimative, DigilentReadTDOPrimative,
+                   LIESTDIHighPrimative]
+    def __init__(self, dev, mock=False):
+        self.mock = mock
         self._dev = dev
-        h = self._dev.open()
-
-        self.serialNumber = h.controlRead(0xC0, 0xE4, 0, 0, 12)
-        self.name = h.controlRead(0xC0, 0xE2, 0, 0, 16)\
-            .replace('\x00', '').replace('\xFF', '')
-        #This is probably subtly wrong...
-        pidraw = h.controlRead(0xC0, 0xE9, 0, 0, 4)
-        self.productId = (ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|\
-            (ord(pidraw[2])<<8)|ord(pidraw[3]) #%08x
-
-        self.productName = h.controlRead(0xC0, 0xE1, 0, 0, 28)\
-            .replace('\x00', '').replace('\xFF', '')
-        firmwareraw = h.controlRead(0xC0, 0xE6, 0, 0, 2)
-        self.firmwareVersion = (ord(firmwareraw[1])<<8)|ord(firmwareraw[0])
-        h.close()
-
+        if not mock:
+            h = self._dev.open()
+    
+            self.serialNumber = h.controlRead(0xC0, 0xE4, 0, 0, 12)
+            self.name = h.controlRead(0xC0, 0xE2, 0, 0, 16)\
+                .replace('\x00', '').replace('\xFF', '')
+            #This is probably subtly wrong...
+            pidraw = h.controlRead(0xC0, 0xE9, 0, 0, 4)
+            self.productId = (ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|\
+                (ord(pidraw[2])<<8)|ord(pidraw[3]) #%08x
+    
+            self.productName = h.controlRead(0xC0, 0xE1, 0, 0, 28)\
+                .replace('\x00', '').replace('\xFF', '')
+            firmwareraw = h.controlRead(0xC0, 0xE6, 0, 0, 2)
+            self.firmwareVersion = (ord(firmwareraw[1])<<8)|ord(firmwareraw[0])
+            h.close()
+    
         self._dev_handle = None
         self._jtagon = False
 
@@ -40,12 +93,14 @@ class DigilentAdeptController(object):
 
 
     def __repr__(self):
+        if self.mock:
+            return "%s(MOCK)"%self.__class__.__name__
         return "%s(%s; Name: %s; SN: %s; FWver: %04x)"%\
-                                         (self.__class__.__name__,
-                                          self.productName,
-                                          self.name,
-                                          self.serialNumber,
-                                          self.firmwareVersion)
+            (self.__class__.__name__,
+             self.productName,
+             self.name,
+             self.serialNumber,
+             self.firmwareVersion)
 
     def jtag_enable(self):
         h = self._handle

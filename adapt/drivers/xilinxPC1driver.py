@@ -12,6 +12,10 @@
 import math
 from bitarray import bitarray
 
+from cabledriver import CableDriver
+from primative import Level1Primative, Level2Primative, Level3Primative, Executable,\
+    DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE,\
+    DefaultRunInstructionPrimative
 from jtagUtils import JTAGControlError
 
 PROG = 8
@@ -20,27 +24,42 @@ TMS = 2
 TDI = 1
 TDO = 1
 
+class XPC1TransferPrimative(Level1Primative, Executable):
+    _driver_function_name = 'transfer_bits'
+    _max_bits = 65536
+    """TMS, TDI, TDO"""
+    _effect = [SEQUENCE, SEQUENCE, SEQUENCE]
+    def __init__(self, count, tms, tdi, tdo):
+        self.count, self.tms, self.tdi, self.tdo = count, tms, tdi, tdo
+    def _get_args(self):
+        return [self.count, self.tms, self.tdi], {'TDO': self.tdo}
 
-
-class PlatformCable1Driver(object):
-
-    def __init__(self, dev):
+class XilinxPC1Driver(CableDriver):
+    _primatives = [XPC1TransferPrimative]
+    def __init__(self, dev, mock=False):
+        self.mock = mock
         self._dev = dev
-        h = self._dev.open()
-
-        self.serialNumber = '000000000000'
-        self.name = 'PC1_'+self.serialNumber[-4:]
-        self.productId = 0#(ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|(ord(pidraw[2])<<8)|ord(pidraw[3]) #%08xo
-
-        self.productName = 'Platform Cable 1'#h.controlRead(0xC0, 0xE1, 0, 0, 28).replace('\x00', '').replace('\xFF', '')
-        self.firmwareVersion = 0
-        h.close()
+        if not mock:
+            h = self._dev.open()
+    
+            self.serialNumber = '000000000000'
+            self.name = 'PC1_'+self.serialNumber[-4:]
+            self.productId = 0#(ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|(ord(pidraw[2])<<8)|ord(pidraw[3]) #%08xo
+    
+            self.productName = 'Platform Cable 1'#h.controlRead(0xC0, 0xE1, 0, 0, 28).replace('\x00', '').replace('\xFF', '')
+            self.firmwareVersion = 0
+            h.close()
 
         self._dev_handle = None
         self._jtagon = False
         self._scanchain = None
 
+    def transfer_bits(self, count, TMS, TDI, TDO=0):
+        pass
+
     def __repr__(self):
+        if self.mock:
+            return "%s(MOCK)"%self.__class__.__name__
         return "%s(%s; Name: %s; SN: %s; FWver: %04x)"%\
                                          (self.__class__.__name__,
                                           self.productName,
@@ -186,4 +205,4 @@ class PlatformCable1Driver(object):
 
 
 
-__filter__ = [((0x03FD, 0x0008),PlatformCable1Driver)]
+__filter__ = [((0x03FD, 0x0008),XilinxPC1Driver)]
