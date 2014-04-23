@@ -78,6 +78,7 @@ class JTAGDeviceDescription(object):
         if len(cls._desc_id_file_cache.keys()) > 0:
             return
         path = os.path.join(adapt_base_dir, 'tmp', 'id_bsdl_cache.json')
+        #print path
         if os.path.isfile(path):
             try:
                 f = open(path)
@@ -103,6 +104,7 @@ class JTAGDeviceDescription(object):
         cls._load_id_file_cache()
         #ipdb.set_trace()
 
+        #print cls._desc_id_file_cache.keys()
         if str(idcode) in cls._desc_id_file_cache.keys():
             fname = cls._desc_id_file_cache[str(idcode)]
             desc = JTAGDeviceDescription(fname)

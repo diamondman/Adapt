@@ -9,7 +9,7 @@ _controllerfilter = {}
 _modules = []
 
 driver_count = 0
-base_dir = environ.get('ADAPT_HOME', '')
+base_dir = environ.get('ADAPT_HOME', '/home/diamondman/Adapt')
 for loader, module_name, is_pkg in pkgutil.iter_modules([join(base_dir,'adapt/drivers'),
                                                          join(base_dir, 'drivers')]):
     driver_count += 1

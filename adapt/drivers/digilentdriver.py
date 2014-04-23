@@ -125,23 +125,24 @@ class DigilentAdeptController(CableDriver):
         if self._scanchain:
             self._scanchain._tap_transition_driver_trigger(data)
 
-        h = self._handle
 
-        h.bulkWrite(1, '\x09\x02\x0b\x00'+chr(return_tdo)+chr(TDI)+\
+        self._handle.bulkWrite(1, '\x09\x02\x0b\x00'+chr(return_tdo)+chr(TDI)+\
                         "".join([chr((len(data)>>(8*i))&0xff) for i in range(4)]))
-        res = h.bulkRead(2, 2)
+        res = self._handle.bulkRead(2, 2)
         if ord(res[1]) != 0:
             raise JTAGControlError("Uknown Issue writing TMS bits: %s", res)
 
-        h.bulkWrite(3, build_byte_align_buff(data).tobytes()[::-1])
+        self._handle.bulkWrite(3, build_byte_align_buff(data).tobytes()[::-1])
 
         tdo_bits = None
         if return_tdo:
-            res = h.bulkRead(4, buff2Blen(data))[::-1]
-            tdo_bits = bitarray(res) # TODO check for trimming
+            res = self._handle.bulkRead(4, buff2Blen(data))[::-1]
+            tdo_bits = bitarray()
+            for byte_ in tdo_bytes:
+                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
 
-        h.bulkWrite(1, '\x03\x02' + chr(0x80|0x0b) + '\x00')
-        h.bulkRead(2, 6) #Not checking for now
+        self._handle.bulkWrite(1, '\x03\x02' + chr(0x80|0x0b) + '\x00')
+        self._handle.bulkRead(2, 6) #Not checking for now
 
         return tdo_bits
 
@@ -149,8 +150,8 @@ class DigilentAdeptController(CableDriver):
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         if self._scanchain:
-            bits = bitarray(('1' if TMS else '0')*len(buff))
-            self._scanchain._tap_transition_driver_trigger(bits)
+            tms_bits = bitarray(('1' if TMS else '0')*len(buff))
+            self._scanchain._tap_transition_driver_trigger(tms_bits)
 
         self._handle.bulkWrite(1, '\x09\x02\x08\x00'+chr(return_tdo)+chr(TMS)+\
                         "".join([chr((len(buff)>>(8*i))&0xff) for i in range(4)]))
@@ -158,11 +159,8 @@ class DigilentAdeptController(CableDriver):
         if ord(res[1]) != 0:
             raise JTAGControlError("Uknown Issue writing TDI bits: %s", res)
 
-        #WRITE DATA
-        bbuff = build_byte_align_buff(buff).tobytes()
-        self._handle.bulkWrite(3, bbuff[::-1])
+        self._handle.bulkWrite(3, build_byte_align_buff(buff).tobytes()[::-1])
 
-        #GET DATA BACK
         tdo_bits = None
         if return_tdo is True:
             tdo_bytes = self._handle.bulkRead(4, buff2Blen(buff))[::-1]
@@ -170,9 +168,38 @@ class DigilentAdeptController(CableDriver):
             for byte_ in tdo_bytes:
                 tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
 
-        #GET BACK STATS
         self._handle.bulkWrite(1, '\x03\x02' + chr(0x80|0x08) + '\x00')
         self._handle.bulkRead(2, 10) #Not checking this for now.
+
+        return tdo_bits
+
+    def write_tms_tdi_bits(self, tmsdata, tdidata, return_tdo=False):
+        if not self._jtagon:
+            raise JTAGControlError('JTAG Must be enabled first')
+        if len(tmsdata) != len(tdidata):
+            raise Exception("TMSdata and TDIData must be the same length")
+        if self._scanchain:
+            self._scanchain._tap_transition_driver_trigger(tmsdata)
+
+        self._handle.bulkWrite(1, '\x08\x02\x0A\x00'+chr(return_tdo)+\
+                        "".join([chr((len(tdidata)>>(8*i))&0xff) for i in range(4)]))
+        res = self._handle.bulkRead(2, 2)
+        if ord(res[1]) != 0:
+            raise JTAGControlError("Uknown Issue writing TMS bits: %s", res)
+
+        data = bitarray([val for pair in zip(tmsdata, tdidata) for val in pair])
+        #data = bitarray((('1' if tmsdata[0] else '0')+('1' if tdidata[0] else '0'))*len(tmsdata))
+        self._handle.bulkWrite(3, build_byte_align_buff(data).tobytes()[::-1])
+
+        tdo_bits = None
+        if return_tdo:
+            tdo_bytes = self._handle.bulkRead(4, buff2Blen(data))[::-1]
+            tdo_bits = bitarray()
+            for byte_ in tdo_bytes:
+                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
+
+        self._handle.bulkWrite(1, '\x03\x02' + chr(0x80|0x0A) + '\x00')
+        self._handle.bulkRead(2, 10) #Not checking for now. Number may be wrong
 
         return tdo_bits
 

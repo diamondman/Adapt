@@ -33,7 +33,7 @@ class CommandQueue(object):
                 if isinstance(item, Executable):
                     self.queue.append(item)
                 else:
-                    print "Need to render down", item
+                    #print "Need to render down", item
                     possible_prims = []
                     reqef = item.required_effect
         
@@ -75,7 +75,7 @@ class CommandQueue(object):
                     self.flush()
 
     def flush(self):
-        print "FLUSHING", self.queue
+        #print "FLUSHING", self.queue
         #for p in self.queue:
         #    if not isinstance(p, Executable):
         #        print "Need to render down", p

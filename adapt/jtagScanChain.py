@@ -5,11 +5,9 @@ from bitarray import bitarray
 
 from jtagDeviceDescription import JTAGDeviceDescription
 from jtagStateMachine import JTAGStateMachine
-from primative import Level1Primative, Level2Primative, Level3Primative, Executable,\
-    DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE,\
-    DefaultRunInstructionPrimative,\
+from primative import Level1Primative, Level2Primative,\
     DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative, DefaultReadDRPrimative, \
-    DefaultLoadDRPrimative, DefaultLoadReadRegisterPrimative
+    DefaultLoadDRPrimative, DefaultLoadReadRegisterPrimative, DefaultSleepPrimative
 from jtagDevice import JTAGDevice
 from command_queue import CommandQueue
 from jtagUtils import NULL_ID_CODES, pstatus
@@ -19,7 +17,9 @@ class JTAGScanChain(object):
         if not hasattr(self, cls_._function_name):
             def adder(*args, **kwargs):
                 self._command_queue.append(cls_(*args, **kwargs))
-                return self._command_queue.get_return()
+                res = self._command_queue.get_return()
+                #print " "*3, cls_.__name__, "returns", res
+                return res
             setattr(self, cls_._function_name, adder)
             self._lv2_primatives[cls_._function_name] = cls_
             #print "Adding %s OK"%cls_
@@ -56,11 +56,13 @@ class JTAGScanChain(object):
                               DefaultLoadIRPrimative,
                               DefaultReadDRPrimative,
                               DefaultLoadDRPrimative,
-                              DefaultLoadReadRegisterPrimative]:
+                              DefaultLoadReadRegisterPrimative,
+                              DefaultSleepPrimative]:
             self.gen_prim_adder(primative_cls)
 
     def init_chain(self, mock=False):
         if not self._hasinit:
+            self._hasinit = True
             if mock:
                 self._devices = [JTAGDevice(self, bitarray('00000110110101001000000010010011')),
                                  JTAGDevice(self, bitarray('00000110111001011000000010010011'))]
@@ -74,6 +76,7 @@ class JTAGScanChain(object):
                 Jdev = JTAGDevice(self, idcode_str)
                 self._devices.append(Jdev)
                 idcode_str = self.read_dr(32)
+            self.flush()
             self.jtag_disable()
 
             #The chain comes out last first. Reverse it to get order.
@@ -84,10 +87,12 @@ class JTAGScanChain(object):
 
     def jtag_disable(self):
         self._sm.state = "_PRE5"
+        self._command_queue.fsm.state = "_PRE5"
         self._controller.jtag_disable()
 
     def jtag_enable(self):
         self._sm.state = "_PRE5"
+        self._command_queue.fsm.state = "_PRE5"
         self._controller.jtag_enable()
 
     def _tap_transition_driver_trigger(self, bits):

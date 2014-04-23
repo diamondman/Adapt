@@ -1,10 +1,14 @@
+import time
+
+from jtagUtils import JTAGControlError
+
 class CableDriver(object):
     def __repr__(self):
         return "<%s>"%self.__class__.__name__
 
     def execute(self, commands):
         for p in commands:
-            print "  Executing", p
+            #print "  Executing", p
             func = getattr(self, p._driver_function_name, None)
             args, kwargs = p._get_args()
             if not func:
@@ -15,3 +19,8 @@ class CableDriver(object):
                 if res:
                     #print "RES", res
                     self._scanchain._command_queue._return_queue.append(res)
+
+    def sleep(self, delay):
+        if not self._jtagon:
+            raise JTAGControlError('JTAG Must be enabled first')
+        time.sleep(delay)

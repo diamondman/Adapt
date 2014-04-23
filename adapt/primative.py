@@ -35,7 +35,16 @@ class Level1Primative(Primative):
     _layer = 1
     _effect = [0, 0, 0]
     def __repr__(self):
-        return "<%s(TMS:%s; TDI:%s; TDO:%s)>"%(self.__class__.__name__, self.tms, self.tdi, self.tdo)
+        tms = self.tms
+        tdi = self.tdi
+        tdo = self.tdo
+        if isinstance(self.tdi, bitarray):
+            if len(self.tdi)>30:
+                tdi = "%s...(%s bits)"%(tdi[0:30], len(tdi))
+        if isinstance(self.tms, bitarray):
+            if len(self.tms)>30:
+                tms = "%s...(%s bits)"%(tms[0:30], len(tms))
+        return "<%s(TMS:%s; TDI:%s; TDO:%s)>"%(self.__class__.__name__, tms, tdi, tdo)
 class Level2Primative(Primative):
     _layer = 2
 class Level3Primative(Primative):
@@ -50,13 +59,14 @@ class Level3Primative(Primative):
 
 class DefaultRunInstructionPrimative(Level3Primative):
     def __init__(self, device, insname, read=True, execute=True,
-                 loop=0, arg=None, delay=0, expret=None):
+                 loop=0, arg=None, delay=0):
         super(DefaultRunInstructionPrimative, self).__init__()
         self.insname = insname
         self.inscode = device.desc._instructions[insname]
         self.read = read
         self.execute = execute
         self.arg = arg
+        self.delay = delay
 
     def _expand_macro(self, command_queue):
         macro = [command_queue.sc._lv2_primatives.get('load_ir')(self.inscode, read=self.read)]
@@ -67,7 +77,8 @@ class DefaultRunInstructionPrimative(Level3Primative):
         if self.execute:
             macro.append(command_queue.sc._lv2_primatives.get('transition_tap')("RTI"))
 
-        #TODO ADD DELAY
+        if self.delay:
+            macro.append(command_queue.sc._lv2_primatives.get('sleep')(self.delay))
         #TODO ADD READ
         return macro
 
@@ -123,7 +134,6 @@ class DefaultLoadReadRegisterPrimative(Level2Primative):
             return False
 
         if not ((self.bitcount if self.bitcount else len(self.data))>0):
-            print "FUCK!"
             return False
         return True
 
@@ -144,7 +154,7 @@ class DefaultLoadReadRegisterPrimative(Level2Primative):
     def get_effect_bits(self):
         TMS = 0
         if self.TMSLast:
-            TMS = bitarray((len(self.data)-1)*'0'+"1")
+            TMS = bitarray("1"+(len(self.data)-1)*'0')
         return [self.bitcount if self.bitcount else len(self.data),
                 TMS, #TMS
                 self.data, #TDI
@@ -202,3 +212,21 @@ class DefaultLoadIRPrimative(Level2Primative):
     def __repr__(self):
         return "<LoadIR(%s bits, %sRead)>"%(len(self.data),
                                             '' if self.read else 'No')
+
+
+class DefaultSleepPrimative(Level2Primative, Executable):
+    _function_name = 'sleep'
+    _driver_function_name = 'sleep'
+    def __init__(self, delay):
+        super(DefaultSleepPrimative, self).__init__()
+        self.delay = delay
+
+    def _stage(self, fsm_state):
+        super(DefaultSleepPrimative, self)._stage(fsm_state)
+        return self.delay>0
+
+    def _get_args(self):
+        return [self.delay], {}
+
+    def __repr__(self):
+        return "<SLEEP(%s seconds)>"%(self.delay)
