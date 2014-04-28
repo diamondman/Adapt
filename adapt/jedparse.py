@@ -1,8 +1,9 @@
 #!/usr/bin/python
 from bitarray import bitarray
 import csv
+import os
 
-from jtagUtils import graycode_buff
+from jtagUtils import graycode_buff, adapt_base_dir
 
 class JedecConfigFile(object):
     def __init__(self, path):
@@ -96,35 +97,46 @@ class JedecConfigFile(object):
             raise Exception("Too many bits provided in jed file fuses")
 
 
-    def to_bitstream(self, mappath):
-        print "Loading map file..."
-        mapf = open(mappath)
+    def to_bitstream(self, devicedesc):
+        name = devicedesc._device_name.replace("_"+devicedesc._chip_package, '').lower()
+        mapf = open(os.path.join(adapt_base_dir, "res", "map", "%s.map"%name))
         reader = csv.reader(mapf, delimiter='\t')
         mapdata = [row for row in reader]
-        
 
-        print "Translating programming file to bitstream..."
+        reg_len = devicedesc._ins_reg_map['ISC_PROGRAM'].length
+
+        if "xc2c32" in name:
+            addr_len = 6
+            align = [0, 259]
+        else:
+            addr_len = 7
+            if "xc2c64" in name:
+                align = []
+            elif "xc2c128" in name:
+                align = [0,375,376,751]
+            elif "xc2c256" in name:
+                align = [0,681,682,1363]
+
         outbuffers = []
-        for i in range(len(mapdata[0])):
-            outbf = bitarray(1364)
-            outbf.setall(False)
-            for j in range(len(mapdata)):
-                v = mapdata[j][i]
+        for col in range(len(mapdata[0])):
+            outbf = bitarray(reg_len-addr_len)
+            outbf.setall(True)
+            for row in range(len(mapdata)):
+                v = mapdata[row][col]
                 if v.isdigit():
-                    outbf[j] = self.fuses[int(v)]
-                elif i in (0,681,682,1363):
-                    outbf[j] = 1
-                elif v == "done_0":
-                    outbf[j] = 1
-                    outbf[0] = 1
-                elif v == "done_1":
-                    outbf[j] = 0
-                    outbf[j+1:] = 1
-                elif "sec_" in v:
-                    outbf[j] = 1
-                elif v == "":
-                    outbf[j] = 1
-            outbuffers.append(graycode_buff(i, 7)+outbf)
+                    outbf[row] = self.fuses[int(v)]
+                elif row in align:
+                    outbf[row] = 0
+                elif v in ["done_1", "done<1>"]:
+                    outbf[row] = 0
+                #elif v in ["done_0", "done<0>"]:
+                #    outbf[row] = 1
+                #    outbf[0] = 1
+                #elif "sec_" in v:
+                #    outbf[row] = 1
+                #elif v == "":
+                #    outbf[row] = 1
+            outbuffers.append(graycode_buff(col, addr_len)+outbf)
 
         return BitStream(outbuffers)
 

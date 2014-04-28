@@ -9,7 +9,7 @@ from jtagUtils import adapt_base_dir
 class DeviceRegister(object):
     def __init__(self, name, length):
         self.name = name
-        self.length = length
+        self.length = int(length)
 
     def __repr__(self):
         return "<Register(%s; %s bits)>"%(self.name, self.length)
@@ -89,7 +89,7 @@ class JTAGDeviceDescription(object):
                 braceindex = reg.index('[')
                 endbraceindex = reg.index(']')
                 name = reg[:braceindex]
-                length = reg[braceindex:endbraceindex]
+                length = reg[braceindex+1:endbraceindex]
                 self.register_map[reg] = DeviceRegister(name, length)
 
             #TODO Maybe add stuff for idcode into the instruction or check for missing.

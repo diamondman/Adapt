@@ -11,7 +11,7 @@ class JTAGDevice(object):
     def __init__(self, chain, idcode):
         #if not isinstance(chain, JTAGScanChain):
         #    raise ValueError("JTAGDevice requires an instnace of JTAGScanChain")
-        self._chain = chain
+        self.chain = chain
         self._current_DR = None
 
         if isinstance(idcode, int):
@@ -37,9 +37,9 @@ class JTAGDevice(object):
 
     def run_tap_instruction(self, *args, **kwargs):
         expret = kwargs.pop('expret', None)
-        self._chain._command_queue.append(
+        self.chain._command_queue.append(
             DefaultRunInstructionPrimative(self, *args, **kwargs))
-        res = self._chain._command_queue.get_return()
+        res = self.chain._command_queue.get_return()
         if expret and res != expret:
             print "MISMATCH status on ins %s. Expected %s"%(args[0], expret.__repr__())
             print "GOT:", res, "\n"
@@ -47,11 +47,7 @@ class JTAGDevice(object):
         return res
 
     def erase(self):
-        if self._id != 0x16d4c093:
-            print "This operation is only supported on the Xilinx XC2C256 for now."
-            sys.exit(1)
-
-        self._chain.jtag_enable()
+        self.chain.jtag_enable()
 
         self.run_tap_instruction("BYPASS", delay=0.01)
 
@@ -65,18 +61,16 @@ class JTAGDevice(object):
 
         self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01)#, expret=bitarray('00010001'))
 
-        self.run_tap_instruction("BYPASS", delay=0.01)#, expret=bitarray('00100001'))
+        print self.run_tap_instruction("BYPASS", delay=0.01)#, expret=bitarray('00100001'))
 
-        self._chain.transition_tap("TLR")
+        self.chain.transition_tap("TLR")
 
-        self._chain.jtag_disable()
+        self.chain.jtag_disable()
 
-    def program(self, bitstream):
-        if self._id != 0x16d4c093:
-            print "This operation is only supported on the Xilinx XC2C256 for now."
-            sys.exit(1)
+    def program(self, configfile):
+        bitstream = configfile.to_bitstream(self.desc)
 
-        self._chain.jtag_enable()
+        self.chain.jtag_enable()
 
         self.run_tap_instruction("BYPASS", delay=0.01)
 
@@ -93,6 +87,6 @@ class JTAGDevice(object):
 
         self.run_tap_instruction("BYPASS")#, expret=bitarray('00100101'))
 
-        self._chain.transition_tap("TLR")
+        self.chain.transition_tap("TLR")
 
-        self._chain.jtag_disable()
+        self.chain.jtag_disable()

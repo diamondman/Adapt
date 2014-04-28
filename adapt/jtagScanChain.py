@@ -28,8 +28,6 @@ class JTAGScanChain(object):
         return False
 
     def __init__(self, controller):
-        print "Starting a scan chain with", controller
-
         self._devices = []
         self._hasinit = False
         self._sm = JTAGStateMachine()

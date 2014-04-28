@@ -95,12 +95,10 @@ def program(pargs):
     print "Parsing programming file..."
     jed = JedecConfigFile(pargs.file)
 
-    bitstream = jed.to_bitstream('/media/F02472C324728BFA/Xilinx/14.7/ISE_DS/ISE/xbr/data/xc2c256.map')
-
     print "Erasing device..."
     dev.erase()
     print "Programming device..."
-    dev.program(bitstream)
+    dev.program(jed)
 
     print "Finished Programming."
 
