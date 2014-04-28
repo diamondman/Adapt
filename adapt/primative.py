@@ -62,18 +62,40 @@ class DefaultRunInstructionPrimative(Level3Primative):
                  loop=0, arg=None, delay=0):
         super(DefaultRunInstructionPrimative, self).__init__()
         self.insname = insname
-        self.inscode = device.desc._instructions[insname]
         self.read = read
         self.execute = execute
         self.arg = arg
         self.delay = delay
-        print "Changing dev reg to:", device.desc._ins_reg_map[self.insname]
+        self.target_device = device
 
     def _expand_macro(self, command_queue):
-        macro = [command_queue.sc._lv2_primatives.get('load_ir')(self.inscode, read=self.read)]
+        devices = command_queue.sc._devices
+
+        out_ir = bitarray()
+        for i, dev in enumerate(devices):
+            if dev is self.target_device:
+                instruction = self.insname
+            else:
+                instruction = 'BYPASS'
+            dev._current_DR = dev.desc._ins_reg_map[instruction]
+            #print "Dev %s DR: %s"%(i, dev._current_DR)
+            inscode = dev.desc._instructions[instruction]
+            out_ir.extend(inscode)
+
+        #print "OUTIR:", out_ir
+        #print 
+
+        macro = [command_queue.sc._lv2_primatives.get('load_ir')(out_ir, read=self.read)]
 
         if self.arg is not None:
-            macro.append(command_queue.sc._lv2_primatives.get('load_dr')(self.arg, False))
+            out_dr = bitarray()
+            if self.arg != bitarray():
+                for dev in devices:
+                    if dev is self.target_device:
+                        out_dr.extend(self.arg)
+                    else:
+                        out_dr.extend('0')
+            macro.append(command_queue.sc._lv2_primatives.get('load_dr')(out_dr, False))
 
         if self.execute:
             macro.append(command_queue.sc._lv2_primatives.get('transition_tap')("RTI"))

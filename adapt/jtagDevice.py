@@ -12,6 +12,7 @@ class JTAGDevice(object):
         #if not isinstance(chain, JTAGScanChain):
         #    raise ValueError("JTAGDevice requires an instnace of JTAGScanChain")
         self._chain = chain
+        self._current_DR = None
 
         if isinstance(idcode, int):
             self._id = idcode
@@ -62,9 +63,9 @@ class JTAGDevice(object):
 
         self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
-        self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01, expret=bitarray('00010001'))
+        self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01)#, expret=bitarray('00010001'))
 
-        self.run_tap_instruction("BYPASS", delay=0.01, expret=bitarray('00100001'))
+        self.run_tap_instruction("BYPASS", delay=0.01)#, expret=bitarray('00100001'))
 
         self._chain.transition_tap("TLR")
 
@@ -88,9 +89,9 @@ class JTAGDevice(object):
 
         self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
-        self.run_tap_instruction("ISC_DISABLE", loop=8, expret=bitarray('00010101'), delay=0.01)
+        self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01)#, expret=bitarray('00010101'))
 
-        self.run_tap_instruction("BYPASS", expret=bitarray('00100101'))
+        self.run_tap_instruction("BYPASS")#, expret=bitarray('00100101'))
 
         self._chain.transition_tap("TLR")
 
