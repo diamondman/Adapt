@@ -86,6 +86,7 @@ class JTAGScanChain(object):
         self._command_queue.flush()
 
     def jtag_disable(self):
+        self.flush()
         self._sm.state = "_PRE5"
         self._command_queue.fsm.state = "_PRE5"
         self._controller.jtag_disable()
@@ -101,3 +102,4 @@ class JTAGScanChain(object):
             self._sm.transition_bit(bit)
             statetrans.append(self._sm.state)
 
+    

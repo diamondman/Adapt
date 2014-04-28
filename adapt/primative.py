@@ -67,6 +67,7 @@ class DefaultRunInstructionPrimative(Level3Primative):
         self.execute = execute
         self.arg = arg
         self.delay = delay
+        print "Changing dev reg to:", device.desc._ins_reg_map[self.insname]
 
     def _expand_macro(self, command_queue):
         macro = [command_queue.sc._lv2_primatives.get('load_ir')(self.inscode, read=self.read)]

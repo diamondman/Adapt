@@ -6,6 +6,14 @@ from bsdlparse import parse_file
 from jtagUtils import manufacturer_lookup
 from jtagUtils import adapt_base_dir
 
+class DeviceRegister(object):
+    def __init__(self, name, length):
+        self.name = name
+        self.length = length
+
+    def __repr__(self):
+        return "<Register(%s; %s bits)>"%(self.name, self.length)
+
 class BSDLInvalidFormatException(Exception):
     pass
 
@@ -24,6 +32,8 @@ class JTAGDeviceDescription(object):
     def __init__(self, bsdl_path):
         self._file_name = bsdl_path
         parser_result = parse_file(self._file_name)
+        #import ipdb
+        #ipdb.set_trace()
         self._device_name = parser_result['entity_name']
         attributes = parser_result['attributes']
 
@@ -48,10 +58,45 @@ class JTAGDeviceDescription(object):
         try:
             instructions_str = attributes['INSTRUCTION_OPCODE'].replace('\t','').replace(' ','')
             instructions_temp = [i.replace(')','').split('(') for i in instructions_str.split('),')]
-            self._instructions = {i[0]:bitarray(str(i[1])) for i in instructions_temp if ',' not in i[1]}
-            #self._instructions = {i[0]:int(i[1], 2) for i in instructions_temp if ',' not in i[1]}
+            self._instructions = {i[0]:bitarray(str(i[1])) for i in instructions_temp 
+                                  if ',' not in i[1]}
         except ValueError, e:
             raise BSDLInvalidFormatException('Instruction codes are poorly formatted in %s.'%self._file_name)
+
+        try:
+            register_access_str = attributes['REGISTER_ACCESS'].replace('\t','').replace(' ','')
+            register_access_temp = [i.replace(')','').split('(') 
+                                    for i in register_access_str.split('),')]
+            registers_strs = {i[0] for i in register_access_temp if ',' not in i[1]}
+            
+            try:
+                registers_strs.remove("BYPASS")
+                registers_strs.remove("BOUNDARY")
+            except KeyError as e:
+                raise Exception("Register Access configuration does not contain a "
+                                "required '%s' register in file %s."%(e.message, self._file_name))
+
+            self.register_map = {
+                "BYPASS": DeviceRegister("BYPASS", 1),
+                "BOUNDARY": DeviceRegister("BOUNDARY", attributes['BOUNDARY_LENGTH']),
+                "IDREGISTER": DeviceRegister("IDREGISTER", 32)
+                }
+
+            for reg in registers_strs:
+                if '[' not in reg or ']' not in reg:
+                    raise Exception("Custom register names in bsdl files must have lengths. "
+                                    "Invalid length in file %s, reg %s"%(self._file_name, reg))
+                braceindex = reg.index('[')
+                endbraceindex = reg.index(']')
+                name = reg[:braceindex]
+                length = reg[braceindex:endbraceindex]
+                self.register_map[reg] = DeviceRegister(name, length)
+
+            #TODO Maybe add stuff for idcode into the instruction or check for missing.
+            self._ins_reg_map = {i[1]:self.register_map[i[0]] 
+                                 for i in register_access_temp if ',' not in i[1]}
+        except ValueError, e:
+            raise BSDLInvalidFormatException('Register access poorly formatted in %s.'%self._file_name)
 
         constants_keys = parser_result['constants'].keys()
         self._chip_package = "UNKNOWN" if not len(constants_keys) else constants_keys[0];

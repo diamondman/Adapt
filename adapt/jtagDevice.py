@@ -41,8 +41,7 @@ class JTAGDevice(object):
         res = self._chain._command_queue.get_return()
         if expret and res != expret:
             print "MISMATCH status on ins %s. Expected %s"%(args[0], expret.__repr__())
-            print "GOT:", res
-            print
+            print "GOT:", res, "\n"
             pstatus(res)
         return res
 
@@ -69,8 +68,6 @@ class JTAGDevice(object):
 
         self._chain.transition_tap("TLR")
 
-        self._chain.flush()
-
         self._chain.jtag_disable()
 
     def program(self, bitstream):
@@ -87,7 +84,7 @@ class JTAGDevice(object):
         for r in bitstream.segments:
             self.run_tap_instruction("ISC_PROGRAM", arg=r, loop=8, delay=0.01)
 
-        self.run_tap_instruction("ISC_INIT", loop=8, delay=0.01)
+        self.run_tap_instruction("ISC_INIT", loop=8, delay=0.01) #DISCHARGE
 
         self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
 
@@ -96,7 +93,5 @@ class JTAGDevice(object):
         self.run_tap_instruction("BYPASS", expret=bitarray('00100101'))
 
         self._chain.transition_tap("TLR")
-
-        self._chain.flush()
 
         self._chain.jtag_disable()

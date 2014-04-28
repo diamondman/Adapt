@@ -57,6 +57,7 @@ class OpenJtagDriver(CableDriver):
     def __init__(self, dev, mock=False):
         self.mock = mock
         self._dev = dev
+        self.name = "OpenJTAGv1"
 
     def change_TAP_state(self, state):
         pass
@@ -64,5 +65,11 @@ class OpenJtagDriver(CableDriver):
     def loadread_reg(self, data, read):
         pass
 
+    def jtag_enable(self):
+        pass
 
-__filter__ = [((0x0000, None),OpenJtagDriver)]
+    def jtag_disable(self):
+        pass
+
+
+__filter__ = [((0x0403, 0x6001),OpenJtagDriver)]
