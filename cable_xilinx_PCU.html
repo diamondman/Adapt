@@ -31,74 +31,126 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="flashing-concerns" class="anchor" href="#flashing-concerns"><span class="octicon octicon-link"></span></a>Firmware concerns for the Xilinx Platform Cable USB JTAG controller.</h3>
+        <h3><a name="flashing-concerns" class="anchor" href="#flashing-concerns"><span class="octicon octicon-link"></span></a>Xilinx Platform Cable USB (XPCU) Documentation.</h3>
 
-<p>The following describes all understood messages in Xilinx's USB protocol for communicating with devices over JTAG.</p>
 
-<p>This device uses Cypress EZ-USB chips, so it requires being flashed every time the device is powered on. The tool fxload will handle this, and you can easily set up UDEV rules in linux (or whatever other system your distribution uses) to automatically flash the device).</p>
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Microprocessor</strong></td>
+      <td>Cypress EZ-USB FX2LP</td>
+    </tr>
+    <tr>
+      <td><strong>Hardware Accelerated</strong></td>
+      <td>Yes (Xilinx XC2C256)</td>
+    </tr>
+    <tr>
+      <td><strong>Firmware Stored in Flash</strong></td>
+      <td>No. Reloaded every power on.</td>
+    </tr>
+    <tr>
+      <td><strong>Firmware State</strong></td>
+      <td>Proprietary. Mostly reversed.</td>
+    </tr>
+    <tr>
+      <td><strong>Firmware Path</strong></td>
+      <td>{Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_emb.hex</td>
+    </tr>
+    <tr>
+      <td><strong>Latest Firmware Version</strong></td>
+      <td>1028 (0x0404)</td>
+    </tr>
+  </tbody>
+</table>
 
-<p>The firmware hex file for this device can be found inside the linux install of ISE. There are several files with the same name at various locations, but ignore them and use the one at {Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_emb.hex. If you use the wrong file, it will either refuse to load, or appear to load but not re-enumerate properly and behave oddly despite the green light on the device lighting up.</p>
 
-<p>When the device is plugged in it appears as idVendor:03fd, idProduct:000d. These values identify the device as not flashed.</p>
+<ol>
+  <li><a href="#getting-started">Getting Started</a></li>
+  <li><a href="#proto-specs">Protocol Specifications</a></li>
+  <li><a href="#dv-specs">Device Specifications</a></li>
+  <li><a href="#troubleshooting">TroubleShooting</a></li>
+</ol>
 
-<p>Once the device is correctly flashed, it should automatically disconnect and reenumerate as idVendor:03fd, idProduct:0008. If it does not, something is wrong and the device will not work correctly:</p>
 
-<p>Here is a simple udev rule set for dealing with the initialization of the device, as well as setting the permissions.</p>
+<h3><a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h3>
+	<p>The XPCU controller powers on with no firmware. Loading firmware will cause the device to re-enumerate as a different usb device. Checking lsusb for the idvendor and idproduct will show if the device is programmed.</p>
+<table>
+  <thead>
+    <tr><td></td><td><strong>Default</strong></td><td><strong>Programmed<strong></td></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>idVendor</strong></td><td>0x03FD</td><td>0x03FD</td>
+    </tr>
+    <tr>
+      <td><strong>idProduct</strong></td><td>0x000D</td><td>0x0008</td>
+    </tr>
+  </tbody>
+</table>
+<p>Some cables may have different default values. Please report any you find.</p>
+
+<p>Loading the XPCU with firmware can be done with the fxload tool. It can be used manually through the terminal, but the following udev rule will auto load the firmware every time the XPCU is plugged into the host machine.</p>
+<h5>UDEV Rule for auto firmware loading</h5>
+<p>Write the following lines to /etc/udev/rules.d/xusbfwu.rules and set the file permission to 644.</p>
 <pre>SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="000d", MODE="666", RUN+="/sbin/fxload -v -t fx2 -I '/path/to/xusb_emb.hex' -D $tempnode"
 SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008", MODE="666"</pre>
+<p>When the device is next plugged into USB after a short delay, the led should turn green or red (depending if a JTAG target is detected). If no light turns on, the firmware is not being loaded right. If the light turns on but the device behaves oddly, see the troubleshooting section.</p>
 
-<h3>
-<a name="Firmware version notes" class="anchor" href="#firmware-version-notes"><span class="octicon octicon-link"></span></a>Firmware Version Notes</h3>
+<h3><a name="proto-specs" class="anchor" href="#proto-specs"><span class="octicon octicon-link"></span></a>Protocol Specification</h3>
 
-<p>Due to the fact that the firmware of the Platform Cable is loaded at run time, every time, it is very possible that Xilinx could change the entire protocol on a whim and make this entire document wrong for future versions of the firmware. I do not know if Xilinx will do this, but since it is an option, I will make the following note.</p>
+<p>The USB specification requires the host to initiate all transfers. Control messages to endpoint 0 control the XPCU. Bulk transfers send jtag data for the command to use (if any).</p>
 
-<p><strong>Known Supported Firmware Version: 1028 (0x0404)</strong></p>
+For all jtag related USB-control messages.
+<table>
+  <tr>
+    <td><strong>bRequest</strong></td>
+    <td>0xB0</td>
+  </tr>
+  <tr>
+    <td><strong>bmRequestType<strong></td>
+    <td>
+      OUT(To XPCU): 0x40<br>
+      IN(To PC): 0xC0
+    </td>
+  </tr>
+  <tr>
+    <td><strong>wValue</strong></td>
+    <td>Command number (lower byte)</td>
+  </tr>
+  <tr>
+    <td><strong>wIndex</strong></td>
+    <td>Parameter to Command</td>
+  </tr>
+  <tr>
+    <td><strong>wLength</strong></td>
+    <td>Number of bytes to send in control message.</td>
+  </tr>
+  <tr>
+    <td><strong>Bulk OUT Endpoint</strong></td>
+    <td>EP2</td>
+  </tr>
+  <tr>
+    <td><strong>Bulk IN Endpoint</strong></td>
+    <td>EP6</td>
+  </tr>
+</table>
 
-<p>If you want to check the version of firmware you have, you can run the following commands replacing $PATH_TO_FIRMWARE_FILE with your hex file's path.</p>
 
-<pre>
-  FW_VERSION_STRING=`grep ":0219B900" <strong>$PATH_TO_FIRMWARE_FILE`</strong>;
-  FW_HEX_VERSION=${FW_VERSION_STRING:9:4};
-  printf "%d" 0x$FW_HEX_VERSION;
-</pre>
 
-<h3>
-<a name="protocol-documentation-for-xpcu1-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-xpcu1-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for the Xilinx Platform Cable USB JTAG controller.</h3>
-
-<p>The xilinx PCU1 protocol uses a mixture of control and bulk messages for its operations. Control messages do one of three things</p>
-<ul>
-  <li>Set a property (Enable the controller)</li>
-  <li>Read a property (The state of the JTAG lines)</li>
-  <li>Initialize a more complicated control message</li>
-</ul>
-
-<p>All messages seen so far have a Request code of 0xb0, and the actual operation being performed is specified by the Value field. The protocol likes to send control messages with no data (length field = 0). It instead passes arguments in through the 16 bit index field of the first packet of the control message, saving one packet per such message.</p>
-
-<p>Bulk messages are sent after the completion of a control message to set up the operation.</p>
-
-<p>Data is only returned from bulk operations if the setting is enabled. There doesn't appear to be any per request way of specifying a return besides to send a control message enabling/disabling data return.</p>
-
-<p><strong>Note:</strong> For all the known operations, the Request field is 0xB0.</p>
-<p><strong>Note:</strong> The Request Type of control messages is one of the following, given the direction of the request (To controller = Out):</p>
-<ul>
-  <li>OUT: 0x40</li>
-  <li>IN: 0xC0</li>
-</ul>
 
 <table>
   <thead><tr>
       <th>Name</th>
       <th>Dir</th>
-      <th>Value (cmd)</th>
-      <th>Index (param)</th>
-      <th>Length</th>
+      <th>Value</th>
+      <th>Index</th>
+      <th>LEN</th>
       <th>Description</th>
   </tr></thead>
   <tbody>
     <tr>
       <td>Device Enable</td>
-      <td>OUT</td>
+      <td>O</td>
       <td>0x18</td>
       <td>0</td>
       <td>0</td>
@@ -106,30 +158,30 @@ SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008"
     </tr>
     <tr>
       <td>Device Disable</td>
-      <td>OUT</td>
+      <td>O</td>
       <td>0x10</td>
       <td>0</td>
       <td>0</td>
       <td>Not required, but you should clean up.</td>
     </tr>
     <tr>
-      <td><strike>Set Return Bulk</strike> Unknown</td>
-      <td>OUT</td>
+      <td>Set JTAG Speed</td>
+      <td>O</td>
       <td>0x28</td>
-      <td><strike><strong>0x11:</strong> OFF<br><strong>0x12:</strong> ON</strike></td>
+      <td>Speed</td>
       <td>0</td>
-      <td><strike>If on, causes some message sequences that include bulk_write to get data back on bulk EP 6.</strike> This seems to have been a coincidence. Whether the bulk jtag transmit return data is based on the data sent in the bulk part of the request.</td>
+      <td>Specifies a speed class for the target device and changes the speed of all furure JTAG transfers. Often 0x11. Bit 4 should always be set in the speed class.</td>
     </tr>
     <tr>
       <td>Read GPIO</td>
-      <td>IN</td>
+      <td>I</td>
       <td>0x38</td>
       <td>0</td>
       <td>1</td>
       <td>Has some side effects. Not sure completely what they are, but when run after enabling the device, it will cause the GPIO lines to change to a default value of some kind. It will then report that TDO and TMS are high. Calling it again will show that only TDO is high, as will further calls. This instruction is not well understood and the name largely comes from other reverse engineering efforts.</td>
     <tr>
       <td rowspan="3">Bulk JTAG Transfer</td>
-      <td>OUT</td>
+      <td>O</td>
       <td>0xa6</td>
       <td>Number of bits to transfer minus 1 (0->1)</td>
       <td>0</td>
@@ -193,11 +245,25 @@ SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008"
 	<p>The returned data comes back in groups of two bytes. This means you will get a minimum of two bytes of response data if this message is returned.</p>
       </td>
     </tr>
-
+    
     </tr>
-
+    
   </tbody>
 </table>
+
+
+<h3><a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="octicon octicon-link"></span></a>Troubleshooting</h3>    
+<p><strong>If you want to check the version of firmware you have?</strong></p>
+<pre>
+  FW_VERSION_STRING=`grep ":0219B900" <strong>$PATH_TO_FIRMWARE_FILE`</strong>;
+  FW_HEX_VERSION=${FW_VERSION_STRING:9:4};
+  printf "%d" 0x$FW_HEX_VERSION;
+</pre>
+
+<p><strong>Green light solid after firmware load but device acting weird?</strong></p>
+<p>The firmware hex file for this device can be found inside the linux install of ISE. There are several files with the same name at various locations, but ignore them and use the one at {Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_emb.hex. If you use the wrong file, it will either refuse to load, or appear to load but not re-enumerate properly and behave oddly despite the green light on the device lighting up.</p>
+
+
       </section>
     </div>
 
@@ -208,8 +274,5 @@ SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008"
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-
-    
-
   </body>
 </html>
