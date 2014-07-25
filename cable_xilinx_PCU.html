@@ -190,7 +190,7 @@ For all jtag related USB-control messages.
 	This command will perform writes on eithre the JTAG target or the internal CPLD. Which one it targets is controlled by command 0x52.
 	<h6>DEFAULT (CPLD UPGRADE MODE OFF)</h6>
 	<p>
-	  Perform a single GPIF write to the CPLD. Format is not known for now. Full clock cycle appears to happen appears to happen. Only the lower byte of windex is used.
+	  Perform a single GPIF write to the CPLD. Format is not known for now. Full clock cycle appears appears to happen. Only the lower byte of windex is used.
 	</p>
 	<h6>WHEN CPLD UPGRADE MODE ON</h6>
 	<p>
@@ -335,12 +335,15 @@ For all jtag related USB-control messages.
       <td>The lower byte of windex is set to the address lines to the CPLD. <br>The upper byte is written to XGPIFSGLDATLX which triggers a GPIF transaction.</td>
     </tr>
     <tr>
-      <td></td>
-      <td></td>
+      <td>Generate Heat and clock CPLD</td>
+      <td>I</td>
       <td>0x7<strong>X</strong></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>seems pointless</td>
+      <td>0/1</td>
+      <td>This command is very odd. The waveform for talking to the CPLD does nothing except loop waiting for the CPLD to say it is done. There is a big huff about handling the index value but it seems to be boiled down to checking if it is 0xFFFF or anything else. The inverse of 0xFFFF or 0x0000 is then set as the data to write to the CPLD but the waveform never asserts data. <br>
+      There are small details about raising or lowering the CPLD's TMS pin, but it seems mostly pointless. <br>
+      The value of X is loosly used. It determines if the CPLD's TMS pin is raised or lowered. (70, 71, 74, 75, 78, 79, 7C, 7D all lower. 72, 73, 76, 77, 7A, 7B, 7E, 7F all raise.)<br>
+      Returns 1 byte (the wvalue) if wvalue is in this list: 71, 73, 75, 77, 79, 7B, 7D, 7F.</td>
     </tr>
     <tr>
       <td>Change USB Speed(?)</td>
