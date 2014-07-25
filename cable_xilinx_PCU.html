@@ -149,6 +149,14 @@ For all jtag related USB-control messages.
   </tr></thead>
   <tbody>
     <tr>
+      <td>Device Disable</td>
+      <td>O</td>
+      <td>0x10</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Not required, but you should clean up.</td>
+    </tr>
+    <tr>
       <td>Device Enable</td>
       <td>O</td>
       <td>0x18</td>
@@ -157,12 +165,12 @@ For all jtag related USB-control messages.
       <td>Required before the device will behave normally. Before running this command, you seem to still be able to read GPIO states, but and transfer commands will do nothing.</td>
     </tr>
     <tr>
-      <td>Device Disable</td>
-      <td>O</td>
-      <td>0x10</td>
-      <td>0</td>
-      <td>0</td>
-      <td>Not required, but you should clean up.</td>
+      <td>Reverse windex</td>
+      <td>I</td>
+      <td>0x20</td>
+      <td>low byte to reverse</td>
+      <td>1</td>
+      <td>Returns the lower 8 bits of the windex value passed into it</td>
     </tr>
     <tr>
       <td>Set JTAG Speed</td>
@@ -173,19 +181,188 @@ For all jtag related USB-control messages.
       <td>Specifies a speed class for the target device and changes the speed of all furure JTAG transfers. Often 0x11. Bit 4 should always be set in the speed class.</td>
     </tr>
     <tr>
-      <td>Read GPIO</td>
+      <td>Write Single JTAG bit</td>
+      <td>O</td>
+      <td>0x30</td>
+      <td>pinstates</td>
+      <td>0</td>
+      <td>
+	This command will perform writes on eithre the JTAG target or the internal CPLD. Which one it targets is controlled by command 0x52.
+	<h6>DEFAULT (CPLD UPGRADE MODE OFF)</h6>
+	<p>
+	  Perform a single GPIF write to the CPLD. Format is not known for now. Full clock cycle appears to happen appears to happen. Only the lower byte of windex is used.
+	</p>
+	<h6>WHEN CPLD UPGRADE MODE ON</h6>
+	<p>
+	  Bit bang the internal CPLD's jtag TDI/TMS/TCK lines. Only up to one transision on each line can be done per request. This means that in order to make one clock cycle for the CPLD's TAP, this message must be sent twice: once to raise TCK and another to lower it again. This makes JTAG operations on the embedded CPLD very <em>very</em> slow. Thus it is only used for upgrading the firmware on the CPLD.
+	  <table>
+	    <thead>
+	      <tr><td><strong>Bit</strong></td><td><strong>Meaning</strong></td></tr>
+	    </thead>
+	    <tbody>
+	      <tr>
+		<td>windex.0</td>
+		<td>CPLD TDI</td>
+	      </tr>
+	      <tr>
+		<td>windex.1</td>
+		<td>CPLD TMS</td>
+	      </tr>
+	      <tr>
+		<td>windex.2</td>
+		<td>CPLD TCK</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</p>
+      </td>
+    </tr>
+    <tr>
+      <td>Read Single JTAG bit and Status</td>
       <td>I</td>
       <td>0x38</td>
       <td>0</td>
       <td>1</td>
-      <td>Has some side effects. Not sure completely what they are, but when run after enabling the device, it will cause the GPIO lines to change to a default value of some kind. It will then report that TDO and TMS are high. Calling it again will show that only TDO is high, as will further calls. This instruction is not well understood and the name largely comes from other reverse engineering efforts.</td>
+      <td>
+	This command will operate on the JTAG target or the internal CPLD's TAP. Which one it targets is controlled by command 0x52.
+	<h6>DEFAULT (CPLD UPGRADE MODE OFF)</h6>
+	<p>
+	  <table>
+	    <thead>
+	      <tr><td><strong>Bit</strong></td><td><strong>Meaning</strong></td></tr>
+	    </thead>
+	    <tbody>
+	      <tr>
+		<td>0</td>
+		<td>Always seems to be 1 (not verified).</td>
+	      </tr>
+	      <tr>
+		<td>1</td>
+		<td>
+		  The TDO bit of the JTAG target. Exceptions are as follow:
+		  <ul>
+		    <li>Always 1 if JTAG is didabled. Effect is immediate.</li>
+		    <li>If checked immediately after emabling jtag, returns 1. Check it again right after that and it will be 0 consistently.</li>
+		    <li>If the XPCU's JTAG VCC pin is not attached to a valid source, this bit will always be 0 (net verified on the 'always' part).</li>
+		  </ul>
+		</td>
+	      </tr>
+	      <tr>
+		<td>6</td>
+		<td>On if the XPCU is attached to a jtag target (JTAG VCC high).</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</p>
+	<h6>WHEN CPLD UPGRADE MODE ON</h6>
+	<p>
+	  Read the state of the TDO pin of the internal CPLD. Will return 0 or 1. No clocking is done, the read is passive. 
+	</p>
+    </tr>
+    <tr>
+      <td>Return Constant</td>
+      <td>I</td>
+      <td>0x40</td>
+      <td>0</td>
+      <td>2</td>
+      <td>Returns 0xB503</td>
+    </tr>
+    <tr>
+      <td>Get Version</td>
+      <td>I</td>
+      <td>0x50</td>
+      <td>0,1,2,3+</td>
+      <td>2</td>
+      <td>
+	Returns information on version numbers of the software running on the device.
+	<table>
+	  <thead>
+	    <tr><td><strong>wvalue</strong></td><td><strong>Firmware to check</strong></td></tr>
+	  </thead>
+	  <tbody>
+	    <tr>
+	      <td>0</td>
+	      <td>FX2 firmware(the hex file).</td>
+	    </tr>
+	    <tr>
+	      <td>1</td>
+	      <td>CPLD Accelerator</td>
+	    </tr>
+	    <tr>
+	      <td>2</td>
+	      <td>returns 0x0400</td>
+	    </tr>
+	    <tr>
+	      <td>3+</td>
+	      <td>returns 0x0506</td>
+	    </tr>
+	  </tbody>
+	</table>
+      </td>
+    </tr>
+    <tr>
+      <td>CPLD Upgrade Mode</td>
+      <td>O</td>
+      <td>0x52</td>
+      <td><strong>0:</strong> Off<br><strong>1:</strong> On</td>
+      <td>0</td>
+      <td>
+	Enabling CPLD UPGRADE MODE is only used for upgrading the internal CPLD. The XPCU controller starts with this mode disabled. 
+	<h6>CPLD UPGRADE MODE ON</h6>
+	<p>
+	  <ul>
+	    <li>Normal JTAG operations disables</li>
+	    <li>LED set to RED</li>
+	    <li>Commands 0x30 and 0x38 now operate write/read onh the internal CPLD as a target</li>
+	  </ul>
+	</p>
+	<h6>CPLD UPGRADE MODE OFF</h6>
+	<p>
+	  <ul>
+	    <li>Normal JTAG operations restored</li>
+	    <li>LED restored to normal operation</li>
+	    <li>Single JTAG read/write commands operate on the JTAG port.</li>
+	  </ul>
+	</p>
+      </td>
+    </tr>
+    <tr>
+      <td>UNKNOWN</td>
+      <td>O</td>
+      <td>0x68</td>
+      <td>Some count</td>
+      <td>0</td>
+      <td>The lower byte of windex is set to the address lines to the CPLD. <br>The upper byte is written to XGPIFSGLDATLX which triggers a GPIF transaction.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td>0x7<strong>X</strong></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Change USB Speed(?)</td>
+      <td>O</td>
+      <td>0xA0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Mostly resets the XPCU, disconnects it from USB, forces full speed USB, then reconnects the XPCU to USB.</td>
+    </tr>
     <tr>
       <td rowspan="3">Bulk JTAG Transfer</td>
       <td>O</td>
       <td>0xa6</td>
-      <td>Number of bits to transfer minus 1 (0->1)</td>
+      <td>0xYYZZ See desctiotion</td>
       <td>0</td>
-      <td>Starts a transfer</td>
+      <td>Starts a transfer.
+	<ul>
+	  <li>24 bit number. 0xXXYYZZ where XX is upper byte of wvalue.</li>
+	  <li>0 indexed. 0 means 1, 1 means 2, etc.</li>
+	  <li>JTAG information is provided in following bulk transfers.</li>
+	</ul>
+      </td>
     </tr>
     <tr>
       <td colspan="5"><em>Bulk: OUT Endpoint: 2</em><br>
