@@ -16,3 +16,5 @@ $ cd antlr-3.1.3/runtime/Python
 $ sudo python setup.py install
 
 $ sudo pip install .
+
+For additional information on setting up supported jtag controllers, check the gh-pages above.
