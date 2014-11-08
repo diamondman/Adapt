@@ -26,6 +26,8 @@ TDI = 1
 TDO = 1
 
 class XPC1TransferPrimative(Level1Primative, Executable):
+    #transfer_bits_single can be used for single bit jtag transfers.
+    #This will be necessary for firmware upgrade.
     _driver_function_name = 'transfer_bits'
     _max_bits = 65536
     """TMS, TDI, TDO"""
@@ -113,6 +115,32 @@ class XilinxPC1Driver(CableDriver):
                 tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
             return tdo_bits
 
+    def transfer_bits_single(self, count, TMS, TDI, TDO=False):
+        if not self._jtagon:
+            raise JTAGControlError('JTAG Must be enabled first')
+        if isinstance(TMS, (numbers.Number, bool)):
+            TMS = bitarray(count*('1' if TMS else '0'))
+        if isinstance(TDI, (numbers.Number, bool)):
+            TDI = bitarray(count*('1' if TDI else '0'))
+        #if isinstance(TDO, (numbers.Number, bool)):
+        #    TDO = bitarray(count*('1' if TDO else '0'))
+        if self._scanchain:
+            self._scanchain._tap_transition_driver_trigger(TMS)
+        self.xpcu_single_read()
+        outbits = bitarray()
+        TMS.reverse()
+        TDI.reverse()
+
+        for bit_num in xrange(count):
+            self.xpcu_single_write(TMS[bit_num], TDI[bit_num])
+            if TDO:
+                b = self.xpcu_single_read()
+                outbits.append(b)
+
+        if outbits:
+            outbits.reverse()
+            return outbits
+
 
 
     def xpcu_enable_output(self, enable):
@@ -123,6 +151,17 @@ class XilinxPC1Driver(CableDriver):
 
     def xpcu_get_GPIO_state(self):
         return ord(self._handle.controlRead(0xc0, 0xb0, 0x38, 0, 1))
+
+    def xpcu_single_write(self, TMS, TDI):
+        val = 0b100|(TMS<<1)|TDI
+        self._handle.controlWrite(0x40, 0xb0, 0x30, val, '')
+        val = (TMS<<1)|TDI
+        self._handle.controlWrite(0x40, 0xb0, 0x30, val, '')
+
+    def xpcu_single_read(self):
+        b = self._handle.controlRead(0xC0, 0xb0, 0x38, 0, 1)
+        #print bin(ord(b))
+        return bool(ord(b)&1)
 
     def xpcu_GPIO_transfer(self, bit_count, data):
         if bit_count < 0: #TODO Move this to a superclass
