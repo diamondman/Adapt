@@ -33,16 +33,16 @@ class CommandQueue(object):
                 if isinstance(item, Executable):
                     self.queue.append(item)
                 else:
-                    #print "Need to render down", item
+                    #print("Need to render down", item)
                     possible_prims = []
                     reqef = item.required_effect
         
-                    #print ('  \033[95m%s %s %s\033[94m'%tuple(reqef)).replace('0', '-'), item,'\033[0m'
+                    #print(('  \033[95m%s %s %s\033[94m'%tuple(reqef)).replace('0', '-'), item,'\033[0m')
                     for p1 in self.sc._lv1_primatives:
                         ef = p1._effect
                         efstyledstr = ''
                         worststyle = 0
-                        for i in xrange(3):
+                        for i in range(3):
                             if reqef[i] is None:
                                 reqef[i] = 0
     
@@ -56,7 +56,7 @@ class CommandQueue(object):
     
                         if worststyle == 0:
                             possible_prims.append(p1)
-                        #print " ",efstyledstr, styles.get(worststyle)+p1.__name__+"\033[0m"
+                        #print(" ",efstyledstr, styles.get(worststyle)+p1.__name__+"\033[0m")
         
                     if not len(possible_prims):
                         raise Exception('Unable to match Primative to lower level Primative.')
@@ -64,8 +64,8 @@ class CommandQueue(object):
                     for prim in possible_prims[1:]:
                         if sum(prim._effect)<sum(best_prim._effect):
                             best_prim = prim
-                    #print "    POSSIBILITIES:", [p.__name__ for p in possible_prims]
-                    #print "    WINNER:", best_prim.__name__
+                    #print("    POSSIBILITIES:", [p.__name__ for p in possible_prims])
+                    #print("    WINNER:", best_prim.__name__)
                     bits = item.get_effect_bits()
                     self.queue.append(best_prim(*bits))
 
@@ -75,10 +75,10 @@ class CommandQueue(object):
                     self.flush()
 
     def flush(self):
-        #print "FLUSHING", self.queue
+        #print("FLUSHING", self.queue)
         #for p in self.queue:
         #    if not isinstance(p, Executable):
-        #        print "Need to render down", p
+        #        print("Need to render down", p)
         self.sc._controller.execute(self.queue)
         self.queue = []
 

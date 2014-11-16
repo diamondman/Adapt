@@ -21,10 +21,10 @@ for loader, module_name, is_pkg in pkgutil.iter_modules([join(base_dir,'adapt/dr
         vid_dict[fltr[1]] = cls
 
 if not driver_count:
-    print '\033[91m'+'Found 0 drivers.'+'\033[0m'
+    print('\033[91m'+'Found 0 drivers.'+'\033[0m')
     if not base_dir:
-        print '\033[93m'+'Your ADAPT_HOME env variable was not set. '\
-            'This is likely why the drivers could not be loaded.'+'\033[0m'
+        print('\033[93m'+'Your ADAPT_HOME env variable was not set. '\
+            'This is likely why the drivers could not be loaded.'+'\033[0m')
 
 def getAttachedControllers(cname=None):
     controllers = []
@@ -36,7 +36,7 @@ def getAttachedControllers(cname=None):
                 controller = driver_class(device)
                 controllers.append(controller)
             else:
-                print "No Driver Found for %04x:%04x"%(device.getVendorID(), device.getProductID())
+                print("No Driver Found for %04x:%04x"%(device.getVendorID(), device.getProductID()))
 
     if not cname:
         return controllers

@@ -1,3 +1,3 @@
 #!/bin/sh
 BASEDIR=$(dirname $0)/..
-ADAPT_HOME=$BASEDIR exec /usr/bin/python $BASEDIR/adapt/adapt.py "$@"
+ADAPT_HOME=$BASEDIR exec /usr/bin/python3 $BASEDIR/adapt/adapt.py "$@"

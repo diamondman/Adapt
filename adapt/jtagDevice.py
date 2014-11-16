@@ -41,8 +41,8 @@ class JTAGDevice(object):
             DefaultRunInstructionPrimative(self, *args, **kwargs))
         res = self.chain._command_queue.get_return()
         if expret and res != expret:
-            print "MISMATCH status on ins %s. Expected %s"%(args[0], expret.__repr__())
-            print "GOT:", res, "\n"
+            print("MISMATCH status on ins %s. Expected %s"%(args[0], expret.__repr__()))
+            print("GOT:", res, "\n")
             pstatus(res)
         return res
 
@@ -61,7 +61,7 @@ class JTAGDevice(object):
 
         self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01)#, expret=bitarray('00010001'))
 
-        print self.run_tap_instruction("BYPASS", delay=0.01)#, expret=bitarray('00100001'))
+        print(self.run_tap_instruction("BYPASS", delay=0.01))#, expret=bitarray('00100001'))
 
         self.chain.transition_tap("TLR")
 

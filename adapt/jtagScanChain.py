@@ -18,13 +18,13 @@ class JTAGScanChain(object):
             def adder(*args, **kwargs):
                 self._command_queue.append(cls_(*args, **kwargs))
                 res = self._command_queue.get_return()
-                #print " "*3, cls_.__name__, "returns", res
+                #print(" "*3, cls_.__name__, "returns", res)
                 return res
             setattr(self, cls_._function_name, adder)
             self._lv2_primatives[cls_._function_name] = cls_
-            #print "Adding %s OK"%cls_
+            #print("Adding %s OK"%cls_)
             return True
-        #print "Adding %s FAIL"%cls_
+        #print("Adding %s FAIL"%cls_)
         return False
 
     def __init__(self, controller):
@@ -48,7 +48,7 @@ class JTAGScanChain(object):
             elif issubclass(primative, Level1Primative):
                 self._lv1_primatives.append(primative)
             else:
-                print "WTF", primative
+                print("WTF", primative)
 
         for primative_cls in [DefaultChangeTAPStatePrimative,
                               DefaultLoadIRPrimative,

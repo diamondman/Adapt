@@ -55,7 +55,7 @@ def build_byte_align_buff(buff):
     bitmod = len(buff)%8
     if bitmod == 0:
         rdiff = bitarray()
-        #print "NO BUFF NEEDED", rdiff
+        #print("NO BUFF NEEDED", rdiff)
     else:
         rdiff = bitarray(8-bitmod)
         rdiff.setall(False)
@@ -65,14 +65,14 @@ class JTAGControlError(Exception):
     pass
 
 def pstatus(resflags):
-    #print resflags.__repr__()
+    #print(resflags.__repr__()))
     #if len(resflags)>1:
     #    resflags = resflags[0]
     if not resflags&bitarray('11000011'):
-        print resflags, bitarray('11000011')
-        print resflags&bitarray('11000011')
-        print
-    print "STATUS: "+("" if (resflags&bitarray('11000011')==bitarray('00000001')) 
+        print(resflags, bitarray('11000011'))
+        print(resflags&bitarray('11000011'))
+        print()
+    print("STATUS: "+("" if (resflags&bitarray('11000011')==bitarray('00000001')) 
                       else "INVALID_STATUS ")+\
         ("ISCDIS " if resflags[-6] else "")+("ISCEN " if resflags[-5] else "")+\
-        ("SECURE " if resflags[-4] else "")+("DONE " if resflags[-3] else "")
+        ("SECURE " if resflags[-4] else "")+("DONE " if resflags[-3] else ""))

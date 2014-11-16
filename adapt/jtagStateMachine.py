@@ -49,7 +49,7 @@ class JTAGStateMachine(object):
         path = (path or []) + [start]
         if start == end:
             return path
-        if not cls.states.has_key(start):
+        if start not in cls.states:
             return None
         shortest = None
         for node in cls.states[start]:

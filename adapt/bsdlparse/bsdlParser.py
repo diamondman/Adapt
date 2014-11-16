@@ -1,1732 +1,1521 @@
-# $ANTLR 3.1 bsdl.g 2014-02-08 13:25:29
+# Generated from java-escape by ANTLR 4.4
+from antlr4 import *
+from io import StringIO
+package = globals().get("__package__", None)
+ischild = len(package)>0 if package is not None else False
+if ischild:
+    from .bsdlListener import bsdlListener
+else:
+    from bsdlListener import bsdlListener
+def serializedATN():
+    with StringIO() as buf:
+        buf.write("\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3y")
+        buf.write("\u00de\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
+        buf.write("\t\16\4\17\t\17\4\20\t\20\3\2\3\2\3\2\3\3\3\3\3\3\3\3")
+        buf.write("\3\3\3\3\6\3*\n\3\r\3\16\3+\3\3\3\3\3\3\3\3\3\3\7\3\63")
+        buf.write("\n\3\f\3\16\3\66\13\3\3\3\3\3\5\3:\n\3\3\3\3\3\7\3>\n")
+        buf.write("\3\f\3\16\3A\13\3\3\3\3\3\3\3\3\3\3\4\3\4\3\4\3\4\3\4")
+        buf.write("\3\4\3\4\3\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3")
+        buf.write("\6\3\6\3\6\3\6\3\6\3\7\3\7\3\7\3\7\3\7\5\7c\n\7\3\7\3")
+        buf.write("\7\3\7\3\7\3\7\3\7\3\7\3\7\3\7\5\7n\n\7\5\7p\n\7\3\b\3")
+        buf.write("\b\3\t\6\tu\n\t\r\t\16\tv\3\n\3\n\3\n\3\n\3\n\3\n\3\n")
+        buf.write("\3\n\3\13\3\13\3\13\3\13\3\13\7\13\u0086\n\13\f\13\16")
+        buf.write("\13\u0089\13\13\3\13\3\13\3\13\3\f\3\f\3\f\7\f\u0091\n")
+        buf.write("\f\f\f\16\f\u0094\13\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\6\f")
+        buf.write("\u009d\n\f\r\f\16\f\u009e\3\f\3\f\6\f\u00a3\n\f\r\f\16")
+        buf.write("\f\u00a4\3\f\5\f\u00a8\n\f\3\r\3\r\7\r\u00ac\n\r\f\r\16")
+        buf.write("\r\u00af\13\r\3\r\3\r\6\r\u00b3\n\r\r\r\16\r\u00b4\7\r")
+        buf.write("\u00b7\n\r\f\r\16\r\u00ba\13\r\3\16\3\16\3\17\3\17\7\17")
+        buf.write("\u00c0\n\17\f\17\16\17\u00c3\13\17\3\17\3\17\3\20\7\20")
+        buf.write("\u00c8\n\20\f\20\16\20\u00cb\13\20\3\20\3\20\7\20\u00cf")
+        buf.write("\n\20\f\20\16\20\u00d2\13\20\3\20\3\20\5\20\u00d6\n\20")
+        buf.write("\3\20\7\20\u00d9\n\20\f\20\16\20\u00dc\13\20\3\20\2\2")
+        buf.write("\21\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36\2\6\3\2tu\3")
+        buf.write("\2wx\3\2wy\7\2 !\66\6688<<LL\u00e4\2 \3\2\2\2\4#\3\2\2")
+        buf.write("\2\6F\3\2\2\2\bQ\3\2\2\2\nV\3\2\2\2\fo\3\2\2\2\16q\3\2")
+        buf.write("\2\2\20t\3\2\2\2\22x\3\2\2\2\24\u0080\3\2\2\2\26\u0092")
+        buf.write("\3\2\2\2\30\u00a9\3\2\2\2\32\u00bb\3\2\2\2\34\u00c1\3")
+        buf.write("\2\2\2\36\u00c9\3\2\2\2 !\5\4\3\2!\"\7\2\2\3\"\3\3\2\2")
+        buf.write("\2#$\7+\2\2$%\5\30\r\2%)\79\2\2&\'\5\6\4\2\'(\7\r\2\2")
+        buf.write("(*\3\2\2\2)&\3\2\2\2*+\3\2\2\2+)\3\2\2\2+,\3\2\2\2,-\3")
+        buf.write("\2\2\2-.\5\24\13\2.\64\7\r\2\2/\60\5\b\5\2\60\61\7\r\2")
+        buf.write("\2\61\63\3\2\2\2\62/\3\2\2\2\63\66\3\2\2\2\64\62\3\2\2")
+        buf.write("\2\64\65\3\2\2\2\65?\3\2\2\2\66\64\3\2\2\2\67:\5\n\6\2")
+        buf.write("8:\5\22\n\29\67\3\2\2\298\3\2\2\2:;\3\2\2\2;<\7\r\2\2")
+        buf.write("<>\3\2\2\2=9\3\2\2\2>A\3\2\2\2?=\3\2\2\2?@\3\2\2\2@B\3")
+        buf.write("\2\2\2A?\3\2\2\2BC\7*\2\2CD\5\30\r\2DE\7\r\2\2E\5\3\2")
+        buf.write("\2\2FG\7\61\2\2GH\7\n\2\2HI\5\30\r\2IJ\7\f\2\2JK\5\30")
+        buf.write("\r\2KL\7\f\2\2LM\7\16\2\2MN\5\34\17\2NO\3\2\2\2OP\7\13")
+        buf.write("\2\2P\7\3\2\2\2QR\7l\2\2RS\5\30\r\2ST\7\20\2\2TU\7\27")
+        buf.write("\2\2U\t\3\2\2\2VW\7\34\2\2WX\5\30\r\2XY\7G\2\2YZ\5\30")
+        buf.write("\r\2Z[\7\f\2\2[\\\5\f\7\2\\\13\3\2\2\2]^\7+\2\2^b\79\2")
+        buf.write("\2_c\5\30\r\2`c\5\34\17\2ac\5\20\t\2b_\3\2\2\2b`\3\2\2")
+        buf.write("\2ba\3\2\2\2cp\3\2\2\2de\7^\2\2em\79\2\2fn\5\16\b\2gh")
+        buf.write("\7\n\2\2hi\5\36\20\2ij\7\17\2\2jk\7v\2\2kl\7\13\2\2ln")
+        buf.write("\3\2\2\2mf\3\2\2\2mg\3\2\2\2np\3\2\2\2o]\3\2\2\2od\3\2")
+        buf.write("\2\2p\r\3\2\2\2qr\t\2\2\2r\17\3\2\2\2su\7y\2\2ts\3\2\2")
+        buf.write("\2uv\3\2\2\2vt\3\2\2\2vw\3\2\2\2w\21\3\2\2\2xy\7%\2\2")
+        buf.write("yz\5\30\r\2z{\7\f\2\2{|\5\30\r\2|}\7\f\2\2}~\7\16\2\2")
+        buf.write("~\177\5\34\17\2\177\23\3\2\2\2\u0080\u0081\7N\2\2\u0081")
+        buf.write("\u0087\7\n\2\2\u0082\u0083\5\26\f\2\u0083\u0084\7\r\2")
+        buf.write("\2\u0084\u0086\3\2\2\2\u0085\u0082\3\2\2\2\u0086\u0089")
+        buf.write("\3\2\2\2\u0087\u0085\3\2\2\2\u0087\u0088\3\2\2\2\u0088")
+        buf.write("\u008a\3\2\2\2\u0089\u0087\3\2\2\2\u008a\u008b\5\26\f")
+        buf.write("\2\u008b\u008c\7\13\2\2\u008c\25\3\2\2\2\u008d\u008e\5")
+        buf.write("\30\r\2\u008e\u008f\7\17\2\2\u008f\u0091\3\2\2\2\u0090")
+        buf.write("\u008d\3\2\2\2\u0091\u0094\3\2\2\2\u0092\u0090\3\2\2\2")
+        buf.write("\u0092\u0093\3\2\2\2\u0093\u0095\3\2\2\2\u0094\u0092\3")
+        buf.write("\2\2\2\u0095\u0096\5\30\r\2\u0096\u0097\7\f\2\2\u0097")
+        buf.write("\u00a7\5\32\16\2\u0098\u00a8\7\21\2\2\u0099\u009a\7\22")
+        buf.write("\2\2\u009a\u009c\7\n\2\2\u009b\u009d\7y\2\2\u009c\u009b")
+        buf.write("\3\2\2\2\u009d\u009e\3\2\2\2\u009e\u009c\3\2\2\2\u009e")
+        buf.write("\u009f\3\2\2\2\u009f\u00a0\3\2\2\2\u00a0\u00a2\7f\2\2")
+        buf.write("\u00a1\u00a3\7y\2\2\u00a2\u00a1\3\2\2\2\u00a3\u00a4\3")
+        buf.write("\2\2\2\u00a4\u00a2\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5\u00a6")
+        buf.write("\3\2\2\2\u00a6\u00a8\7\13\2\2\u00a7\u0098\3\2\2\2\u00a7")
+        buf.write("\u0099\3\2\2\2\u00a8\27\3\2\2\2\u00a9\u00ad\t\3\2\2\u00aa")
+        buf.write("\u00ac\t\4\2\2\u00ab\u00aa\3\2\2\2\u00ac\u00af\3\2\2\2")
+        buf.write("\u00ad\u00ab\3\2\2\2\u00ad\u00ae\3\2\2\2\u00ae\u00b8\3")
+        buf.write("\2\2\2\u00af\u00ad\3\2\2\2\u00b0\u00b2\7\t\2\2\u00b1\u00b3")
+        buf.write("\t\4\2\2\u00b2\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4")
+        buf.write("\u00b2\3\2\2\2\u00b4\u00b5\3\2\2\2\u00b5\u00b7\3\2\2\2")
+        buf.write("\u00b6\u00b0\3\2\2\2\u00b7\u00ba\3\2\2\2\u00b8\u00b6\3")
+        buf.write("\2\2\2\u00b8\u00b9\3\2\2\2\u00b9\31\3\2\2\2\u00ba\u00b8")
+        buf.write("\3\2\2\2\u00bb\u00bc\t\5\2\2\u00bc\33\3\2\2\2\u00bd\u00be")
+        buf.write("\7\5\2\2\u00be\u00c0\7\b\2\2\u00bf\u00bd\3\2\2\2\u00c0")
+        buf.write("\u00c3\3\2\2\2\u00c1\u00bf\3\2\2\2\u00c1\u00c2\3\2\2\2")
+        buf.write("\u00c2\u00c4\3\2\2\2\u00c3\u00c1\3\2\2\2\u00c4\u00c5\7")
+        buf.write("\5\2\2\u00c5\35\3\2\2\2\u00c6\u00c8\7y\2\2\u00c7\u00c6")
+        buf.write("\3\2\2\2\u00c8\u00cb\3\2\2\2\u00c9\u00c7\3\2\2\2\u00c9")
+        buf.write("\u00ca\3\2\2\2\u00ca\u00cc\3\2\2\2\u00cb\u00c9\3\2\2\2")
+        buf.write("\u00cc\u00d0\7\20\2\2\u00cd\u00cf\7y\2\2\u00ce\u00cd\3")
+        buf.write("\2\2\2\u00cf\u00d2\3\2\2\2\u00d0\u00ce\3\2\2\2\u00d0\u00d1")
+        buf.write("\3\2\2\2\u00d1\u00d3\3\2\2\2\u00d2\u00d0\3\2\2\2\u00d3")
+        buf.write("\u00d5\7\4\2\2\u00d4\u00d6\7\3\2\2\u00d5\u00d4\3\2\2\2")
+        buf.write("\u00d5\u00d6\3\2\2\2\u00d6\u00da\3\2\2\2\u00d7\u00d9\7")
+        buf.write("y\2\2\u00d8\u00d7\3\2\2\2\u00d9\u00dc\3\2\2\2\u00da\u00d8")
+        buf.write("\3\2\2\2\u00da\u00db\3\2\2\2\u00db\37\3\2\2\2\u00dc\u00da")
+        buf.write("\3\2\2\2\27+\649?bmov\u0087\u0092\u009e\u00a4\u00a7\u00ad")
+        buf.write("\u00b4\u00b8\u00c1\u00c9\u00d0\u00d5\u00da")
+        return buf.getvalue()
+		
 
-import sys
-from antlr3 import *
-from antlr3.compat import set, frozenset
-         
-import os
-import sys
+class bsdlParser ( Parser ):
+
+    grammarFileName = "java-escape"
+
+    atn = ATNDeserializer().deserialize(serializedATN())
+
+    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+
+    sharedContextCache = PredictionContextCache()
+
+    EOF = Token.EOF
+    T__1=1
+    T__0=2
+    STRING=3
+    WHITESPACE=4
+    COMMENT=5
+    ANDSIGN=6
+    USCORE=7
+    OPAREN=8
+    CPAREN=9
+    COLON=10
+    SCOLON=11
+    EQUAL=12
+    COMMA=13
+    DOT=14
+    BIT=15
+    BIT_VECTOR=16
+    ABS=17
+    ACCESS=18
+    AFTER=19
+    ALIAS=20
+    ALL=21
+    AND=22
+    ARCHITECTURE=23
+    ARRAY=24
+    ASSERT=25
+    ATTRIBUTE=26
+    BEGIN=27
+    BLOCK=28
+    BODY=29
+    BUFFER=30
+    BUS=31
+    CASE=32
+    COMPONENT=33
+    CONFIGURATION=34
+    CONSTANT=35
+    DISCONNECT=36
+    DOWNTO=37
+    ELSE=38
+    ELSIF=39
+    END=40
+    ENTITY=41
+    EXIT=42
+    FILE=43
+    FOR=44
+    FUNCTION=45
+    GENERATE=46
+    GENERIC=47
+    GROUP=48
+    GUARDED=49
+    IF=50
+    IMPURE=51
+    IN=52
+    INERTIAL=53
+    INOUT=54
+    IS=55
+    LABEL=56
+    LIBRARY=57
+    LINKAGE=58
+    LITERAL=59
+    LOOP=60
+    MAP=61
+    MOD=62
+    NAND=63
+    NEW=64
+    NEXT=65
+    NOR=66
+    NOT=67
+    NULL=68
+    OF=69
+    ON=70
+    OPEN=71
+    OR=72
+    OTHERS=73
+    OUT=74
+    PACKAGE=75
+    PORT=76
+    POSTPONED=77
+    PROCEDURE=78
+    PROCESS=79
+    PURE=80
+    RANGE=81
+    RECORD=82
+    REGISTER=83
+    REJECT=84
+    REM=85
+    REPORT=86
+    RETURN=87
+    ROL=88
+    ROR=89
+    SELECT=90
+    SEVERITY=91
+    SIGNAL=92
+    SHARED=93
+    SLA=94
+    SLL=95
+    SRA=96
+    SRL=97
+    SUBTYPE=98
+    THEN=99
+    TO=100
+    TRANSPORT=101
+    TYPE=102
+    UNAFFECTED=103
+    UNITS=104
+    UNTIL=105
+    USE=106
+    VARIABLE=107
+    WAIT=108
+    WHEN=109
+    WHILE=110
+    WITH=111
+    XNOR=112
+    XOR=113
+    TRUE=114
+    FALSE=115
+    BOTH=116
+    WORD=117
+    FULLCASE_WORD=118
+    DIGIT=119
+
+    tokenNames = [ "<INVALID>", "'+'", "'e'", "STRING", "WHITESPACE", "COMMENT", 
+                   "'&'", "'_'", "'('", "')'", "':'", "';'", "'='", "','", 
+                   "'.'", "'bit'", "'bit_vector'", "'abs'", "'access'", 
+                   "'after'", "'alias'", "'all'", "'and'", "'architecture'", 
+                   "'array'", "'assert'", "'attribute'", "'begin'", "'block'", 
+                   "'body'", "'buffer'", "'bus'", "'case'", "'component'", 
+                   "'configuration'", "'constant'", "'disconnect'", "'downto'", 
+                   "'else'", "'elsif'", "'end'", "'entity'", "'exit'", "'file'", 
+                   "'for'", "'function'", "'generate'", "'generic'", "'group'", 
+                   "'guarded'", "'if'", "'impure'", "'in'", "'inertial'", 
+                   "'inout'", "'is'", "'label'", "'library'", "'linkage'", 
+                   "'literal'", "'loop'", "'map'", "'mod'", "'nand'", "'new'", 
+                   "'next'", "'nor'", "'not'", "'null'", "'of'", "'on'", 
+                   "'open'", "'or'", "'others'", "'out'", "'package'", "'port'", 
+                   "'postponed'", "'procedure'", "'process'", "'pure'", 
+                   "'range'", "'record'", "'register'", "'reject'", "'rem'", 
+                   "'report'", "'return'", "'rol'", "'ror'", "'select'", 
+                   "'severity'", "'signal'", "'shared'", "'sla'", "'sll'", 
+                   "'sra'", "'srl'", "'subtype'", "'then'", "'to'", "'transport'", 
+                   "'type'", "'unaffected'", "'units'", "'until'", "'use'", 
+                   "'variable'", "'wait'", "'when'", "'while'", "'with'", 
+                   "'xnor'", "'xor'", "'true'", "'false'", "BOTH", "WORD", 
+                   "FULLCASE_WORD", "DIGIT" ]
+
+    RULE_evaluate = 0
+    RULE_entity = 1
+    RULE_generic = 2
+    RULE_use = 3
+    RULE_attribute = 4
+    RULE_general_attribute_assignment = 5
+    RULE_boolean = 6
+    RULE_number = 7
+    RULE_constant = 8
+    RULE_port_list = 9
+    RULE_port_def = 10
+    RULE_identifier = 11
+    RULE_portmode = 12
+    RULE_string = 13
+    RULE_scinot_number = 14
+
+    ruleNames =  [ "evaluate", "entity", "generic", "use", "attribute", 
+                   "general_attribute_assignment", "boolean", "number", 
+                   "constant", "port_list", "port_def", "identifier", "portmode", 
+                   "string", "scinot_number" ]
+
+    def __init__(self, input:TokenStream):
+        super().__init__(input)
+        self.checkVersion("4.4")
+        self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
+        self._predicates = None
 
 
 
-# for convenience in actions
-HIDDEN = BaseRecognizer.HIDDEN
+    class EvaluateContext(ParserRuleContext):
 
-# token types
-FUNCTION=63
-PACKAGE=86
-NAND=76
-INERTIAL=69
-SEVERITY=101
-WHILE=117
-ROR=99
-GENERIC=8
-MOD=75
-CASE=53
-CHAR=121
-NEW=77
-NOR=79
-NOT=80
-POSTPONED=87
-SUBTYPE=107
-EOF=-1
-ROL=98
-TYPE=110
-WORD=30
-UNITS=112
-DOWNTO=57
-BEGIN=50
-LOOP=73
-RETURN=97
-BOTH=22
-TRANSPORT=109
-IMPURE=68
-ICHAR=122
-BODY=52
-GENERATE=64
-LINKAGE=35
-COMMENT=40
-SELECT=100
-REGISTER=93
-ARRAY=48
-SHARED=102
-EXIT=60
-RECORD=92
-GUARDED=66
-SRL=106
-SRA=105
-NULL=81
-XNOR=119
-ELSE=58
-ON=82
-WHITESPACE=39
-BUS=36
-WAIT=115
-OF=17
-FILE=61
-ASSERT=49
-ABS=42
-GROUP=65
-VARIABLE=114
-OUT=32
-UNTIL=113
-USCORE=41
-OR=84
-ALIAS=45
-ANDSIGN=38
-CONSTANT=24
-USE=13
-ELSIF=59
-END=7
-FALSE=20
-BIT_VECTOR=27
-OTHERS=85
-REPORT=96
-SLA=103
-ATTRIBUTE=16
-T__124=124
-T__123=123
-FOR=62
-CONFIGURATION=55
-LIBRARY=71
-SLL=104
-ARCHITECTURE=47
-AND=46
-IF=67
-INOUT=33
-ENTITY=4
-PURE=90
-THEN=108
-IN=31
-COMMA=21
-IS=5
-REJECT=94
-EQUAL=11
-ALL=15
-SIGNAL=18
-ACCESS=43
-CPAREN=12
-NEXT=78
-DIGIT=23
-DOT=14
-COMPONENT=54
-WITH=118
-SCOLON=6
-FULLCASE_WORD=29
-XOR=120
-TO=28
-OPAREN=9
-DISCONNECT=56
-RANGE=91
-BUFFER=34
-PORT=25
-LITERAL=72
-REM=95
-AFTER=44
-TRUE=19
-PROCEDURE=88
-COLON=10
-OPEN=83
-LABEL=70
-WHEN=116
-BLOCK=51
-MAP=74
-BIT=26
-PROCESS=89
-UNAFFECTED=111
-STRING=37
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
 
-# token names
-tokenNames = [
-    "<invalid>", "<EOR>", "<DOWN>", "<UP>", 
-    "ENTITY", "IS", "SCOLON", "END", "GENERIC", "OPAREN", "COLON", "EQUAL", 
-    "CPAREN", "USE", "DOT", "ALL", "ATTRIBUTE", "OF", "SIGNAL", "TRUE", 
-    "FALSE", "COMMA", "BOTH", "DIGIT", "CONSTANT", "PORT", "BIT", "BIT_VECTOR", 
-    "TO", "FULLCASE_WORD", "WORD", "IN", "OUT", "INOUT", "BUFFER", "LINKAGE", 
-    "BUS", "STRING", "ANDSIGN", "WHITESPACE", "COMMENT", "USCORE", "ABS", 
-    "ACCESS", "AFTER", "ALIAS", "AND", "ARCHITECTURE", "ARRAY", "ASSERT", 
-    "BEGIN", "BLOCK", "BODY", "CASE", "COMPONENT", "CONFIGURATION", "DISCONNECT", 
-    "DOWNTO", "ELSE", "ELSIF", "EXIT", "FILE", "FOR", "FUNCTION", "GENERATE", 
-    "GROUP", "GUARDED", "IF", "IMPURE", "INERTIAL", "LABEL", "LIBRARY", 
-    "LITERAL", "LOOP", "MAP", "MOD", "NAND", "NEW", "NEXT", "NOR", "NOT", 
-    "NULL", "ON", "OPEN", "OR", "OTHERS", "PACKAGE", "POSTPONED", "PROCEDURE", 
-    "PROCESS", "PURE", "RANGE", "RECORD", "REGISTER", "REJECT", "REM", "REPORT", 
-    "RETURN", "ROL", "ROR", "SELECT", "SEVERITY", "SHARED", "SLA", "SLL", 
-    "SRA", "SRL", "SUBTYPE", "THEN", "TRANSPORT", "TYPE", "UNAFFECTED", 
-    "UNITS", "UNTIL", "VARIABLE", "WAIT", "WHEN", "WHILE", "WITH", "XNOR", 
-    "XOR", "CHAR", "ICHAR", "'e'", "'+'"
-]
+        def EOF(self):
+            return self.getToken(bsdlParser.EOF, 0)
+
+        def entity(self):
+            return self.getTypedRuleContext(bsdlParser.EntityContext,0)
 
 
+        def getRuleIndex(self):
+            return bsdlParser.RULE_evaluate
 
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterEvaluate(self)
 
-class bsdlParser(Parser):
-    grammarFileName = "bsdl.g"
-    antlr_version = version_str_to_tuple("3.1")
-    antlr_version_str = "3.1"
-    tokenNames = tokenNames
-
-    def __init__(self, input, state=None):
-        if state is None:
-            state = RecognizerSharedState()
-
-        Parser.__init__(self, input, state)
-
-
-        self.dfa10 = self.DFA10(
-            self, 10,
-            eot = self.DFA10_eot,
-            eof = self.DFA10_eof,
-            min = self.DFA10_min,
-            max = self.DFA10_max,
-            accept = self.DFA10_accept,
-            special = self.DFA10_special,
-            transition = self.DFA10_transition
-            )
-
-        self.dfa11 = self.DFA11(
-            self, 11,
-            eot = self.DFA11_eot,
-            eof = self.DFA11_eof,
-            min = self.DFA11_min,
-            max = self.DFA11_max,
-            accept = self.DFA11_accept,
-            special = self.DFA11_special,
-            transition = self.DFA11_transition
-            )
-
-
-
-              
-        self.attributes = {}
-        self.chip_package = None
-        self.ports = []
-
-
-
-
-                
-
-
-        
-
-             
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitEvaluate(self)
 
 
 
 
-    # $ANTLR start "eval"
-    # bsdl.g:24:1: eval returns [value] : ( entity ) EOF ;
-    def eval(self, ):
+    def evaluate(self):
 
-        value = None
-
-        entity1 = None
-
-
+        localctx = bsdlParser.EvaluateContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 0, self.RULE_evaluate)
         try:
-            try:
-                # bsdl.g:25:5: ( ( entity ) EOF )
-                # bsdl.g:25:7: ( entity ) EOF
-                pass 
-                # bsdl.g:25:7: ( entity )
-                # bsdl.g:25:8: entity
-                pass 
-                self._state.following.append(self.FOLLOW_entity_in_eval61)
-                entity1 = self.entity()
-
-                self._state.following.pop()
-
-
-
-                #action start
-                value=entity1
-                #action end
-                self.match(self.input, EOF, self.FOLLOW_EOF_in_eval73)
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
+            self.enterOuterAlt(localctx, 1)
+            self.state = 30 
+            self.entity()
+            self.state = 31
+            self.match(self.EOF)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
         finally:
+            self.exitRule()
+        return localctx
 
-            pass
+    class EntityContext(ParserRuleContext):
 
-        return value
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.ename = None # IdentifierContext
+            self.g = None # GenericContext
 
-    # $ANTLR end "eval"
-
-
-    # $ANTLR start "entity"
-    # bsdl.g:28:1: entity returns [value] : ENTITY ename= identifier IS (g= generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( (i= attribute ) | (i= constant ) ) SCOLON )* END identifier SCOLON ;
-    def entity(self, ):
-
-        value = None
-
-        ename = None
-
-        g = None
-
-        i = None
-
-        port_list2 = None
+        def constant(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.ConstantContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.ConstantContext,i)
 
 
+        def port_list(self):
+            return self.getTypedRuleContext(bsdlParser.Port_listContext,0)
+
+
+        def generic(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.GenericContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.GenericContext,i)
+
+
+        def SCOLON(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.SCOLON)
+            else:
+                return self.getToken(bsdlParser.SCOLON, i)
+
+        def attribute(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.AttributeContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.AttributeContext,i)
+
+
+        def ENTITY(self):
+            return self.getToken(bsdlParser.ENTITY, 0)
+
+        def identifier(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.IdentifierContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.IdentifierContext,i)
+
+
+        def IS(self):
+            return self.getToken(bsdlParser.IS, 0)
+
+        def use(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.UseContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.UseContext,i)
+
+
+        def END(self):
+            return self.getToken(bsdlParser.END, 0)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_entity
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterEntity(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitEntity(self)
+
+
+
+
+    def entity(self):
+
+        localctx = bsdlParser.EntityContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 2, self.RULE_entity)
+        self._la = 0 # Token type
         try:
-            try:
-                # bsdl.g:29:5: ( ENTITY ename= identifier IS (g= generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( (i= attribute ) | (i= constant ) ) SCOLON )* END identifier SCOLON )
-                # bsdl.g:29:7: ENTITY ename= identifier IS (g= generic SCOLON )+ port_list SCOLON ( use SCOLON )* ( ( (i= attribute ) | (i= constant ) ) SCOLON )* END identifier SCOLON
-                pass 
-                #action start
-                value = {}
-                #action end
-                self.match(self.input, ENTITY, self.FOLLOW_ENTITY_in_entity97)
-                self._state.following.append(self.FOLLOW_identifier_in_entity101)
-                ename = self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, IS, self.FOLLOW_IS_in_entity103)
-                #action start
-                value['entity_name'] = ((ename is not None) and [ename.value] or [None])[0]
-                #action end
-                #action start
-                value['generics']={}
-                #action end
-                # bsdl.g:34:5: (g= generic SCOLON )+
-                cnt1 = 0
-                while True: #loop1
-                    alt1 = 2
-                    LA1_0 = self.input.LA(1)
-
-                    if (LA1_0 == GENERIC) :
-                        alt1 = 1
-
-
-                    if alt1 == 1:
-                        # bsdl.g:34:6: g= generic SCOLON
-                        pass 
-                        self._state.following.append(self.FOLLOW_generic_in_entity130)
-                        g = self.generic()
-
-                        self._state.following.pop()
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity132)
-                        #action start
-                        value['generics'][((g is not None) and [g.key] or [None])[0]]=((g is not None) and [g.value] or [None])[0]
-                        #action end
-
-
-                    else:
-                        if cnt1 >= 1:
-                            break #loop1
-
-                        eee = EarlyExitException(1, self.input)
-                        raise eee
-
-                    cnt1 += 1
-
-
-                self._state.following.append(self.FOLLOW_port_list_in_entity143)
-                port_list2 = self.port_list()
-
-                self._state.following.pop()
-                self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity145)
-                #action start
-                value['ports']=port_list2
-                #action end
-                # bsdl.g:39:5: ( use SCOLON )*
-                while True: #loop2
-                    alt2 = 2
-                    LA2_0 = self.input.LA(1)
-
-                    if (LA2_0 == USE) :
-                        alt2 = 1
-
-
-                    if alt2 == 1:
-                        # bsdl.g:39:6: use SCOLON
-                        pass 
-                        self._state.following.append(self.FOLLOW_use_in_entity164)
-                        self.use()
-
-                        self._state.following.pop()
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity166)
-
-
-                    else:
-                        break #loop2
-
-
-                #action start
-                value['attributes']={}
-                #action end
-                #action start
-                value['constants']={}
-                #action end
-                # bsdl.g:43:5: ( ( (i= attribute ) | (i= constant ) ) SCOLON )*
-                while True: #loop4
-                    alt4 = 2
-                    LA4_0 = self.input.LA(1)
-
-                    if (LA4_0 == ATTRIBUTE or LA4_0 == CONSTANT) :
-                        alt4 = 1
-
-
-                    if alt4 == 1:
-                        # bsdl.g:44:7: ( (i= attribute ) | (i= constant ) ) SCOLON
-                        pass 
-                        # bsdl.g:44:7: ( (i= attribute ) | (i= constant ) )
-                        alt3 = 2
-                        LA3_0 = self.input.LA(1)
-
-                        if (LA3_0 == ATTRIBUTE) :
-                            alt3 = 1
-                        elif (LA3_0 == CONSTANT) :
-                            alt3 = 2
-                        else:
-                            nvae = NoViableAltException("", 3, 0, self.input)
-
-                            raise nvae
-
-                        if alt3 == 1:
-                            # bsdl.g:45:9: (i= attribute )
-                            pass 
-                            # bsdl.g:45:9: (i= attribute )
-                            # bsdl.g:45:10: i= attribute
-                            pass 
-                            self._state.following.append(self.FOLLOW_attribute_in_entity208)
-                            i = self.attribute()
-
-                            self._state.following.pop()
-                            #action start
-                            value['attributes'][((i is not None) and [i.key] or [None])[0]]=((i is not None) and [i.value] or [None])[0]
-                            #action end
-
-
-
-
-
-                        elif alt3 == 2:
-                            # bsdl.g:46:10: (i= constant )
-                            pass 
-                            # bsdl.g:46:10: (i= constant )
-                            # bsdl.g:46:11: i= constant
-                            pass 
-                            self._state.following.append(self.FOLLOW_constant_in_entity225)
-                            i = self.constant()
-
-                            self._state.following.pop()
-                            #action start
-                            value['constants'][((i is not None) and [i.key] or [None])[0]]=((i is not None) and [i.value] or [None])[0]
-                            #action end
-
-
-
-
-
-
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity238)
-
-
-                    else:
-                        break #loop4
-
-
-                self.match(self.input, END, self.FOLLOW_END_in_entity253)
-                self._state.following.append(self.FOLLOW_identifier_in_entity255)
-                self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_entity257)
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return value
-
-    # $ANTLR end "entity"
-
-    class generic_return(ParserRuleReturnScope):
-        def __init__(self):
-            ParserRuleReturnScope.__init__(self)
-
-            self.key = None
-            self.value = None
-
-
-
-
-    # $ANTLR start "generic"
-    # bsdl.g:53:1: generic returns [key, value] : GENERIC OPAREN (gk= identifier COLON identifier COLON EQUAL gv= string ) CPAREN ;
-    def generic(self, ):
-
-        retval = self.generic_return()
-        retval.start = self.input.LT(1)
-
-        gk = None
-
-        gv = None
-
-
-        try:
-            try:
-                # bsdl.g:54:5: ( GENERIC OPAREN (gk= identifier COLON identifier COLON EQUAL gv= string ) CPAREN )
-                # bsdl.g:54:7: GENERIC OPAREN (gk= identifier COLON identifier COLON EQUAL gv= string ) CPAREN
-                pass 
-                self.match(self.input, GENERIC, self.FOLLOW_GENERIC_in_generic279)
-                self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_generic281)
-                # bsdl.g:55:9: (gk= identifier COLON identifier COLON EQUAL gv= string )
-                # bsdl.g:55:10: gk= identifier COLON identifier COLON EQUAL gv= string
-                pass 
-                self._state.following.append(self.FOLLOW_identifier_in_generic295)
-                gk = self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_generic297)
-                self._state.following.append(self.FOLLOW_identifier_in_generic299)
-                self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_generic313)
-                self.match(self.input, EQUAL, self.FOLLOW_EQUAL_in_generic315)
-                self._state.following.append(self.FOLLOW_string_in_generic319)
-                gv = self.string()
-
-                self._state.following.pop()
-
-
-
-                self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_generic329)
-                #action start
-                retval.value=gv
-                #action end
-                #action start
-                retval.key=((gk is not None) and [gk.value] or [None])[0]
-                #action end
-
-
-
-                retval.stop = self.input.LT(-1)
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return retval
-
-    # $ANTLR end "generic"
-
-
-    # $ANTLR start "use"
-    # bsdl.g:60:1: use : USE id1= identifier DOT ALL ;
-    def use(self, ):
-
-        id1 = None
-
-
-        try:
-            try:
-                # bsdl.g:61:5: ( USE id1= identifier DOT ALL )
-                # bsdl.g:61:7: USE id1= identifier DOT ALL
-                pass 
-                self.match(self.input, USE, self.FOLLOW_USE_in_use349)
-                self._state.following.append(self.FOLLOW_identifier_in_use353)
-                id1 = self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, DOT, self.FOLLOW_DOT_in_use355)
-                self.match(self.input, ALL, self.FOLLOW_ALL_in_use357)
-                #action start
-                #oprint ((id1 is not None) and [self.input.toString(id1.start,id1.stop)] or [None])[0]+".all"
-                #action end
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return 
-
-    # $ANTLR end "use"
-
-    class attribute_return(ParserRuleReturnScope):
-        def __init__(self):
-            ParserRuleReturnScope.__init__(self)
-
-            self.key = None
-            self.value = None
-
-
-
-
-    # $ANTLR start "attribute"
-    # bsdl.g:65:1: attribute returns [key, value] : ATTRIBUTE atn= identifier OF entn= identifier COLON v= general_attribute_assignment ;
-    def attribute(self, ):
-
-        retval = self.attribute_return()
-        retval.start = self.input.LT(1)
-
-        atn = None
-
-        entn = None
-
-        v = None
-
-
-        try:
-            try:
-                # bsdl.g:66:5: ( ATTRIBUTE atn= identifier OF entn= identifier COLON v= general_attribute_assignment )
-                # bsdl.g:66:7: ATTRIBUTE atn= identifier OF entn= identifier COLON v= general_attribute_assignment
-                pass 
-                self.match(self.input, ATTRIBUTE, self.FOLLOW_ATTRIBUTE_in_attribute388)
-                self._state.following.append(self.FOLLOW_identifier_in_attribute401)
-                atn = self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, OF, self.FOLLOW_OF_in_attribute403)
-                self._state.following.append(self.FOLLOW_identifier_in_attribute407)
-                entn = self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_attribute409)
-                #action start
-                retval.key=((atn is not None) and [atn.value] or [None])[0]
-                #action end
-                #action start
-                #print "ATTRIBUTE CREATION", ((atn is not None) and [atn.value] or [None])[0], ((entn is not None) and [entn.value] or [None])[0]
-                #action end
-                self._state.following.append(self.FOLLOW_general_attribute_assignment_in_attribute435)
-                v = self.general_attribute_assignment()
-
-                self._state.following.pop()
-                #action start
-                retval.value=v
-                #action end
-
-
-
-                retval.stop = self.input.LT(-1)
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return retval
-
-    # $ANTLR end "attribute"
-
-
-    # $ANTLR start "general_attribute_assignment"
-    # bsdl.g:72:1: general_attribute_assignment returns [value] : ( ( ENTITY IS (i= identifier | s= string | n= number ) ) | ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) ) );
-    def general_attribute_assignment(self, ):
-
-        value = None
-
-        i = None
-
-        s = None
-
-        n = None
-
-        scinot_number3 = None
-
-
-        try:
-            try:
-                # bsdl.g:73:5: ( ( ENTITY IS (i= identifier | s= string | n= number ) ) | ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) ) )
-                alt8 = 2
-                LA8_0 = self.input.LA(1)
-
-                if (LA8_0 == ENTITY) :
-                    alt8 = 1
-                elif (LA8_0 == SIGNAL) :
-                    alt8 = 2
-                else:
-                    nvae = NoViableAltException("", 8, 0, self.input)
-
-                    raise nvae
-
-                if alt8 == 1:
-                    # bsdl.g:73:7: ( ENTITY IS (i= identifier | s= string | n= number ) )
-                    pass 
-                    # bsdl.g:73:7: ( ENTITY IS (i= identifier | s= string | n= number ) )
-                    # bsdl.g:73:8: ENTITY IS (i= identifier | s= string | n= number )
-                    pass 
-                    self.match(self.input, ENTITY, self.FOLLOW_ENTITY_in_general_attribute_assignment459)
-                    self.match(self.input, IS, self.FOLLOW_IS_in_general_attribute_assignment461)
-                    # bsdl.g:74:13: (i= identifier | s= string | n= number )
-                    alt5 = 3
-                    LA5 = self.input.LA(1)
-                    if LA5 == FULLCASE_WORD or LA5 == WORD:
-                        alt5 = 1
-                    elif LA5 == STRING:
-                        alt5 = 2
-                    elif LA5 == DIGIT:
-                        alt5 = 3
-                    else:
-                        nvae = NoViableAltException("", 5, 0, self.input)
-
-                        raise nvae
-
-                    if alt5 == 1:
-                        # bsdl.g:75:17: i= identifier
-                        pass 
-                        self._state.following.append(self.FOLLOW_identifier_in_general_attribute_assignment496)
-                        i = self.identifier()
-
-                        self._state.following.pop()
-                        #action start
-                        value=((i is not None) and [i.value] or [None])[0]
-                        #action end
-
-
-                    elif alt5 == 2:
-                        # bsdl.g:76:18: s= string
-                        pass 
-                        self._state.following.append(self.FOLLOW_string_in_general_attribute_assignment519)
-                        s = self.string()
-
-                        self._state.following.pop()
-                        #action start
-                        value=s
-                        #action end
-
-
-                    elif alt5 == 3:
-                        # bsdl.g:77:18: n= number
-                        pass 
-                        self._state.following.append(self.FOLLOW_number_in_general_attribute_assignment542)
-                        n = self.number()
-
-                        self._state.following.pop()
-                        #action start
-                        value=((n is not None) and [n.value] or [None])[0]
-                        #action end
-
-
-
-
-
-
-
-
-                elif alt8 == 2:
-                    # bsdl.g:80:8: ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) )
-                    pass 
-                    # bsdl.g:80:8: ( SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) ) )
-                    # bsdl.g:80:9: SIGNAL IS ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) )
-                    pass 
-                    self.match(self.input, SIGNAL, self.FOLLOW_SIGNAL_in_general_attribute_assignment576)
-                    self.match(self.input, IS, self.FOLLOW_IS_in_general_attribute_assignment578)
-                    # bsdl.g:81:13: ( ( TRUE | FALSE ) | ( OPAREN scinot_number COMMA BOTH CPAREN ) )
-                    alt7 = 2
-                    LA7_0 = self.input.LA(1)
-
-                    if ((TRUE <= LA7_0 <= FALSE)) :
-                        alt7 = 1
-                    elif (LA7_0 == OPAREN) :
-                        alt7 = 2
-                    else:
-                        nvae = NoViableAltException("", 7, 0, self.input)
-
-                        raise nvae
-
-                    if alt7 == 1:
-                        # bsdl.g:82:17: ( TRUE | FALSE )
-                        pass 
-                        # bsdl.g:82:17: ( TRUE | FALSE )
-                        alt6 = 2
-                        LA6_0 = self.input.LA(1)
-
-                        if (LA6_0 == TRUE) :
-                            alt6 = 1
-                        elif (LA6_0 == FALSE) :
-                            alt6 = 2
-                        else:
-                            nvae = NoViableAltException("", 6, 0, self.input)
-
-                            raise nvae
-
-                        if alt6 == 1:
-                            # bsdl.g:82:18: TRUE
-                            pass 
-                            self.match(self.input, TRUE, self.FOLLOW_TRUE_in_general_attribute_assignment612)
-                            #action start
-                            value=True
-                            #action end
-
-
-                        elif alt6 == 2:
-                            # bsdl.g:82:37: FALSE
-                            pass 
-                            self.match(self.input, FALSE, self.FOLLOW_FALSE_in_general_attribute_assignment616)
-                            #action start
-                            value=False
-                            #action end
-
-
-
-
-
-                    elif alt7 == 2:
-                        # bsdl.g:83:17: ( OPAREN scinot_number COMMA BOTH CPAREN )
-                        pass 
-                        # bsdl.g:83:17: ( OPAREN scinot_number COMMA BOTH CPAREN )
-                        # bsdl.g:83:18: OPAREN scinot_number COMMA BOTH CPAREN
-                        pass 
-                        self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_general_attribute_assignment639)
-                        self._state.following.append(self.FOLLOW_scinot_number_in_general_attribute_assignment641)
-                        scinot_number3 = self.scinot_number()
-
-                        self._state.following.pop()
-                        #action start
-                        value=((scinot_number3 is not None) and [self.input.toString(scinot_number3.start,scinot_number3.stop)] or [None])[0]
-                        #action end
-                        self.match(self.input, COMMA, self.FOLLOW_COMMA_in_general_attribute_assignment665)
-                        self.match(self.input, BOTH, self.FOLLOW_BOTH_in_general_attribute_assignment667)
-                        self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_general_attribute_assignment669)
-
-
-
-
-
-
-
-
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return value
-
-    # $ANTLR end "general_attribute_assignment"
-
-    class number_return(ParserRuleReturnScope):
-        def __init__(self):
-            ParserRuleReturnScope.__init__(self)
-
-            self.value = None
-
-
-
-
-    # $ANTLR start "number"
-    # bsdl.g:89:1: number returns [value] : ( DIGIT )+ ;
-    def number(self, ):
-
-        retval = self.number_return()
-        retval.start = self.input.LT(1)
-
-        try:
-            try:
-                # bsdl.g:90:5: ( ( DIGIT )+ )
-                # bsdl.g:90:7: ( DIGIT )+
-                pass 
-                # bsdl.g:90:7: ( DIGIT )+
-                cnt9 = 0
-                while True: #loop9
-                    alt9 = 2
-                    LA9_0 = self.input.LA(1)
-
-                    if (LA9_0 == DIGIT) :
-                        alt9 = 1
-
-
-                    if alt9 == 1:
-                        # bsdl.g:90:7: DIGIT
-                        pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_number713)
-
-
-                    else:
-                        if cnt9 >= 1:
-                            break #loop9
-
-                        eee = EarlyExitException(9, self.input)
-                        raise eee
-
-                    cnt9 += 1
-
-
-                #action start
-                retval.value=int(self.input.toString(retval.start, self.input.LT(-1)))
-                #action end
-
-
-
-                retval.stop = self.input.LT(-1)
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return retval
-
-    # $ANTLR end "number"
-
-    class constant_return(ParserRuleReturnScope):
-        def __init__(self):
-            ParserRuleReturnScope.__init__(self)
-
-            self.key = None
-            self.value = None
-
-
-
-
-    # $ANTLR start "constant"
-    # bsdl.g:93:1: constant returns [key, value] : CONSTANT k= identifier COLON identifier COLON EQUAL v= string ;
-    def constant(self, ):
-
-        retval = self.constant_return()
-        retval.start = self.input.LT(1)
-
-        k = None
-
-        v = None
-
-
-        try:
-            try:
-                # bsdl.g:94:5: ( CONSTANT k= identifier COLON identifier COLON EQUAL v= string )
-                # bsdl.g:94:7: CONSTANT k= identifier COLON identifier COLON EQUAL v= string
-                pass 
-                self.match(self.input, CONSTANT, self.FOLLOW_CONSTANT_in_constant737)
-                self._state.following.append(self.FOLLOW_identifier_in_constant741)
-                k = self.identifier()
-
-                self._state.following.pop()
-                #action start
-                retval.key=((k is not None) and [k.value] or [None])[0]
-                #action end
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_constant745)
-                self._state.following.append(self.FOLLOW_identifier_in_constant747)
-                self.identifier()
-
-                self._state.following.pop()
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_constant758)
-                self.match(self.input, EQUAL, self.FOLLOW_EQUAL_in_constant760)
-                self._state.following.append(self.FOLLOW_string_in_constant764)
-                v = self.string()
-
-                self._state.following.pop()
-                #action start
-                retval.value=v
-                #action end
-
-
-
-                retval.stop = self.input.LT(-1)
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return retval
-
-    # $ANTLR end "constant"
-
-
-    # $ANTLR start "port_list"
-    # bsdl.g:98:1: port_list returns [value] : PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN ;
-    def port_list(self, ):
-
-        value = None
-
-        pd = None
-
-
-        try:
-            try:
-                # bsdl.g:99:5: ( PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN )
-                # bsdl.g:99:7: PORT OPAREN (pd= port_def SCOLON )* (pd= port_def ) CPAREN
-                pass 
-                #action start
-                value = []
-                #action end
-                self.match(self.input, PORT, self.FOLLOW_PORT_in_port_list797)
-                self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_port_list799)
-                # bsdl.g:101:9: (pd= port_def SCOLON )*
-                while True: #loop10
-                    alt10 = 2
-                    alt10 = self.dfa10.predict(self.input)
-                    if alt10 == 1:
-                        # bsdl.g:101:10: pd= port_def SCOLON
-                        pass 
-                        self._state.following.append(self.FOLLOW_port_def_in_port_list813)
-                        pd = self.port_def()
-
-                        self._state.following.pop()
-                        #action start
-                        value.extend(pd)
-                        #action end
-                        self.match(self.input, SCOLON, self.FOLLOW_SCOLON_in_port_list817)
-
-
-                    else:
-                        break #loop10
-
-
-                # bsdl.g:102:9: (pd= port_def )
-                # bsdl.g:102:10: pd= port_def
-                pass 
-                self._state.following.append(self.FOLLOW_port_def_in_port_list833)
-                pd = self.port_def()
-
-                self._state.following.pop()
-                #action start
-                value.extend(pd)
-                #action end
-
-
-
-                self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_port_list846)
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return value
-
-    # $ANTLR end "port_list"
-
-
-    # $ANTLR start "port_def"
-    # bsdl.g:105:1: port_def returns [value] : (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN ) ;
-    def port_def(self, ):
-
-        value = None
-
-        pname = None
-
-
-        try:
-            try:
-                # bsdl.g:106:5: ( (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN ) )
-                # bsdl.g:106:7: (pname= identifier COMMA )* pname= identifier COLON portmode ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN )
-                pass 
-                #action start
-                value=[]
-                #action end
-                # bsdl.g:107:8: (pname= identifier COMMA )*
-                while True: #loop11
-                    alt11 = 2
-                    alt11 = self.dfa11.predict(self.input)
-                    if alt11 == 1:
-                        # bsdl.g:107:9: pname= identifier COMMA
-                        pass 
-                        self._state.following.append(self.FOLLOW_identifier_in_port_def874)
-                        pname = self.identifier()
-
-                        self._state.following.pop()
-                        #action start
-                        value.append(((pname is not None) and [pname.value] or [None])[0])
-                        #action end
-                        self.match(self.input, COMMA, self.FOLLOW_COMMA_in_port_def878)
-
-
-                    else:
-                        break #loop11
-
-
-                self._state.following.append(self.FOLLOW_identifier_in_port_def892)
-                pname = self.identifier()
-
-                self._state.following.pop()
-                #action start
-                value.append(((pname is not None) and [pname.value] or [None])[0])
-                #action end
-                self.match(self.input, COLON, self.FOLLOW_COLON_in_port_def896)
-                self._state.following.append(self.FOLLOW_portmode_in_port_def898)
-                self.portmode()
-
-                self._state.following.pop()
-                # bsdl.g:109:9: ( BIT | BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN )
-                alt14 = 2
-                LA14_0 = self.input.LA(1)
-
-                if (LA14_0 == BIT) :
-                    alt14 = 1
-                elif (LA14_0 == BIT_VECTOR) :
-                    alt14 = 2
-                else:
-                    nvae = NoViableAltException("", 14, 0, self.input)
-
-                    raise nvae
-
-                if alt14 == 1:
-                    # bsdl.g:109:10: BIT
-                    pass 
-                    self.match(self.input, BIT, self.FOLLOW_BIT_in_port_def911)
-
-
-                elif alt14 == 2:
-                    # bsdl.g:110:10: BIT_VECTOR OPAREN ( DIGIT )+ TO ( DIGIT )+ CPAREN
-                    pass 
-                    self.match(self.input, BIT_VECTOR, self.FOLLOW_BIT_VECTOR_in_port_def923)
-                    self.match(self.input, OPAREN, self.FOLLOW_OPAREN_in_port_def925)
-                    # bsdl.g:110:28: ( DIGIT )+
-                    cnt12 = 0
-                    while True: #loop12
-                        alt12 = 2
-                        LA12_0 = self.input.LA(1)
-
-                        if (LA12_0 == DIGIT) :
-                            alt12 = 1
-
-
-                        if alt12 == 1:
-                            # bsdl.g:110:28: DIGIT
-                            pass 
-                            self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_port_def927)
-
-
-                        else:
-                            if cnt12 >= 1:
-                                break #loop12
-
-                            eee = EarlyExitException(12, self.input)
-                            raise eee
-
-                        cnt12 += 1
-
-
-                    self.match(self.input, TO, self.FOLLOW_TO_in_port_def930)
-                    # bsdl.g:110:38: ( DIGIT )+
-                    cnt13 = 0
-                    while True: #loop13
-                        alt13 = 2
-                        LA13_0 = self.input.LA(1)
-
-                        if (LA13_0 == DIGIT) :
-                            alt13 = 1
-
-
-                        if alt13 == 1:
-                            # bsdl.g:110:38: DIGIT
-                            pass 
-                            self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_port_def932)
-
-
-                        else:
-                            if cnt13 >= 1:
-                                break #loop13
-
-                            eee = EarlyExitException(13, self.input)
-                            raise eee
-
-                        cnt13 += 1
-
-
-                    self.match(self.input, CPAREN, self.FOLLOW_CPAREN_in_port_def935)
-
-
-
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
-        finally:
-
-            pass
-
-        return value
-
-    # $ANTLR end "port_def"
-
-    class identifier_return(ParserRuleReturnScope):
-        def __init__(self):
-            ParserRuleReturnScope.__init__(self)
-
-            self.value = None
-
-
-
-
-    # $ANTLR start "identifier"
-    # bsdl.g:112:1: identifier returns [value] : ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )* ;
-    def identifier(self, ):
-
-        retval = self.identifier_return()
-        retval.start = self.input.LT(1)
-
-        try:
-            try:
-                # bsdl.g:113:5: ( ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )* )
-                # bsdl.g:113:7: ( FULLCASE_WORD | WORD ) ( FULLCASE_WORD | WORD | DIGIT )* ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )*
-                pass 
-                if (FULLCASE_WORD <= self.input.LA(1) <= WORD):
-                    self.input.consume()
-                    self._state.errorRecovery = False
+            self.enterOuterAlt(localctx, 1)
+            self.state = 33
+            self.match(self.ENTITY)
+            self.state = 34 
+            localctx.ename = self.identifier()
+            self.state = 35
+            self.match(self.IS)
+            self.state = 39 
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while True:
+                self.state = 36 
+                localctx.g = self.generic()
+                self.state = 37
+                self.match(self.SCOLON)
+                self.state = 41 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if not (_la==bsdlParser.GENERIC):
+                    break
+
+            self.state = 43 
+            self.port_list()
+            self.state = 44
+            self.match(self.SCOLON)
+            self.state = 50
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==bsdlParser.USE:
+                self.state = 45 
+                self.use()
+                self.state = 46
+                self.match(self.SCOLON)
+                self.state = 52
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 61
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==bsdlParser.ATTRIBUTE or _la==bsdlParser.CONSTANT:
+                self.state = 55
+                token = self._input.LA(1)
+                if token in [self.ATTRIBUTE]:
+                    self.state = 53 
+                    self.attribute()
+
+                elif token in [self.CONSTANT]:
+                    self.state = 54 
+                    self.constant()
 
                 else:
-                    mse = MismatchedSetException(None, self.input)
-                    raise mse
+                    raise NoViableAltException(self)
 
+                self.state = 57
+                self.match(self.SCOLON)
+                self.state = 63
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
 
-                # bsdl.g:113:28: ( FULLCASE_WORD | WORD | DIGIT )*
-                while True: #loop15
-                    alt15 = 2
-                    LA15_0 = self.input.LA(1)
-
-                    if (LA15_0 == DIGIT or (FULLCASE_WORD <= LA15_0 <= WORD)) :
-                        alt15 = 1
-
-
-                    if alt15 == 1:
-                        # bsdl.g:
-                        pass 
-                        if self.input.LA(1) == DIGIT or (FULLCASE_WORD <= self.input.LA(1) <= WORD):
-                            self.input.consume()
-                            self._state.errorRecovery = False
-
-                        else:
-                            mse = MismatchedSetException(None, self.input)
-                            raise mse
-
-
-
-
-                    else:
-                        break #loop15
-
-
-                # bsdl.g:113:56: ( '_' ( FULLCASE_WORD | WORD | DIGIT )+ )*
-                while True: #loop17
-                    alt17 = 2
-                    LA17_0 = self.input.LA(1)
-
-                    if (LA17_0 == USCORE) :
-                        alt17 = 1
-
-
-                    if alt17 == 1:
-                        # bsdl.g:113:57: '_' ( FULLCASE_WORD | WORD | DIGIT )+
-                        pass 
-                        self.match(self.input, USCORE, self.FOLLOW_USCORE_in_identifier968)
-                        # bsdl.g:113:61: ( FULLCASE_WORD | WORD | DIGIT )+
-                        cnt16 = 0
-                        while True: #loop16
-                            alt16 = 2
-                            LA16_0 = self.input.LA(1)
-
-                            if (LA16_0 == DIGIT or (FULLCASE_WORD <= LA16_0 <= WORD)) :
-                                alt16 = 1
-
-
-                            if alt16 == 1:
-                                # bsdl.g:
-                                pass 
-                                if self.input.LA(1) == DIGIT or (FULLCASE_WORD <= self.input.LA(1) <= WORD):
-                                    self.input.consume()
-                                    self._state.errorRecovery = False
-
-                                else:
-                                    mse = MismatchedSetException(None, self.input)
-                                    raise mse
-
-
-
-
-                            else:
-                                if cnt16 >= 1:
-                                    break #loop16
-
-                                eee = EarlyExitException(16, self.input)
-                                raise eee
-
-                            cnt16 += 1
-
-
-
-
-                    else:
-                        break #loop17
-
-
-                #action start
-                retval.value = self.input.toString(retval.start, self.input.LT(-1)).upper()
-                #action end
-
-
-
-                retval.stop = self.input.LT(-1)
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
+            self.state = 64
+            self.match(self.END)
+            self.state = 65 
+            self.identifier()
+            self.state = 66
+            self.match(self.SCOLON)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
         finally:
+            self.exitRule()
+        return localctx
 
-            pass
+    class GenericContext(ParserRuleContext):
 
-        return retval
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.gk = None # IdentifierContext
+            self.gv = None # StringContext
 
-    # $ANTLR end "identifier"
+        def string(self):
+            return self.getTypedRuleContext(bsdlParser.StringContext,0)
 
 
-    # $ANTLR start "portmode"
-    # bsdl.g:116:1: portmode returns [value] : ( IN | OUT | INOUT | BUFFER | LINKAGE | BUS );
-    def portmode(self, ):
+        def CPAREN(self):
+            return self.getToken(bsdlParser.CPAREN, 0)
 
-        value = None
+        def OPAREN(self):
+            return self.getToken(bsdlParser.OPAREN, 0)
 
+        def GENERIC(self):
+            return self.getToken(bsdlParser.GENERIC, 0)
+
+        def COLON(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.COLON)
+            else:
+                return self.getToken(bsdlParser.COLON, i)
+
+        def EQUAL(self):
+            return self.getToken(bsdlParser.EQUAL, 0)
+
+        def identifier(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.IdentifierContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.IdentifierContext,i)
+
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_generic
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterGeneric(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitGeneric(self)
+
+
+
+
+    def generic(self):
+
+        localctx = bsdlParser.GenericContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 4, self.RULE_generic)
         try:
-            try:
-                # bsdl.g:117:5: ( IN | OUT | INOUT | BUFFER | LINKAGE | BUS )
-                # bsdl.g:
-                pass 
-                if (IN <= self.input.LA(1) <= BUS):
-                    self.input.consume()
-                    self._state.errorRecovery = False
+            self.enterOuterAlt(localctx, 1)
+            self.state = 68
+            self.match(self.GENERIC)
+            self.state = 69
+            self.match(self.OPAREN)
+
+            self.state = 70 
+            localctx.gk = self.identifier()
+            self.state = 71
+            self.match(self.COLON)
+            self.state = 72 
+            self.identifier()
+            self.state = 73
+            self.match(self.COLON)
+            self.state = 74
+            self.match(self.EQUAL)
+            self.state = 75 
+            localctx.gv = self.string()
+            self.state = 77
+            self.match(self.CPAREN)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class UseContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.id1 = None # IdentifierContext
+
+        def ALL(self):
+            return self.getToken(bsdlParser.ALL, 0)
+
+        def USE(self):
+            return self.getToken(bsdlParser.USE, 0)
+
+        def DOT(self):
+            return self.getToken(bsdlParser.DOT, 0)
+
+        def identifier(self):
+            return self.getTypedRuleContext(bsdlParser.IdentifierContext,0)
+
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_use
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterUse(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitUse(self)
+
+
+
+
+    def use(self):
+
+        localctx = bsdlParser.UseContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 6, self.RULE_use)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 79
+            self.match(self.USE)
+            self.state = 80 
+            localctx.id1 = self.identifier()
+            self.state = 81
+            self.match(self.DOT)
+            self.state = 82
+            self.match(self.ALL)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class AttributeContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.atn = None # IdentifierContext
+            self.entn = None # IdentifierContext
+            self.v = None # General_attribute_assignmentContext
+
+        def OF(self):
+            return self.getToken(bsdlParser.OF, 0)
+
+        def ATTRIBUTE(self):
+            return self.getToken(bsdlParser.ATTRIBUTE, 0)
+
+        def identifier(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.IdentifierContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.IdentifierContext,i)
+
+
+        def general_attribute_assignment(self):
+            return self.getTypedRuleContext(bsdlParser.General_attribute_assignmentContext,0)
+
+
+        def COLON(self):
+            return self.getToken(bsdlParser.COLON, 0)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_attribute
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterAttribute(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitAttribute(self)
+
+
+
+
+    def attribute(self):
+
+        localctx = bsdlParser.AttributeContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 8, self.RULE_attribute)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 84
+            self.match(self.ATTRIBUTE)
+            self.state = 85 
+            localctx.atn = self.identifier()
+            self.state = 86
+            self.match(self.OF)
+            self.state = 87 
+            localctx.entn = self.identifier()
+            self.state = 88
+            self.match(self.COLON)
+            self.state = 89 
+            localctx.v = self.general_attribute_assignment()
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class General_attribute_assignmentContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.v = None # IdentifierContext
+
+        def BOTH(self):
+            return self.getToken(bsdlParser.BOTH, 0)
+
+        def number(self):
+            return self.getTypedRuleContext(bsdlParser.NumberContext,0)
+
+
+        def string(self):
+            return self.getTypedRuleContext(bsdlParser.StringContext,0)
+
+
+        def CPAREN(self):
+            return self.getToken(bsdlParser.CPAREN, 0)
+
+        def OPAREN(self):
+            return self.getToken(bsdlParser.OPAREN, 0)
+
+        def COMMA(self):
+            return self.getToken(bsdlParser.COMMA, 0)
+
+        def scinot_number(self):
+            return self.getTypedRuleContext(bsdlParser.Scinot_numberContext,0)
+
+
+        def SIGNAL(self):
+            return self.getToken(bsdlParser.SIGNAL, 0)
+
+        def ENTITY(self):
+            return self.getToken(bsdlParser.ENTITY, 0)
+
+        def boolean(self):
+            return self.getTypedRuleContext(bsdlParser.BooleanContext,0)
+
+
+        def IS(self):
+            return self.getToken(bsdlParser.IS, 0)
+
+        def identifier(self):
+            return self.getTypedRuleContext(bsdlParser.IdentifierContext,0)
+
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_general_attribute_assignment
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterGeneral_attribute_assignment(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitGeneral_attribute_assignment(self)
+
+
+
+
+    def general_attribute_assignment(self):
+
+        localctx = bsdlParser.General_attribute_assignmentContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 10, self.RULE_general_attribute_assignment)
+        try:
+            self.state = 109
+            token = self._input.LA(1)
+            if token in [self.ENTITY]:
+                self.enterOuterAlt(localctx, 1)
+                self.state = 91
+                self.match(self.ENTITY)
+                self.state = 92
+                self.match(self.IS)
+                self.state = 96
+                token = self._input.LA(1)
+                if token in [self.WORD, self.FULLCASE_WORD]:
+                    self.state = 93 
+                    localctx.v = self.identifier()
+
+                elif token in [self.STRING]:
+                    self.state = 94 
+                    localctx.v = self.string()
+
+                elif token in [self.DIGIT]:
+                    self.state = 95 
+                    localctx.v = self.number()
 
                 else:
-                    mse = MismatchedSetException(None, self.input)
-                    raise mse
+                    raise NoViableAltException(self)
 
 
+            elif token in [self.SIGNAL]:
+                self.enterOuterAlt(localctx, 2)
+                self.state = 98
+                self.match(self.SIGNAL)
+                self.state = 99
+                self.match(self.IS)
+                self.state = 107
+                token = self._input.LA(1)
+                if token in [self.TRUE, self.FALSE]:
+                    self.state = 100 
+                    localctx.v = self.boolean()
+
+                elif token in [self.OPAREN]:
+                    self.state = 101
+                    self.match(self.OPAREN)
+                    self.state = 102 
+                    localctx.v = self.scinot_number()
+                    self.state = 103
+                    self.match(self.COMMA)
+                    self.state = 104
+                    self.match(self.BOTH)
+                    self.state = 105
+                    self.match(self.CPAREN)
+
+                else:
+                    raise NoViableAltException(self)
 
 
+            else:
+                raise NoViableAltException(self)
 
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
         finally:
+            self.exitRule()
+        return localctx
 
-            pass
+    class BooleanContext(ParserRuleContext):
 
-        return value
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
 
-    # $ANTLR end "portmode"
+        def TRUE(self):
+            return self.getToken(bsdlParser.TRUE, 0)
+
+        def FALSE(self):
+            return self.getToken(bsdlParser.FALSE, 0)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_boolean
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterBoolean(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitBoolean(self)
 
 
-    # $ANTLR start "string"
-    # bsdl.g:119:1: string returns [value] : (s= STRING ANDSIGN )* s1= STRING ;
-    def string(self, ):
 
-        value = None
 
-        s = None
-        s1 = None
+    def boolean(self):
 
+        localctx = bsdlParser.BooleanContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 12, self.RULE_boolean)
+        self._la = 0 # Token type
         try:
-            try:
-                # bsdl.g:120:5: ( (s= STRING ANDSIGN )* s1= STRING )
-                # bsdl.g:120:7: (s= STRING ANDSIGN )* s1= STRING
-                pass 
-                #action start
-                str_parts = []
-                #action end
-                # bsdl.g:121:7: (s= STRING ANDSIGN )*
-                while True: #loop18
-                    alt18 = 2
-                    LA18_0 = self.input.LA(1)
-
-                    if (LA18_0 == STRING) :
-                        LA18_1 = self.input.LA(2)
-
-                        if (LA18_1 == ANDSIGN) :
-                            alt18 = 1
-
-
-
-
-                    if alt18 == 1:
-                        # bsdl.g:121:8: s= STRING ANDSIGN
-                        pass 
-                        s=self.match(self.input, STRING, self.FOLLOW_STRING_in_string1039)
-                        self.match(self.input, ANDSIGN, self.FOLLOW_ANDSIGN_in_string1041)
-                        #action start
-                        str_parts.append(s.text[1:-1])
-                        #action end
-
-
-                    else:
-                        break #loop18
-
-
-                s1=self.match(self.input, STRING, self.FOLLOW_STRING_in_string1058)
-                #action start
-                str_parts.append(s1.text[1:-1])
-                #action end
-                #action start
-                value = "".join(str_parts)
-                #action end
-
-
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
+            self.enterOuterAlt(localctx, 1)
+            self.state = 111
+            _la = self._input.LA(1)
+            if not(_la==bsdlParser.TRUE or _la==bsdlParser.FALSE):
+                self._errHandler.recoverInline(self)
+            self.consume()
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
         finally:
+            self.exitRule()
+        return localctx
 
-            pass
+    class NumberContext(ParserRuleContext):
 
-        return value
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
 
-    # $ANTLR end "string"
+        def DIGIT(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.DIGIT)
+            else:
+                return self.getToken(bsdlParser.DIGIT, i)
 
-    class scinot_number_return(ParserRuleReturnScope):
-        def __init__(self):
-            ParserRuleReturnScope.__init__(self)
+        def getRuleIndex(self):
+            return bsdlParser.RULE_number
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterNumber(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitNumber(self)
 
 
 
 
+    def number(self):
 
-    # $ANTLR start "scinot_number"
-    # bsdl.g:126:1: scinot_number : ( DIGIT )* DOT ( DIGIT )* 'e' ( '+' )? ( DIGIT )* ;
-    def scinot_number(self, ):
-
-        retval = self.scinot_number_return()
-        retval.start = self.input.LT(1)
-
+        localctx = bsdlParser.NumberContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 14, self.RULE_number)
+        self._la = 0 # Token type
         try:
-            try:
-                # bsdl.g:127:5: ( ( DIGIT )* DOT ( DIGIT )* 'e' ( '+' )? ( DIGIT )* )
-                # bsdl.g:127:7: ( DIGIT )* DOT ( DIGIT )* 'e' ( '+' )? ( DIGIT )*
-                pass 
-                # bsdl.g:127:7: ( DIGIT )*
-                while True: #loop19
-                    alt19 = 2
-                    LA19_0 = self.input.LA(1)
+            self.enterOuterAlt(localctx, 1)
+            self.state = 114 
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while True:
+                self.state = 113
+                self.match(self.DIGIT)
+                self.state = 116 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if not (_la==bsdlParser.DIGIT):
+                    break
 
-                    if (LA19_0 == DIGIT) :
-                        alt19 = 1
-
-
-                    if alt19 == 1:
-                        # bsdl.g:127:7: DIGIT
-                        pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number1087)
-
-
-                    else:
-                        break #loop19
-
-
-                self.match(self.input, DOT, self.FOLLOW_DOT_in_scinot_number1090)
-                # bsdl.g:127:18: ( DIGIT )*
-                while True: #loop20
-                    alt20 = 2
-                    LA20_0 = self.input.LA(1)
-
-                    if (LA20_0 == DIGIT) :
-                        alt20 = 1
-
-
-                    if alt20 == 1:
-                        # bsdl.g:127:18: DIGIT
-                        pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number1092)
-
-
-                    else:
-                        break #loop20
-
-
-                self.match(self.input, 123, self.FOLLOW_123_in_scinot_number1095)
-                # bsdl.g:127:29: ( '+' )?
-                alt21 = 2
-                LA21_0 = self.input.LA(1)
-
-                if (LA21_0 == 124) :
-                    alt21 = 1
-                if alt21 == 1:
-                    # bsdl.g:127:29: '+'
-                    pass 
-                    self.match(self.input, 124, self.FOLLOW_124_in_scinot_number1097)
-
-
-
-                # bsdl.g:127:34: ( DIGIT )*
-                while True: #loop22
-                    alt22 = 2
-                    LA22_0 = self.input.LA(1)
-
-                    if (LA22_0 == DIGIT) :
-                        alt22 = 1
-
-
-                    if alt22 == 1:
-                        # bsdl.g:127:34: DIGIT
-                        pass 
-                        self.match(self.input, DIGIT, self.FOLLOW_DIGIT_in_scinot_number1100)
-
-
-                    else:
-                        break #loop22
-
-
-
-
-
-                retval.stop = self.input.LT(-1)
-
-
-            except RecognitionException, re:
-                self.reportError(re)
-                self.recover(self.input, re)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
         finally:
+            self.exitRule()
+        return localctx
 
-            pass
+    class ConstantContext(ParserRuleContext):
 
-        return retval
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.k = None # IdentifierContext
+            self.v = None # StringContext
 
-    # $ANTLR end "scinot_number"
+        def string(self):
+            return self.getTypedRuleContext(bsdlParser.StringContext,0)
 
 
-    # Delegated rules
+        def COLON(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.COLON)
+            else:
+                return self.getToken(bsdlParser.COLON, i)
+
+        def EQUAL(self):
+            return self.getToken(bsdlParser.EQUAL, 0)
+
+        def identifier(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.IdentifierContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.IdentifierContext,i)
 
 
-    # lookup tables for DFA #10
+        def CONSTANT(self):
+            return self.getToken(bsdlParser.CONSTANT, 0)
 
-    DFA10_eot = DFA.unpack(
-        u"\21\uffff"
-        )
+        def getRuleIndex(self):
+            return bsdlParser.RULE_constant
 
-    DFA10_eof = DFA.unpack(
-        u"\21\uffff"
-        )
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterConstant(self)
 
-    DFA10_min = DFA.unpack(
-        u"\1\35\2\12\1\27\1\35\1\37\1\12\1\32\1\6\1\11\2\uffff\3\27\1\14"
-        u"\1\6"
-        )
-
-    DFA10_max = DFA.unpack(
-        u"\1\36\2\51\2\36\1\44\1\51\1\33\1\14\1\11\2\uffff\1\27\1\34\2\27"
-        u"\1\14"
-        )
-
-    DFA10_accept = DFA.unpack(
-        u"\12\uffff\1\2\1\1\5\uffff"
-        )
-
-    DFA10_special = DFA.unpack(
-        u"\21\uffff"
-        )
-
-            
-    DFA10_transition = [
-        DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\12\uffff"
-        u"\1\3"),
-        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\2\5\uffff\2\2\12\uffff"
-        u"\1\3"),
-        DFA.unpack(u"\1\6\5\uffff\2\6"),
-        DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\6\7"),
-        DFA.unpack(u"\1\5\12\uffff\1\4\1\uffff\1\6\5\uffff\2\6\12\uffff"
-        u"\1\3"),
-        DFA.unpack(u"\1\10\1\11"),
-        DFA.unpack(u"\1\13\5\uffff\1\12"),
-        DFA.unpack(u"\1\14"),
-        DFA.unpack(u""),
-        DFA.unpack(u""),
-        DFA.unpack(u"\1\15"),
-        DFA.unpack(u"\1\15\4\uffff\1\16"),
-        DFA.unpack(u"\1\17"),
-        DFA.unpack(u"\1\20\12\uffff\1\17"),
-        DFA.unpack(u"\1\13\5\uffff\1\12")
-    ]
-
-    # class definition for DFA #10
-
-    DFA10 = DFA
-    # lookup tables for DFA #11
-
-    DFA11_eot = DFA.unpack(
-        u"\7\uffff"
-        )
-
-    DFA11_eof = DFA.unpack(
-        u"\7\uffff"
-        )
-
-    DFA11_min = DFA.unpack(
-        u"\1\35\2\12\1\27\2\uffff\1\12"
-        )
-
-    DFA11_max = DFA.unpack(
-        u"\1\36\2\51\1\36\2\uffff\1\51"
-        )
-
-    DFA11_accept = DFA.unpack(
-        u"\4\uffff\1\2\1\1\1\uffff"
-        )
-
-    DFA11_special = DFA.unpack(
-        u"\7\uffff"
-        )
-
-            
-    DFA11_transition = [
-        DFA.unpack(u"\2\1"),
-        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\12\uffff"
-        u"\1\3"),
-        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\2\5\uffff\2\2\12\uffff"
-        u"\1\3"),
-        DFA.unpack(u"\1\6\5\uffff\2\6"),
-        DFA.unpack(u""),
-        DFA.unpack(u""),
-        DFA.unpack(u"\1\4\12\uffff\1\5\1\uffff\1\6\5\uffff\2\6\12\uffff"
-        u"\1\3")
-    ]
-
-    # class definition for DFA #11
-
-    DFA11 = DFA
- 
-
-    FOLLOW_entity_in_eval61 = frozenset([])
-    FOLLOW_EOF_in_eval73 = frozenset([1])
-    FOLLOW_ENTITY_in_entity97 = frozenset([29, 30])
-    FOLLOW_identifier_in_entity101 = frozenset([5])
-    FOLLOW_IS_in_entity103 = frozenset([8])
-    FOLLOW_generic_in_entity130 = frozenset([6])
-    FOLLOW_SCOLON_in_entity132 = frozenset([8, 25])
-    FOLLOW_port_list_in_entity143 = frozenset([6])
-    FOLLOW_SCOLON_in_entity145 = frozenset([7, 13, 16, 24])
-    FOLLOW_use_in_entity164 = frozenset([6])
-    FOLLOW_SCOLON_in_entity166 = frozenset([7, 13, 16, 24])
-    FOLLOW_attribute_in_entity208 = frozenset([6])
-    FOLLOW_constant_in_entity225 = frozenset([6])
-    FOLLOW_SCOLON_in_entity238 = frozenset([7, 16, 24])
-    FOLLOW_END_in_entity253 = frozenset([29, 30])
-    FOLLOW_identifier_in_entity255 = frozenset([6])
-    FOLLOW_SCOLON_in_entity257 = frozenset([1])
-    FOLLOW_GENERIC_in_generic279 = frozenset([9])
-    FOLLOW_OPAREN_in_generic281 = frozenset([29, 30])
-    FOLLOW_identifier_in_generic295 = frozenset([10])
-    FOLLOW_COLON_in_generic297 = frozenset([29, 30])
-    FOLLOW_identifier_in_generic299 = frozenset([10])
-    FOLLOW_COLON_in_generic313 = frozenset([11])
-    FOLLOW_EQUAL_in_generic315 = frozenset([37])
-    FOLLOW_string_in_generic319 = frozenset([12])
-    FOLLOW_CPAREN_in_generic329 = frozenset([1])
-    FOLLOW_USE_in_use349 = frozenset([29, 30])
-    FOLLOW_identifier_in_use353 = frozenset([14])
-    FOLLOW_DOT_in_use355 = frozenset([15])
-    FOLLOW_ALL_in_use357 = frozenset([1])
-    FOLLOW_ATTRIBUTE_in_attribute388 = frozenset([29, 30])
-    FOLLOW_identifier_in_attribute401 = frozenset([17])
-    FOLLOW_OF_in_attribute403 = frozenset([29, 30])
-    FOLLOW_identifier_in_attribute407 = frozenset([10])
-    FOLLOW_COLON_in_attribute409 = frozenset([4, 18])
-    FOLLOW_general_attribute_assignment_in_attribute435 = frozenset([1])
-    FOLLOW_ENTITY_in_general_attribute_assignment459 = frozenset([5])
-    FOLLOW_IS_in_general_attribute_assignment461 = frozenset([23, 29, 30, 37])
-    FOLLOW_identifier_in_general_attribute_assignment496 = frozenset([1])
-    FOLLOW_string_in_general_attribute_assignment519 = frozenset([1])
-    FOLLOW_number_in_general_attribute_assignment542 = frozenset([1])
-    FOLLOW_SIGNAL_in_general_attribute_assignment576 = frozenset([5])
-    FOLLOW_IS_in_general_attribute_assignment578 = frozenset([9, 19, 20])
-    FOLLOW_TRUE_in_general_attribute_assignment612 = frozenset([1])
-    FOLLOW_FALSE_in_general_attribute_assignment616 = frozenset([1])
-    FOLLOW_OPAREN_in_general_attribute_assignment639 = frozenset([14, 23])
-    FOLLOW_scinot_number_in_general_attribute_assignment641 = frozenset([21])
-    FOLLOW_COMMA_in_general_attribute_assignment665 = frozenset([22])
-    FOLLOW_BOTH_in_general_attribute_assignment667 = frozenset([12])
-    FOLLOW_CPAREN_in_general_attribute_assignment669 = frozenset([1])
-    FOLLOW_DIGIT_in_number713 = frozenset([1, 23])
-    FOLLOW_CONSTANT_in_constant737 = frozenset([29, 30])
-    FOLLOW_identifier_in_constant741 = frozenset([10])
-    FOLLOW_COLON_in_constant745 = frozenset([29, 30])
-    FOLLOW_identifier_in_constant747 = frozenset([10])
-    FOLLOW_COLON_in_constant758 = frozenset([11])
-    FOLLOW_EQUAL_in_constant760 = frozenset([37])
-    FOLLOW_string_in_constant764 = frozenset([1])
-    FOLLOW_PORT_in_port_list797 = frozenset([9])
-    FOLLOW_OPAREN_in_port_list799 = frozenset([29, 30])
-    FOLLOW_port_def_in_port_list813 = frozenset([6])
-    FOLLOW_SCOLON_in_port_list817 = frozenset([29, 30])
-    FOLLOW_port_def_in_port_list833 = frozenset([12])
-    FOLLOW_CPAREN_in_port_list846 = frozenset([1])
-    FOLLOW_identifier_in_port_def874 = frozenset([21])
-    FOLLOW_COMMA_in_port_def878 = frozenset([29, 30])
-    FOLLOW_identifier_in_port_def892 = frozenset([10])
-    FOLLOW_COLON_in_port_def896 = frozenset([31, 32, 33, 34, 35, 36])
-    FOLLOW_portmode_in_port_def898 = frozenset([26, 27])
-    FOLLOW_BIT_in_port_def911 = frozenset([1])
-    FOLLOW_BIT_VECTOR_in_port_def923 = frozenset([9])
-    FOLLOW_OPAREN_in_port_def925 = frozenset([23])
-    FOLLOW_DIGIT_in_port_def927 = frozenset([23, 28])
-    FOLLOW_TO_in_port_def930 = frozenset([23])
-    FOLLOW_DIGIT_in_port_def932 = frozenset([12, 23])
-    FOLLOW_CPAREN_in_port_def935 = frozenset([1])
-    FOLLOW_set_in_identifier952 = frozenset([1, 23, 29, 30, 41])
-    FOLLOW_set_in_identifier958 = frozenset([1, 23, 29, 30, 41])
-    FOLLOW_USCORE_in_identifier968 = frozenset([23, 29, 30])
-    FOLLOW_set_in_identifier970 = frozenset([1, 23, 29, 30, 41])
-    FOLLOW_set_in_portmode0 = frozenset([1])
-    FOLLOW_STRING_in_string1039 = frozenset([38])
-    FOLLOW_ANDSIGN_in_string1041 = frozenset([37])
-    FOLLOW_STRING_in_string1058 = frozenset([1])
-    FOLLOW_DIGIT_in_scinot_number1087 = frozenset([14, 23])
-    FOLLOW_DOT_in_scinot_number1090 = frozenset([23, 123])
-    FOLLOW_DIGIT_in_scinot_number1092 = frozenset([23, 123])
-    FOLLOW_123_in_scinot_number1095 = frozenset([1, 23, 124])
-    FOLLOW_124_in_scinot_number1097 = frozenset([1, 23])
-    FOLLOW_DIGIT_in_scinot_number1100 = frozenset([1, 23])
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitConstant(self)
 
 
 
-def main(argv, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr):
-    from antlr3.main import ParserMain
-    main = ParserMain("bsdlLexer", bsdlParser)
-    main.stdin = stdin
-    main.stdout = stdout
-    main.stderr = stderr
-    main.execute(argv)
+
+    def constant(self):
+
+        localctx = bsdlParser.ConstantContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 16, self.RULE_constant)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 118
+            self.match(self.CONSTANT)
+            self.state = 119 
+            localctx.k = self.identifier()
+            self.state = 120
+            self.match(self.COLON)
+            self.state = 121 
+            self.identifier()
+            self.state = 122
+            self.match(self.COLON)
+            self.state = 123
+            self.match(self.EQUAL)
+            self.state = 124 
+            localctx.v = self.string()
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class Port_listContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.pd = None # Port_defContext
+
+        def PORT(self):
+            return self.getToken(bsdlParser.PORT, 0)
+
+        def CPAREN(self):
+            return self.getToken(bsdlParser.CPAREN, 0)
+
+        def OPAREN(self):
+            return self.getToken(bsdlParser.OPAREN, 0)
+
+        def SCOLON(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.SCOLON)
+            else:
+                return self.getToken(bsdlParser.SCOLON, i)
+
+        def port_def(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.Port_defContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.Port_defContext,i)
 
 
-if __name__ == '__main__':
-    main(sys.argv)
+        def getRuleIndex(self):
+            return bsdlParser.RULE_port_list
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterPort_list(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitPort_list(self)
+
+
+
+
+    def port_list(self):
+
+        localctx = bsdlParser.Port_listContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 18, self.RULE_port_list)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 126
+            self.match(self.PORT)
+            self.state = 127
+            self.match(self.OPAREN)
+            self.state = 133
+            self._errHandler.sync(self)
+            _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
+            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                if _alt==1:
+                    self.state = 128 
+                    localctx.pd = self.port_def()
+                    self.state = 129
+                    self.match(self.SCOLON) 
+                self.state = 135
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
+
+            self.state = 136 
+            localctx.pd = self.port_def()
+            self.state = 137
+            self.match(self.CPAREN)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class Port_defContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+            self.pname = None # IdentifierContext
+
+        def DIGIT(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.DIGIT)
+            else:
+                return self.getToken(bsdlParser.DIGIT, i)
+
+        def BIT(self):
+            return self.getToken(bsdlParser.BIT, 0)
+
+        def BIT_VECTOR(self):
+            return self.getToken(bsdlParser.BIT_VECTOR, 0)
+
+        def CPAREN(self):
+            return self.getToken(bsdlParser.CPAREN, 0)
+
+        def OPAREN(self):
+            return self.getToken(bsdlParser.OPAREN, 0)
+
+        def portmode(self):
+            return self.getTypedRuleContext(bsdlParser.PortmodeContext,0)
+
+
+        def identifier(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(bsdlParser.IdentifierContext)
+            else:
+                return self.getTypedRuleContext(bsdlParser.IdentifierContext,i)
+
+
+        def TO(self):
+            return self.getToken(bsdlParser.TO, 0)
+
+        def COLON(self):
+            return self.getToken(bsdlParser.COLON, 0)
+
+        def COMMA(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.COMMA)
+            else:
+                return self.getToken(bsdlParser.COMMA, i)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_port_def
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterPort_def(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitPort_def(self)
+
+
+
+
+    def port_def(self):
+
+        localctx = bsdlParser.Port_defContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 20, self.RULE_port_def)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 144
+            self._errHandler.sync(self)
+            _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
+            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                if _alt==1:
+                    self.state = 139 
+                    localctx.pname = self.identifier()
+                    self.state = 140
+                    self.match(self.COMMA) 
+                self.state = 146
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
+
+            self.state = 147 
+            localctx.pname = self.identifier()
+            self.state = 148
+            self.match(self.COLON)
+            self.state = 149 
+            self.portmode()
+            self.state = 165
+            token = self._input.LA(1)
+            if token in [self.BIT]:
+                self.state = 150
+                self.match(self.BIT)
+
+            elif token in [self.BIT_VECTOR]:
+                self.state = 151
+                self.match(self.BIT_VECTOR)
+                self.state = 152
+                self.match(self.OPAREN)
+                self.state = 154 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while True:
+                    self.state = 153
+                    self.match(self.DIGIT)
+                    self.state = 156 
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if not (_la==bsdlParser.DIGIT):
+                        break
+
+                self.state = 158
+                self.match(self.TO)
+                self.state = 160 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while True:
+                    self.state = 159
+                    self.match(self.DIGIT)
+                    self.state = 162 
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if not (_la==bsdlParser.DIGIT):
+                        break
+
+                self.state = 164
+                self.match(self.CPAREN)
+
+            else:
+                raise NoViableAltException(self)
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class IdentifierContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def DIGIT(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.DIGIT)
+            else:
+                return self.getToken(bsdlParser.DIGIT, i)
+
+        def FULLCASE_WORD(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.FULLCASE_WORD)
+            else:
+                return self.getToken(bsdlParser.FULLCASE_WORD, i)
+
+        def WORD(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.WORD)
+            else:
+                return self.getToken(bsdlParser.WORD, i)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_identifier
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterIdentifier(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitIdentifier(self)
+
+
+
+
+    def identifier(self):
+
+        localctx = bsdlParser.IdentifierContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 22, self.RULE_identifier)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 167
+            _la = self._input.LA(1)
+            if not(_la==bsdlParser.WORD or _la==bsdlParser.FULLCASE_WORD):
+                self._errHandler.recoverInline(self)
+            self.consume()
+            self.state = 171
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while ((((_la - 117)) & ~0x3f) == 0 and ((1 << (_la - 117)) & ((1 << (self.WORD - 117)) | (1 << (self.FULLCASE_WORD - 117)) | (1 << (self.DIGIT - 117)))) != 0):
+                self.state = 168
+                _la = self._input.LA(1)
+                if not(((((_la - 117)) & ~0x3f) == 0 and ((1 << (_la - 117)) & ((1 << (self.WORD - 117)) | (1 << (self.FULLCASE_WORD - 117)) | (1 << (self.DIGIT - 117)))) != 0)):
+                    self._errHandler.recoverInline(self)
+                self.consume()
+                self.state = 173
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 182
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==bsdlParser.USCORE:
+                self.state = 174
+                self.match(self.USCORE)
+                self.state = 176 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while True:
+                    self.state = 175
+                    _la = self._input.LA(1)
+                    if not(((((_la - 117)) & ~0x3f) == 0 and ((1 << (_la - 117)) & ((1 << (self.WORD - 117)) | (1 << (self.FULLCASE_WORD - 117)) | (1 << (self.DIGIT - 117)))) != 0)):
+                        self._errHandler.recoverInline(self)
+                    self.consume()
+                    self.state = 178 
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+                    if not (((((_la - 117)) & ~0x3f) == 0 and ((1 << (_la - 117)) & ((1 << (self.WORD - 117)) | (1 << (self.FULLCASE_WORD - 117)) | (1 << (self.DIGIT - 117)))) != 0)):
+                        break
+
+                self.state = 184
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class PortmodeContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def LINKAGE(self):
+            return self.getToken(bsdlParser.LINKAGE, 0)
+
+        def IN(self):
+            return self.getToken(bsdlParser.IN, 0)
+
+        def BUFFER(self):
+            return self.getToken(bsdlParser.BUFFER, 0)
+
+        def BUS(self):
+            return self.getToken(bsdlParser.BUS, 0)
+
+        def OUT(self):
+            return self.getToken(bsdlParser.OUT, 0)
+
+        def INOUT(self):
+            return self.getToken(bsdlParser.INOUT, 0)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_portmode
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterPortmode(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitPortmode(self)
+
+
+
+
+    def portmode(self):
+
+        localctx = bsdlParser.PortmodeContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 24, self.RULE_portmode)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 185
+            _la = self._input.LA(1)
+            if not(((((_la - 30)) & ~0x3f) == 0 and ((1 << (_la - 30)) & ((1 << (self.BUFFER - 30)) | (1 << (self.BUS - 30)) | (1 << (self.IN - 30)) | (1 << (self.INOUT - 30)) | (1 << (self.LINKAGE - 30)) | (1 << (self.OUT - 30)))) != 0)):
+                self._errHandler.recoverInline(self)
+            self.consume()
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class StringContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def STRING(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.STRING)
+            else:
+                return self.getToken(bsdlParser.STRING, i)
+
+        def ANDSIGN(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.ANDSIGN)
+            else:
+                return self.getToken(bsdlParser.ANDSIGN, i)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_string
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterString(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitString(self)
+
+
+
+
+    def string(self):
+
+        localctx = bsdlParser.StringContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 26, self.RULE_string)
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 191
+            self._errHandler.sync(self)
+            _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                if _alt==1:
+                    self.state = 187
+                    self.match(self.STRING)
+                    self.state = 188
+                    self.match(self.ANDSIGN) 
+                self.state = 193
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+
+            self.state = 194
+            self.match(self.STRING)
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class Scinot_numberContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def DIGIT(self, i:int=None):
+            if i is None:
+                return self.getTokens(bsdlParser.DIGIT)
+            else:
+                return self.getToken(bsdlParser.DIGIT, i)
+
+        def DOT(self):
+            return self.getToken(bsdlParser.DOT, 0)
+
+        def getRuleIndex(self):
+            return bsdlParser.RULE_scinot_number
+
+        def enterRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.enterScinot_number(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if isinstance( listener, bsdlListener ):
+                listener.exitScinot_number(self)
+
+
+
+
+    def scinot_number(self):
+
+        localctx = bsdlParser.Scinot_numberContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 28, self.RULE_scinot_number)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 199
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==bsdlParser.DIGIT:
+                self.state = 196
+                self.match(self.DIGIT)
+                self.state = 201
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 202
+            self.match(self.DOT)
+            self.state = 206
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==bsdlParser.DIGIT:
+                self.state = 203
+                self.match(self.DIGIT)
+                self.state = 208
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 209
+            self.match(self.T__0)
+            self.state = 211
+            _la = self._input.LA(1)
+            if _la==bsdlParser.T__1:
+                self.state = 210
+                self.match(self.T__1)
+
+
+            self.state = 216
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==bsdlParser.DIGIT:
+                self.state = 213
+                self.match(self.DIGIT)
+                self.state = 218
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+
+

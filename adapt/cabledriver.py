@@ -8,7 +8,7 @@ class CableDriver(object):
 
     def execute(self, commands):
         for p in commands:
-            #print "  Executing", p
+            #print("  Executing", p)
             func = getattr(self, p._driver_function_name, None)
             args, kwargs = p._get_args()
             if not func:
@@ -17,7 +17,7 @@ class CableDriver(object):
             if not getattr(self, 'mock', False):
                 res = func(*args, **kwargs) #TODO pass in stuff
                 if res:
-                    #print "RES", res
+                    #print("RES", res)
                     self._scanchain._command_queue._return_queue.append(res)
 
     def sleep(self, delay):

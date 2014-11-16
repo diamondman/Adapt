@@ -29,14 +29,14 @@ def main():
     args = parser.parse_args()
     if args.action in [erase, program]:
         if not args.cname:
-            print "Controller ID (-cname) required for operation %s."%args.action.func_name
+            print("Controller ID (-cname) required for operation %s."%args.action.func_name)
             sys.exit(1)
         if args.din is None:
-            print "Device Index (-din) required for operation %s."%args.action.func_name
+            print("Device Index (-din) required for operation %s."%args.action.func_name)
             sys.exit(1)
     if args.action in [program]:
         if not args.file:
-            print "File (-f) required for operation %s."%args.action.func_name
+            print("File (-f) required for operation %s."%args.action.func_name)
             sys.exit(1)
     args.action(args)
 
@@ -45,62 +45,62 @@ def main():
 #      OPERATIONS      #
 ########################
 def enum(pargs):
-    print "ADAPT JTAG CONTROLLER DISCOVERY"
+    print("ADAPT JTAG CONTROLLER DISCOVERY")
     controllers = jtagControllerManager.getAttachedControllers()
-    print "USB Controllers:"
+    print("USB Controllers:")
     for i, c in enumerate(controllers):
-        print "  %d %s"%(i, c)
+        print("  %d %s"%(i, c))
 
 def init(pargs):
-    print "ADAPT JTAG CHAIN SCANNER"
+    print("ADAPT JTAG CHAIN SCANNER")
     controllers = jtagControllerManager.getAttachedControllers(pargs.cname)
-    print "USB Controllers:"
+    print("USB Controllers:")
     for ci, c in enumerate(controllers):
-        print "  %d %s=%s"%(ci, c.name, c)
+        print("  %d %s=%s"%(ci, c.name, c))
         chain = JTAGScanChain(c)
         chain.init_chain()
         listdevices(chain)
 
 def erase(pargs):
-    print "ADAPT JTAG DEVICE ERASER"
+    print("ADAPT JTAG DEVICE ERASER")
     controllers = jtagControllerManager.getAttachedControllers(pargs.cname)
     check_single_controller(controllers)
     controller = controllers[0]
 
-    print "Scanning controller %s..." % (controller.productName)
+    print("Scanning controller %s..." % (controller.productName))
     chain = JTAGScanChain(controller)
     chain.init_chain()
 
     dev = chain._devices[pargs.din]
-    print "Preparing to erase (%s)(%s:%s)"%(controller.productName,
+    print("Preparing to erase (%s)(%s:%s)"%(controller.productName,
                                               dev.desc.manufacturer,
-                                              dev.desc._device_name)
+                                              dev.desc._device_name))
     dev.erase()
-    print "Finished Erase."
+    print("Finished Erase.")
 
 def program(pargs):
-    print "ADAPT JTAG DEVICE PROGRAMMER"
+    print("ADAPT JTAG DEVICE PROGRAMMER")
     controllers = jtagControllerManager.getAttachedControllers(pargs.cname)
     check_single_controller(controllers)
     controller = controllers[0]
 
-    print "Scanning controller %s..." % (controller.productName)
+    print("Scanning controller %s..." % (controller.productName))
     chain = JTAGScanChain(controller)
     chain.init_chain()
 
     dev = chain._devices[pargs.din]
-    print "Preparing to program (%s)(%s:%s)"%(controller.productName,
+    print("Preparing to program (%s)(%s:%s)"%(controller.productName,
                                               dev.desc.manufacturer,
-                                              dev.desc._device_name)
-    print "Parsing programming file..."
+                                              dev.desc._device_name))
+    print("Parsing programming file...")
     jed = JedecConfigFile(pargs.file)
 
-    print "Erasing device..."
+    print("Erasing device...")
     dev.erase()
-    print "Programming device..."
+    print("Programming device...")
     dev.program(jed)
 
-    print "Finished Programming."
+    print("Finished Programming.")
 
 
 
@@ -111,23 +111,23 @@ def listdevices(chain, indentspaces=8):
     indent = (" "*indentspaces)
     for di, dev in enumerate(chain._devices):
         if dev.desc:
-            print indent+"%d %s %s %s (%08x)"%(di, dev.desc.manufacturer,
+            print(indent+"%d %s %s %s (%08x)"%(di, dev.desc.manufacturer,
                                          dev.desc._device_name, dev.desc._chip_package,
-                                              dev._id)
+                                              dev._id))
         else:
-            print indent+"%d UNIDENTIFIED DEVICE. ID: %s."%(di, dev._id)
-            print indent+"    Search for bsdl file: http://bsdl.info/list.htm?search=XXXX%s"%\
-                bin(dev._id & 0xFFFFFFF)[2:].zfill(28)
+            print(indent+"%d UNIDENTIFIED DEVICE. ID: %s."%(di, dev._id))
+            print(indent+"    Search for bsdl file: http://bsdl.info/list.htm?search=XXXX%s"%\
+                bin(dev._id & 0xFFFFFFF)[2:].zfill(28))
 
 def check_single_controller(controllers):
     if len(controllers)>1:
-        print "\033[91mThe ControllerID you provided matches more than one device.\033[0m\n"\
+        print("\033[91mThe ControllerID you provided matches more than one device.\033[0m\n"\
             "\033[93mThis should not happen and may signify an issue with the driver for the controller.\n"\
-            "Unplugging the other device(s) that match this ID will allow the operation to continue.\033[0m"
+            "Unplugging the other device(s) that match this ID will allow the operation to continue.\033[0m")
         sys.exit(1)
     if len(controllers)==0:
-        print "\033[91mNo Controller match for the ControllerID you provided.\033[0m\n"\
-            "\033[93mUse adapt -i to list available controllers.\033[0m\n"
+        print("\033[91mNo Controller match for the ControllerID you provided.\033[0m\n"\
+            "\033[93mUse adapt -i to list available controllers.\033[0m\n")
         sys.exit(1)
 
 if __name__ == "__main__":

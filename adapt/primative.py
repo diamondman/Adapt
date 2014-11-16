@@ -29,7 +29,7 @@ class Primative(object):
 
 class Executable(object):
     def execute(self):
-        print "Executing", self.__class__.__name__
+        print("Executing", self.__class__.__name__)
 
 class Level1Primative(Primative):
     _layer = 1
@@ -78,12 +78,12 @@ class DefaultRunInstructionPrimative(Level3Primative):
             else:
                 instruction = 'BYPASS'
             dev._current_DR = dev.desc._ins_reg_map[instruction]
-            #print "Dev %s DR: %s"%(i, dev._current_DR)
+            #print("Dev %s DR: %s"%(i, dev._current_DR))
             inscode = dev.desc._instructions[instruction]
             out_ir.extend(inscode)
 
-        #print "OUTIR:", out_ir
-        #print 
+        #print("OUTIR:", out_ir)
+        #print()
 
         macro = [command_queue.sc._lv2_primatives.get('load_ir')(out_ir, read=self.read)]
 

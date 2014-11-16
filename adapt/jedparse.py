@@ -91,7 +91,7 @@ class JedecConfigFile(object):
 
         fuselen_diff = self.fuse_count-len(self.fuses)
         if fuselen_diff>0:
-            print "ADDING", fuselen_diff
+            print("ADDING", fuselen_diff)
             self.fuses += bitarray(('1' if self.default_fuse else '0')*fuselen_diff)
         if fuselen_diff<0:
             raise Exception("Too many bits provided in jed file fuses")
@@ -148,12 +148,12 @@ class BitStream(object):
 if __name__ == "__main__":
     import sys
     j = JedecConfigFile(sys.argv[1])
-    print "DEVICE:     ", j.device_name
-    print "FUSECOUNT:  ", j.fuse_count
-    print "DEFAULTTEST:", j.default_test
-    print "DEFAULTFUSE:", j.default_fuse
-    print "CHECKSUM:   ", j.checksum
-    print "PINCOUNT:   ", j.pin_count
-    print "TESTVECMAX: ", j.test_vec_max
-    print "DEVID:      ", j.dev_id
-    print "FUSES:      ", j.fuses
+    print("DEVICE:     ", j.device_name)
+    print("FUSECOUNT:  ", j.fuse_count)
+    print("DEFAULTTEST:", j.default_test)
+    print("DEFAULTFUSE:", j.default_fuse)
+    print("CHECKSUM:   ", j.checksum)
+    print("PINCOUNT:   ", j.pin_count)
+    print("TESTVECMAX: ", j.test_vec_max)
+    print("DEVID:      ", j.dev_id)
+    print("FUSES:      ", j.fuses)

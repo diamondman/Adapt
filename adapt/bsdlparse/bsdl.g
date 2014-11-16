@@ -1,126 +1,102 @@
 grammar bsdl;
 
 options {
-  language=Python;
-  backtrack=false;
-  memoize=false;
+  language=Python3;
 }
 
-@header {
-import os
-import sys
-}
+evaluate 
+    : (entity) EOF;
 
-@init{
-    self.attributes = {}
-    self.chip_package = None
-    self.ports = []
-}
-
-@members{
-
-}
-
-eval returns [value]
-    : (entity){$value=$entity.value}
-        EOF;
-
-entity returns [value]
-    : {$value = {}}
+entity
+    :
       ENTITY ename=identifier IS 
-        {$value['entity_name'] = $ename.value}
-
-    {$value['generics']={}}
-    (g=generic SCOLON {$value['generics'][$g.key]=$g.value})+
+    (g=generic SCOLON)+
 
     port_list SCOLON 
-        {$value['ports']=$port_list.value}
 
     (use SCOLON)*
 
-    {$value['attributes']={}}
-    {$value['constants']={}}
     (
       (
-        (i=attribute {$value['attributes'][$i.key]=$i.value})
-        |(i=constant {$value['constants'][$i.key]=$i.value})
+        attribute 
+        |constant 
       ) SCOLON 
     )*
 
     END identifier SCOLON //Just assume it is fine
     ;
 
-generic returns [key, value]
+generic
     : GENERIC OPAREN 
         (gk=identifier COLON identifier
             COLON EQUAL gv=string )
-      CPAREN {$value=$gv.value}{$key=$gk.value}
+      CPAREN 
     ;
 
 use
     : USE id1=identifier DOT ALL
-        {#oprint $id1.text+".all"}
     ;
 
-attribute returns [key, value]
+attribute
     : ATTRIBUTE 
-        atn=identifier OF entn=identifier COLON {$key=$atn.value} 
-        {#print "ATTRIBUTE CREATION", $atn.value, $entn.value} 
-        v=general_attribute_assignment {$value=$v.value}
+        atn=identifier OF entn=identifier COLON
+        v=general_attribute_assignment
     ;
 
-general_attribute_assignment returns [value]
+general_attribute_assignment
     : (ENTITY IS 
             (
-                i=identifier {$value=$i.value}
-                |s=string {$value=$s.value}
-                |n=number {$value=$n.value}
+                v=identifier
+                |v=string
+                |v=number
             )
-      )
+      ) 
       |(SIGNAL IS 
             (
-                (TRUE {$value=True}|FALSE {$value=False})|
-                (OPAREN scinot_number {$value=$scinot_number.text}
+                v=boolean|
+                (OPAREN v=scinot_number
                     COMMA BOTH CPAREN)
             )
-      )
+      ) 
     ;
 
-number returns [value]
-    : DIGIT+ {$value=int($number.text)}
+boolean
+    : TRUE|FALSE
     ;
 
-constant returns [key, value]
-    : CONSTANT k=identifier {$key=$k.value} COLON identifier 
-        COLON EQUAL v=string {$value=$v.value}
+number
+    : DIGIT+ 
     ;
 
-port_list returns [value]
-    : {value = []}
+constant
+    : CONSTANT k=identifier  COLON identifier 
+        COLON EQUAL v=string 
+    ;
+
+port_list
+    : 
         PORT OPAREN 
-        (pd=port_def {value.extend($pd.value)} SCOLON)* 
-        (pd=port_def {value.extend($pd.value)})
+        (pd=port_def  SCOLON)* 
+        (pd=port_def )
         CPAREN;
 
-port_def returns [value]
-    : {$value=[]}
-       (pname=identifier {$value.append($pname.value)} COMMA)*
-        pname=identifier {$value.append($pname.value)} COLON portmode  
+port_def
+    :
+       (pname=identifier COMMA)*
+        pname=identifier COLON portmode  
         (BIT|
          BIT_VECTOR OPAREN DIGIT+ TO DIGIT+ CPAREN);
 
-identifier returns [value]
-    : (FULLCASE_WORD|WORD) (FULLCASE_WORD|WORD|DIGIT)* ('_' (FULLCASE_WORD|WORD|DIGIT)+)* {$value = $identifier.text.upper()}
+identifier 
+    : (FULLCASE_WORD|WORD) (FULLCASE_WORD|WORD|DIGIT)* ('_' (FULLCASE_WORD|WORD|DIGIT)+)* 
     ;
 
-portmode returns [value]
+portmode
     : IN|OUT|INOUT|BUFFER|LINKAGE|BUS;
 
-string returns [value]
-    : {str_parts = []}
-      (s=STRING ANDSIGN {str_parts.append($s.text[1:-1])})* 
-        s1=STRING {str_parts.append($s1.text[1:-1])}
-        {$value = "".join(str_parts)}
+string
+    : 
+      (STRING ANDSIGN )* STRING 
     ;
 
 scinot_number
@@ -133,10 +109,10 @@ scinot_number
 STRING :   '"' (~'"')* '"';
 
 WHITESPACE
-    : ( ' ' | '\t' | '\r' | '\n' )+ { $channel = HIDDEN }
+    : ( ' ' | '\t' | '\r' | '\n' )+ -> channel(HIDDEN)
     ;
 COMMENT
-    :  '--' ~( '\r' | '\n' )* { $channel = HIDDEN }
+    :  '--' ~( '\r' | '\n' )* -> channel(HIDDEN)
     ;
 
 ANDSIGN         : '&';
