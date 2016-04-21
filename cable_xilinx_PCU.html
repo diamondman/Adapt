@@ -340,10 +340,36 @@ For all jtag related USB-control messages.
       <td>0x7<strong>X</strong></td>
       <td>seems pointless</td>
       <td>0/1</td>
-      <td>This command is very odd. The waveform for talking to the CPLD does nothing except loop waiting for the CPLD to say it is done. There is a big huff about handling the index value but it seems to be boiled down to checking if it is 0xFFFF or anything else. The inverse of 0xFFFF or 0x0000 is then set as the data to write to the CPLD but the waveform never asserts data. <br>
-      There are small details about raising or lowering the CPLD's TMS pin, but it seems mostly pointless. <br>
-      The value of X is loosely used. It determines if the CPLD's TMS pin is raised or lowered. (70, 71, 74, 75, 78, 79, 7C, 7D all lower. 72, 73, 76, 77, 7A, 7B, 7E, 7F all raise.)<br>
-      Returns 1 byte (the wvalue) if wvalue is in this list: 71, 73, 75, 77, 79, 7B, 7D, 7F.</td>
+      <td>
+	This command is very odd. The waveform for talking to the CPLD does nothing except loop waiting for the CPLD to say it is done. windex is set as the data to write to the CPLD but the waveform never asserts data.<br>
+	windex is incremented by one. Processed min is therefore 1. 0xFFFE becomes 0xFFFF, but there is a maximum enforced that keeps 0xFFFF at 0xFFFF (instead of 0x01000000).
+	Commands runs a single GPIF waveworm if the Value is 0x70 to 0x7F (inclusive).<br>
+	CPLD EXTEND pin raised.<br>
+	The value of X determines a few things:
+	<ul>
+	  <li>CPLD's TMS_LEVEL pin:
+	    <ul>
+	      <li> Lowered for 0, 1, 4, 5, 8, 9, C, D</li>
+	      <li> Raised for 2, 3, 6, 7, A, B, E, F</li>
+	    </ul>
+	  </li>
+	  <li>Returns 1 byte (the wvalue low byte) if X is odd. Otherwise return nothing.</li>
+	  <li>JPT pins to CPLD are set prior to GPIF transaction:
+	    <ul>
+	      <li> JPT=0b000 if X in range 0x08 to 0x0F</li>
+	      <li> JPT=0b110 if X in range 0x00 to 0x07</li>
+	    </ul>
+	  </li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>UNKNOWN</td>
+      <td>??</td>
+      <td>6C 88 8A 8c 8E 90 92 94 96 98 9A 9C 9E A2 A4</td>
+      <td>UNKNOWN</td>
+      <td>???</td>
+      <td>Part of a very large block of code with unknown function. No packet captures use these commands. Originally thought to be used for SPI or serial. Unknown function at this time. Appears some of these commands can trigger the same function that 0x7X messages call</td>      
     </tr>
     <tr>
       <td>Change USB Speed(?)</td>
