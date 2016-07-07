@@ -14,16 +14,16 @@ from bitarray import bitarray
 import numbers
 
 from cabledriver import CableDriver
-from primative import Level1Primative, Level2Primative, Level3Primative, Executable,\
-    DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE,\
-    DefaultRunInstructionPrimative
+from primative import Level1Primative, Level2Primative, Level3Primative,\
+    Executable, DefaultRunInstructionPrimative,\
+    DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE
 from jtagUtils import JTAGControlError
 
-PROG = 8
-TCK = 4
-TMS = 2
-TDI = 1
-TDO = 1
+#PROG = 8
+#TCK = 4
+#TMS = 2
+#TDI = 1
+#TDO = 1
 
 class XPC1TransferPrimative(Level1Primative, Executable):
     #transfer_bits_single can be used for single bit jtag transfers.
@@ -40,20 +40,19 @@ class XPC1TransferPrimative(Level1Primative, Executable):
 class XilinxPC1Driver(CableDriver):
     _primatives = [XPC1TransferPrimative]
     def __init__(self, dev, mock=False):
+        super(XilinxPC1Driver, self).__init__(dev)
         self.mock = mock
-        self._dev = dev
         if not mock:
             h = self._dev.open()
     
             self.serialNumber = '000000000000'
             self.name = 'PC1_'+self.serialNumber[-4:]
-            self.productId = 0#(ord(pidraw[0])<<24)|(ord(pidraw[1])<<16)|(ord(pidraw[2])<<8)|ord(pidraw[3]) #%08xo
+            self.productId = 0
     
-            self.productName = 'Platform Cable 1'#h.controlRead(0xC0, 0xE1, 0, 0, 28).replace('\x00', '').replace('\xFF', '')
+            self.productName = 'Platform Cable 1'
             self.firmwareVersion = 0
             h.close()
 
-        self._dev_handle = None
         self._jtagon = False
         self._scanchain = None
 
@@ -78,16 +77,6 @@ class XilinxPC1Driver(CableDriver):
         self._jtagon = False
         self.xpcu_enable_output(False)
         #self.xpcu_enable_cpld_upgrade_mode(False)
-
-    @property
-    def _handle(self):
-        if not self._dev_handle:
-            self._dev_handle = self._dev.open()
-        return self._dev_handle
-
-    def close_handle(self):
-        if self._dev_handle:
-            self._dev_handle.close()
 
     def transfer_bits(self, count, TMS, TDI, TDO=False):
         if not self._jtagon:
@@ -198,7 +187,7 @@ class XilinxPC1Driver(CableDriver):
         return bool(ord(b)&1)
 
     def xpcu_GPIO_transfer(self, bit_count, data):
-        if bit_count < 0: #TODO Move this to a superclass
+        if bit_count < 0:
             raise ValueError()
         bits_ret = bin(sum([((ord(data[i*2+1:i*2+2])>>4) &
                              (( 1<< min(4, (bit_count+1)-(i*4)) )-1) )<<4*i
@@ -230,75 +219,3 @@ class XilinxPC1Driver(CableDriver):
 
 
 __filter__ = [((0x03FD, 0x0008),XilinxPC1Driver)]
-"""
-    def write_tms_bits(self, buff, return_tdo=False, TDI=False):
-        if not self._jtagon:
-            raise JTAGControlError('JTAG Must be enabled first')
-        if self._scanchain:
-            self._scanchain._tap_transition_driver_trigger(buff)
-
-        outbits = bitarray()
-        for i in range(int(math.ceil(len(buff)/4.0))):
-            _start = max(len(buff)-((i+1)*4), 0)
-            _end = len(buff)-(i*4)
-            outbits.extend(bitarray((4-(_end-_start))*'0')+buff[_start:_end])
-            outbits.extend(4*('1' if TDI else '0'))
-            outbits.extend(4*('1' if return_tdo else '0'))
-            outbits.extend('1111')
-
-        tdo_bytes = self.xpcu_GPIO_transfer(len(buff)-1, outbits.tobytes())
-        if tdo_bytes:
-            tdo_bytes = tdo_bytes[::-1]
-            tdo_bits = bitarray()
-            for byte_ in tdo_bytes:
-                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
-            return tdo_bits
-
-    def write_tdi_bits(self, buff, return_tdo=False, TMS=False):
-        if not self._jtagon:
-            raise JTAGControlError('JTAG Must be enabled first')
-        if self._scanchain:
-            self._scanchain._tap_transition_driver_trigger(bitarray(len(buff)*('1' if TMS else '0')))
-
-        outbits = bitarray()
-        for i in range(int(math.ceil(len(buff)/4.0))):
-            _start = max(len(buff)-((i+1)*4), 0)
-            _end = len(buff)-(i*4)
-            outbits.extend('1111' if TMS else '0000')
-            outbits.extend(bitarray((4-(_end-_start))*'0')+buff[_start:_end])
-            outbits.extend('1111' if return_tdo else '0000')
-            outbits.extend('1111')
-
-        tdo_bytes = self.xpcu_GPIO_transfer(len(buff)-1, outbits.tobytes())
-
-        if tdo_bytes:
-            tdo_bytes = tdo_bytes[::-1]
-            tdo_bits = bitarray()
-            for byte_ in tdo_bytes:
-                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
-            return tdo_bits
-
-
-    def read_tdo_bits(self, count, TMS=False, TDI=False):
-        if not self._jtagon:
-            raise JTAGControlError('JTAG Must be enabled first')
-        if self._scanchain:
-            self._scanchain._tap_transition_driver_trigger(bitarray(count*('1' if TMS else '0')))
-
-        outbits = bitarray()
-        for i in range(int(math.ceil(count/4.0))):
-            outbits.extend('1111' if TMS else '0000')
-            outbits.extend('1111' if TDI else '0000')
-            outbits.extend('1111')
-            outbits.extend('1111')
-
-        tdo_bytes = self.xpcu_GPIO_transfer(count-1, outbits.tobytes())
-        if tdo_bytes:
-            tdo_bytes = tdo_bytes[::-1]
-            tdo_bits = bitarray()
-            for byte_ in tdo_bytes:
-                tdo_bits.extend(bin(ord(byte_))[2:].zfill(8))
-            return tdo_bits
-
-
-"""

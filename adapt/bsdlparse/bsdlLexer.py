@@ -1,6 +1,7 @@
-# Generated from java-escape by ANTLR 4.4
+# Generated from bsdl.g by ANTLR 4.5.3
 from antlr4 import *
 from io import StringIO
+
 
 def serializedATN():
     with StringIO() as buf:
@@ -150,7 +151,7 @@ def serializedATN():
         buf.write("\2\2\2\u00e5\u038a\3\2\2\2\u00e7\u038f\3\2\2\2\u00e9\u039d")
         buf.write("\3\2\2\2\u00eb\u03a0\3\2\2\2\u00ed\u03a5\3\2\2\2\u00ef")
         buf.write("\u03a9\3\2\2\2\u00f1\u03ad\3\2\2\2\u00f3\u03af\3\2\2\2")
-        buf.write("\u00f5\u00f6\7-\2\2\u00f6\4\3\2\2\2\u00f7\u00f8\7g\2\2")
+        buf.write("\u00f5\u00f6\7g\2\2\u00f6\4\3\2\2\2\u00f7\u00f8\7-\2\2")
         buf.write("\u00f8\6\3\2\2\2\u00f9\u00fd\7$\2\2\u00fa\u00fc\n\2\2")
         buf.write("\2\u00fb\u00fa\3\2\2\2\u00fc\u00ff\3\2\2\2\u00fd\u00fb")
         buf.write("\3\2\2\2\u00fd\u00fe\3\2\2\2\u00fe\u0100\3\2\2\2\u00ff")
@@ -390,7 +391,7 @@ def serializedATN():
         buf.write("\u00f4\3\2\2\2\n\2\u00fd\u0105\u010f\u039d\u03a2\u03a7")
         buf.write("\u03ad\3\2\3\2")
         return buf.getvalue()
-		
+
 
 class bsdlLexer(Lexer):
 
@@ -398,8 +399,9 @@ class bsdlLexer(Lexer):
 
     decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
 
-    T__1 = 1
-    T__0 = 2
+
+    T__0 = 1
+    T__1 = 2
     STRING = 3
     WHITESPACE = 4
     COMMENT = 5
@@ -518,28 +520,50 @@ class bsdlLexer(Lexer):
     FULLCASE_WORD = 118
     DIGIT = 119
 
-
     modeNames = [ "DEFAULT_MODE" ]
 
-    tokenNames = [ "<INVALID>",
-            "'\\u0000'", "'\\u0001'", "'\\u0002'", "'\\u0003'", "'\\u0004'", 
-            "'\\u0005'", "'\\u0006'", "'\\u0007'", "'\b'", "'\t'", "'\n'", 
-            "'\\u000B'", "'\f'", "'\r'", "'\\u000E'", "'\\u000F'", "'\\u0010'", 
-            "'\\u0011'", "'\\u0012'", "'\\u0013'", "'\\u0014'", "'\\u0015'", 
-            "'\\u0016'", "'\\u0017'", "'\\u0018'", "'\\u0019'", "'\\u001A'", 
-            "'\\u001B'", "'\\u001C'", "'\\u001D'", "'\\u001E'", "'\\u001F'", 
-            "' '", "'!'", "'\"'", "'#'", "'$'", "'%'", "'&'", "'''", "'('", 
-            "')'", "'*'", "'+'", "','", "'-'", "'.'", "'/'", "'0'", "'1'", 
-            "'2'", "'3'", "'4'", "'5'", "'6'", "'7'", "'8'", "'9'", "':'", 
-            "';'", "'<'", "'='", "'>'", "'?'", "'@'", "'A'", "'B'", "'C'", 
-            "'D'", "'E'", "'F'", "'G'", "'H'", "'I'", "'J'", "'K'", "'L'", 
-            "'M'", "'N'", "'O'", "'P'", "'Q'", "'R'", "'S'", "'T'", "'U'", 
-            "'V'", "'W'", "'X'", "'Y'", "'Z'", "'['", "'\\'", "']'", "'^'", 
-            "'_'", "'`'", "'a'", "'b'", "'c'", "'d'", "'e'", "'f'", "'g'", 
-            "'h'", "'i'", "'j'", "'k'", "'l'", "'m'", "'n'", "'o'", "'p'", 
-            "'q'", "'r'", "'s'", "'t'", "'u'", "'v'", "'w'" ]
+    literalNames = [ "<INVALID>",
+            "'e'", "'+'", "'&'", "'_'", "'('", "')'", "':'", "';'", "'='", 
+            "','", "'.'", "'bit'", "'bit_vector'", "'abs'", "'access'", 
+            "'after'", "'alias'", "'all'", "'and'", "'architecture'", "'array'", 
+            "'assert'", "'attribute'", "'begin'", "'block'", "'body'", "'buffer'", 
+            "'bus'", "'case'", "'component'", "'configuration'", "'constant'", 
+            "'disconnect'", "'downto'", "'else'", "'elsif'", "'end'", "'entity'", 
+            "'exit'", "'file'", "'for'", "'function'", "'generate'", "'generic'", 
+            "'group'", "'guarded'", "'if'", "'impure'", "'in'", "'inertial'", 
+            "'inout'", "'is'", "'label'", "'library'", "'linkage'", "'literal'", 
+            "'loop'", "'map'", "'mod'", "'nand'", "'new'", "'next'", "'nor'", 
+            "'not'", "'null'", "'of'", "'on'", "'open'", "'or'", "'others'", 
+            "'out'", "'package'", "'port'", "'postponed'", "'procedure'", 
+            "'process'", "'pure'", "'range'", "'record'", "'register'", 
+            "'reject'", "'rem'", "'report'", "'return'", "'rol'", "'ror'", 
+            "'select'", "'severity'", "'signal'", "'shared'", "'sla'", "'sll'", 
+            "'sra'", "'srl'", "'subtype'", "'then'", "'to'", "'transport'", 
+            "'type'", "'unaffected'", "'units'", "'until'", "'use'", "'variable'", 
+            "'wait'", "'when'", "'while'", "'with'", "'xnor'", "'xor'", 
+            "'true'", "'false'" ]
 
-    ruleNames = [ "T__1", "T__0", "STRING", "WHITESPACE", "COMMENT", "ANDSIGN", 
+    symbolicNames = [ "<INVALID>",
+            "STRING", "WHITESPACE", "COMMENT", "ANDSIGN", "USCORE", "OPAREN", 
+            "CPAREN", "COLON", "SCOLON", "EQUAL", "COMMA", "DOT", "BIT", 
+            "BIT_VECTOR", "ABS", "ACCESS", "AFTER", "ALIAS", "ALL", "AND", 
+            "ARCHITECTURE", "ARRAY", "ASSERT", "ATTRIBUTE", "BEGIN", "BLOCK", 
+            "BODY", "BUFFER", "BUS", "CASE", "COMPONENT", "CONFIGURATION", 
+            "CONSTANT", "DISCONNECT", "DOWNTO", "ELSE", "ELSIF", "END", 
+            "ENTITY", "EXIT", "FILE", "FOR", "FUNCTION", "GENERATE", "GENERIC", 
+            "GROUP", "GUARDED", "IF", "IMPURE", "IN", "INERTIAL", "INOUT", 
+            "IS", "LABEL", "LIBRARY", "LINKAGE", "LITERAL", "LOOP", "MAP", 
+            "MOD", "NAND", "NEW", "NEXT", "NOR", "NOT", "NULL", "OF", "ON", 
+            "OPEN", "OR", "OTHERS", "OUT", "PACKAGE", "PORT", "POSTPONED", 
+            "PROCEDURE", "PROCESS", "PURE", "RANGE", "RECORD", "REGISTER", 
+            "REJECT", "REM", "REPORT", "RETURN", "ROL", "ROR", "SELECT", 
+            "SEVERITY", "SIGNAL", "SHARED", "SLA", "SLL", "SRA", "SRL", 
+            "SUBTYPE", "THEN", "TO", "TRANSPORT", "TYPE", "UNAFFECTED", 
+            "UNITS", "UNTIL", "USE", "VARIABLE", "WAIT", "WHEN", "WHILE", 
+            "WITH", "XNOR", "XOR", "TRUE", "FALSE", "BOTH", "WORD", "FULLCASE_WORD", 
+            "DIGIT" ]
+
+    ruleNames = [ "T__0", "T__1", "STRING", "WHITESPACE", "COMMENT", "ANDSIGN", 
                   "USCORE", "OPAREN", "CPAREN", "COLON", "SCOLON", "EQUAL", 
                   "COMMA", "DOT", "BIT", "BIT_VECTOR", "ABS", "ACCESS", 
                   "AFTER", "ALIAS", "ALL", "AND", "ARCHITECTURE", "ARRAY", 
@@ -564,7 +588,7 @@ class bsdlLexer(Lexer):
 
     def __init__(self, input=None):
         super().__init__(input)
-        self.checkVersion("4.4")
+        self.checkVersion("4.5.3")
         self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
         self._actions = None
         self._predicates = None

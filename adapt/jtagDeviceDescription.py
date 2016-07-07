@@ -74,7 +74,7 @@ class JTAGDeviceDescription(object):
                 registers_strs.remove("BOUNDARY")
             except KeyError as e:
                 raise Exception("Register Access configuration does not contain a "
-                                "required '%s' register in file %s."%(e.message, self._file_name))
+                                "required '%s' register in file %s."%(str(e), self._file_name))
 
             self.register_map = {
                 "BYPASS": DeviceRegister("BYPASS", 1),

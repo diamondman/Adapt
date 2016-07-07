@@ -3,6 +3,10 @@ import time
 from jtagUtils import JTAGControlError
 
 class CableDriver(object):
+    def __init__(self, dev):
+        self._dev = dev
+        self._dev_handle = None
+
     def __repr__(self):
         return "<%s>"%self.__class__.__name__
 
@@ -24,3 +28,13 @@ class CableDriver(object):
         if not self._jtagon:
             raise JTAGControlError('JTAG Must be enabled first')
         time.sleep(delay)
+
+    @property
+    def _handle(self):
+        if not self._dev_handle:
+            self._dev_handle = self._dev.open()
+        return self._dev_handle
+
+    def close_handle(self):
+        if self._dev_handle:
+            self._dev_handle.close()
