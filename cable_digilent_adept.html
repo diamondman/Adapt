@@ -34,25 +34,33 @@
         <h3>
 <a name="protocol-documentation-for-digilent-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-digilent-usb-jtag-controllers"><span class="octicon octicon-link"></span></a>Protocol documentation for Digilent USB JTAG controllers.</h3>
 
-<p>The following describes all understood messages in the Digilent's USB protocol for communicating with fpgas over JTAG on their development boards.</p>
+	<p>The Digilent Adept USB protocol is found in many development boards and programming cables made by <a href="http://www.digilentinc.com">Digilent</a>. The protocol supports SPI, JTAG, etc, and Controllers build into development boards often support additional features like reading sensor values. </p>
+	<p>Digilent's API abstracts out their controllers and allows users to transparently speak any supported protocol through their branded controllers. Adapt's goal is similar, but with many more controllers, so adding digilent support will open up many controllers.
 
-<p>Please note that some digilent boards (Atlys, and Nexys families, for example) use Cypress EZ-USB chips that require loading firmware every time they are powered on before they will work. This operation visible in usb packet dumbs by a large number of control messages with A0 as the Request value. These messages are not documented here because it is handled by the open source tool fxload.</p>
+<div id="toc" class="toc">
+  <ol>
+    <li><a href="#protocol-description">Protocol Desctiption</a></li>
+    <li><a href="#control-messages">Control Requests</a></li>
+    <li><a href="#bulk-requests">Bulk Requests</a></li>
+    <li><a href="#known-device-table">Known Devices</a></li>
+    <li><a href="#bulk-requests">Device Capabilities</a></li>
+    <li><a href="#oem-verify">OEM Verification Sequence</a></li>
+  </ol>
+</div>
 
-<p>There are two main types of messages sent over USB: <em>Control</em> and <em>Bulk</em>.</p>
+<h4><a name="protocol-description" class="anchor" href="#protocol-description"><span class="octicon octicon-link"></span></a>Protocol Description:</h4><hr>
 
-<h4>
-<a name="control-messages" class="anchor" href="#control-messages"><span class="octicon octicon-link"></span></a>Control Messages</h4>
+	<p>There are two major types of USB message used in the Digilent Adept protocol: <em>Control</em> and <em>Bulk</em>. Control messages read or write information about the controller itself. Bulk messages are primarily used to instruct the controller to send data out to the connected target.</p>
 
-<p>These messages have nothing to do with JTAG and are all about reading data about the board/JTAG controller, or writing JTAG controller settings. None of the known messages of this type cause activity on JTAG pins connected to the target device. All of these messages are sent to USB endpoint <strong>0</strong>, and result in either data being sent to the device (OUT) or read from the device (IN). </p>
+<h5><a name="control-messages" class="anchor" href="#control-messages"><span class="octicon octicon-link"></span></a>Control Messages</h5><hr>
 
-<p>For those unfamiliar with how USB control messages are sent, there are 3 parameters every message transaction needs in addition to <strong>direction</strong>: <strong>Request Code</strong>, <strong>Value</strong>, and <strong>Length</strong>. <strong>Request</strong> code is the most obvious and can be considered the function being called. <strong>Value</strong> can be thought of as the parameter to the request. <strong>length</strong> is the number of bytes that will be sent to or received from the device depending on the direction of the transfer. Usually a given message has a known <strong>length</strong> for a <strong>Request Code</strong> so it is not hard to get these right.</p>
+<p>Messages to query or set fields in the controller. bRequestType field depends on direction (OUT=0x40; IN=0xC0). All unspecified USB message fields are 0.</p>
 
 <table>
 <thead><tr>
 <th>Name</th>
-<th>RQ*</th>
-<th>Direction</th>
-<th>Value</th>
+<th><a href="#whatis-rq">RQ*</a></th>
+<th><a href="#whatis-direction">Direction*</a></th>
 <th>Length</th>
 <th>Description</th>
 </tr></thead>
@@ -61,7 +69,6 @@
 <td>Product Name</td>
 <td>E1</td>
 <td>IN</td>
-<td>0</td>
 <td>28</td>
 <td>ASCII</td>
 </tr>
@@ -69,7 +76,6 @@
 <td>User Name</td>
 <td>E2</td>
 <td>IN</td>
-<td>0</td>
 <td>16</td>
 <td>ASCII</td>
 </tr>
@@ -77,7 +83,6 @@
 <td>Serial Number</td>
 <td>E4</td>
 <td>IN</td>
-<td>0</td>
 <td>12</td>
 <td>ASCII</td>
 </tr>
@@ -85,78 +90,87 @@
 <td>Firmware Version</td>
 <td>E6</td>
 <td>IN</td>
-<td>0</td>
-<td>2</td>
+<td>2 or 4</td>
 <td>RAW BYTES Little Endian.</td>
 </tr>
 <tr>
-<td>UNKNOWN STATUS (MAC?)</td>
+<td>Device Capabilities</td>
 <td>E7</td>
 <td>IN</td>
-<td>0</td>
 <td>8</td>
-<td>Seems to be some sort of status register effected by calls to A0 Value usually 0-&gt;xx:00:00:00:00:00:00:00. For the Basys2 board, the 64 bit values are</td>
+<td>Bitflag showing features supported by the board.<br>
+  Its use is a bit inconsistent:<br>
+  <ul>
+    <li>Controllers with no firmware usually report their supported features.</li>
+    <li>Some flashable controllers report their possible features.</li>
+    <li>Some flashable controllers report the feature set of their current firmware (default 0).</li>
+  </ul>
+  Bitfield meaning in <a href="#dcap_enum_desc">DCAP Enum</a>
+</td>
 </tr>
 <tr>
 <td>Set OEM Seed</td>
 <td>E8</td>
 <td>OUT</td>
-<td>0</td>
 <td>2</td>
-<td>Sends random seed, or 14 if can't get uptime as source. EC is usually called after. After EC seed is set to 00.</td>
+<td>Sets a seed that determines the data returned by the 0xEC request.<br>
+See the <a href="#oem-verify">Description of OEM Verify</a></td>
 </tr>
 <tr>
 <td>Product ID</td>
 <td>E9</td>
 <td>IN</td>
-<td>0</td>
 <td>4</td>
-<td>Reversed byte order for some reason RAW BYTES. Digilent adapter cables have BigE 000000xx. In normal cases, this last byte being between 0x20 and 0x40 has special meaning of some kind.</td>
+<td>The product ID is not consistently handled. Sometimes a controller will always report its product id, sometimes it will only report the product id after being flashed with firmware. Sometimes the product id is used to determine what firmware to flash the controller with, if any.</td>
 </tr>
 <tr>
 <td>OEM ID CHECK</td>
 <td>EC</td>
 <td>IN</td>
-<td>0</td>
 <td>4</td>
-<td>Takes value passed in from E8 and xors the bytes plus other stuff still researching. ??:??:??:yx where xy = e8(hi)^e8(lo). The four bytes spell Digi when xored with the xor of the bytes passed to E8. REVERSED so technically igiD. It also seems to support (these values return reversed) 0x356A92C7 and 0x586F656D.</td>
+<td>Returns a value based on the OEM SEED (0xE8) request. A check that digilent drivers do to ensure the controller is running official firmware. Unnecessary to call in open drivers.<br>
+  Example implementation (python):<br>
+  <code>
+    seed = {Seed from 0xEC cmd}<br>
+    key = (seed & 0xFF) ^ ((seed>>8) & 0xFF)<br>
+    "".join([chr(ord(c) ^ key) for c in 'igiD'])<br>
+  </code>
+  See the <a href="#oem-verify">Description of OEM Verify</a></td>
 </tr>
 </tbody>
-</table><h6>
-<a name="rq-is-request-code" class="anchor" href="#rq-is-request-code"><span class="octicon octicon-link"></span></a>(RQ is Request Code)</h6>
+</table>
 
-<h4>
-<a name="bulk-messages" class="anchor" href="#bulk-messages"><span class="octicon octicon-link"></span></a>Bulk Messages</h4>
+	<p>
+	  <h6>Terms:</h6>
+	  <a name="whatis-rq" class="anchor" href="#whatis-rq"><span class="octicon octicon-link"></span></a>(RQ is Request Code)<br>
+	  <a name="whatis-direction" class="anchor" href="#whatis-direction"><span class="octicon octicon-link"></span></a>USB message direction: IN=to computer; OUT=to device
+	</p>
 
-<p>Most of the bulk messages get JTAG related details from the board. Some of them still only read details about the controller chip, but the really interesting commands require JTAG being enabled first.</p>
+<h4><a name="bulk-requests" class="anchor" href="#bulk-requests"><span class="octicon octicon-link"></span></a>Bulk Requests</h4><hr>
 
-<p>All messages that start these bulk transaction are sent to the same USB endpoint (1) and have this basic structure:</p>
+<p>Most bulk messages cause electrical activity on the controller's output pins.</p>
 
-<p>SZ:CT:RQ:00:{Parameters to the request if any}</p>
+<h5><a name="bulk-initial-request-message-format" class="anchor" href="#bulk-initial-request-message-format"><span class="octicon octicon-link"></span></a>Initial Request Message Format:</h5>
 
-<p>SZ: The length of the message in bytes not including this length byte. (One less than the total length of the data returned).</p>
+	<p>All bulk requests start with the same <b>Initial Request</b> and end with a <b>Response Code</b> from the device. Some requests transfer additional data in between the initial request and the response code, and are described <a href="#bulk-full-message-sequence">below</a>.</p>
 
-<p>CT: Category or request. Almost always 0x02.</p>
+	<p>Initial Request messages are sent to USB endpoint (1). The endpoints for reading response codes and sending/receiving addtional data depends on the device, and is detailed in the <a href="#known-device-table">Known Device Table</a>.</p>
 
-<p>RQ: Request Code</p>
+<h5><a name="avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart" class="anchor" href="#avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart"><span class="octicon octicon-link"></span></a>AVD Response protocol:</h5>
 
-<h5>
-<a name="status-response-message-format" class="anchor" href="#status-response-message-format"><span class="octicon octicon-link"></span></a>Status Response message format:</h5>
+
+<code>SZ:CT:RQ:00:{Parameters to the request if any}</code>
+
+	<p>
+	  Where<br>
+	  <code>SZ:</code> Length of bulk packet minus 1.<br>
+	  <code>CT:</code> Category or request. Category 0x02 appears to be JTAG.<br>
+	  <code>RQ:</code> Request Code
+	</p>
+
+<h5><a name="bulk-full-message-sequence" class="anchor" href="#bulk-full-message-sequence"><span class="octicon octicon-link"></span></a>Full Message Sequence:</h5>
 
 <p>BULK IN (USB ENDPOINT 2) 01:XX #Status code. 1 byte long. 00 known to be 'good'. 03 is a fail of some kind (when the device is already in use).</p>
-
-<h5>
-<a name="bulk-request-types" class="anchor" href="#bulk-request-types"><span class="octicon octicon-link"></span></a>Bulk request types.</h5>
-
-<p>All of the known bulk messages are similar, but among them, there are two primary types based on how the controller responds.</p>
-
-<ul>
-<li>
-<strong>Bulk Configuration Request:</strong> Requests that return a single message. These messages may be either a status code in the case of a command, or the raw data if querying a value. They all start with the same length byte as above.</li>
-<li>
-<strong>Bulk JTAG Control Request:</strong> The responses to these messages are much more complex and involve 4 or 5 messages .</li>
-</ul><h5>
-<a name="avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart" class="anchor" href="#avd-response-protocol-note-the-variables-here-refer-to-labels-below-the-next-chart"><span class="octicon octicon-link"></span></a>AVD Response protocol (Note the variables here refer to labels below the next chart):</h5>
 
 <ol>
 <li>Initialization message (In table below).</li>
@@ -165,8 +179,9 @@
 <li>YY* Raw bit data rounded to the byte. XX bits. USB Endpoint 4. Only sent if RV in init message is 1.</li>
 <li>03:02:ZZ:00 to USB Endpoint 1. ZZ = 80|RQ. RQ is the RQ of the init message. Requests number of bits transferred.</li>
 <li>SZ:FL:(XX:XX:XX:XX)* SZ = bitcount(FL)*4 + 1. FL is a bit field for 0x80 and 0x40. 0x80 requests for the number of bits sent. 0x40 Requests for the number of bits received. For each flag there is a 4 byte number for the number of bits.</li>
-</ol><h5>
-<a name="bulk-jtag-control-request-commands" class="anchor" href="#bulk-jtag-control-request-commands"><span class="octicon octicon-link"></span></a>Bulk JTAG Control Request Commands:</h5>
+</ol>
+
+<h5><a name="bulk-jtag-control-request-commands" class="anchor" href="#bulk-jtag-control-request-commands"><span class="octicon octicon-link"></span></a>Bulk JTAG Control Request Commands:</h5>
 
 <table>
 <thead><tr>
@@ -275,14 +290,164 @@
 <td>RV:DI:XX:XX:XX:XX</td>
 </tr>
 </tbody>
-</table><h6>
+</table>
+
+<h6>
 <a name="xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes" class="anchor" href="#xx-is-the-number-of-bits-to-transfer-little-endian-number-4-bytes"><span class="octicon octicon-link"></span></a>(XX is the number of bits to transfer. Little Endian Number. 4 bytes.)</h6>
 
 <h6>
 <a name="ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-" class="anchor" href="#ms-di-do-and-ck-are-boolean-values-for-the-state-of-the-pins-tms-tdi-tdo-and-tck-respectively-"><span class="octicon octicon-link"></span></a>(MS, DI, DO, and CK are Boolean values for the state of the pins TMS, TDI, TDO, and TCK respectively. )</h6>
 
 <h6>
-<a name="rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data" class="anchor" href="#rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data"><span class="octicon octicon-link"></span></a>(RV is 1 if the values shifted out of TDO should be returned. This causes an additional packet to be sent from the device after the transfer of the provided input data.)</h6>
+  <a name="rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data" class="anchor" href="#rv-is-1-if-the-values-shifted-out-of-tdo-should-be-returned-this-causes-an-additional-packet-to-be-sent-from-the-device-after-the-transfer-of-the-provided-input-data"><span class="octicon octicon-link"></span></a>(RV is 1 if the values shifted out of TDO should be returned. This causes an additional packet to be sent from the device after the transfer of the provided input data.)</h6>
+
+<br>
+<h4><a name="known-device-table" class="anchor" href="#known-device-table"><span class="octicon octicon-link"></span></a>Known Devides:</h4></hr>
+	<p>The <strong>Endpnum</strong> column refers to which bulk endpoints are used to:
+<ol>
+  <li>Send initial Bulk Requests</li>
+  <li>Receive Status Code responses</li>
+  <li>Send additional command data (like JTAG transition data)</li>
+  <li>Receive additional command data (like JTAG TDO states read from target)</li>
+</ol>
+</p>
+<p>All devices listed here have a vendorID of 0x1443.</p>
+<table>
+  <thead>
+    <td>Name</td>
+    <td>Endpnum</td>
+    <td>deviceID</td>
+    <td>FW?</td>
+    <td>ProdName</td>
+    <td>DCAP</td>
+    <td>ProdID</td>
+  </thead>
+  <tr>
+    <td>Cr2s2</td>
+    <td>1 2 3 4</td>
+    <td>0007</td>
+    <td>No</td>
+    <td>Cr2s2</td>
+    <td>0x15<br>
+      (0)dJtg<br>
+      (2)dEpp<br>
+      (4)dSpi</td>
+    <td>0x00900126</td>
+  </tr>
+  <tr>
+    <td>Basys2</td>
+    <td>1 2 3 4</td>
+    <td>0007</td>
+    <td>No</td>
+    <td>Basys2</td>
+    <td>0x05<br>
+      (0)dJtg<br>
+      (2)dEpp</td>
+    <td>0x00800223</td>
+  </tr>
+  <tr>
+    <td>Nexys2</td>
+    <td>1 1 2 6</td>
+    <td>0005</td>
+    <td>FX2FW_05_0000000D_<br>00000000_030A.HEX</td>
+    <td><strong>PreFW:</strong><br>OnbUsb1 V2.0<br><strong>PostFW:</strong><br>Onboard USB'</td>
+    <td>0x0D<br>
+      (0)dJtg<br>
+      (2)dEpp<br>
+      (3)dStm</td>
+    <td><strong>PreFW:</strong> Unsupported<br>
+    <strong>PostFW:</strong> 0x00100005</td>
+  </tr>
+.  <tr>
+    <td>Nexys3</td>
+    <td>1 1 2 6</td>
+    <td>0007</td>
+    <td>FX2FW_0D_0000000D_<br>00000000_030A.HEX</td>
+    <td>Nexys3</td>
+    <td><strong>PreFW:</strong> 0<br>
+      <strong>PostFW:</strong> 0x0D<br>
+      (0)dJtg<br>
+      (2)dEpp<br>
+      (3)dStm</td>
+    <td>0x00D0010D</td>
+  </tr>
+  <tr>
+    <td>Atlys</td>
+    <td>1 1 2 6</td>
+    <td>0007</td>
+    <td>FX2FW_0C_0000000D_<br>00000000_030A.HEX</td>
+    <td>Atlys</td>
+    <td><strong>PreFW:</strong> Unsupported<br>
+      <strong>PostFW:</strong> 0x0D<br>
+      (0)dJtg<br>
+      (2)dEpp<br>
+      (3)dStm</td>
+    <td>0x00C0010C</td>
+  </tr>
+
+
+</table>
+
+
+
+<h5><a name="dcap_enum_desc" class="anchor" href="#dcap_enum_desc"><span class="octicon octicon-link"></span></a>Digilent Device Capabilities Enum:</h5>
+<table>
+  <thead>
+    <td>VALUE</td>
+    <td>NAME</td>
+    <td>DESCRIPTION</td>
+  </thead>
+  <tr><td>0x00000001</td><td>dcapJtg</td>
+    <td>Jtag....</td>
+  </tr>
+  <tr><td>0x00000002</td><td>dcapPio</td>
+    <td>Pin I/O</td>
+  </tr>
+  <tr><td>0x00000004</td><td>dcapEpp</td>
+    <td>Async Parallel Interface</td>
+  </tr>
+  <tr><td>0x00000008</td><td>dcapStm</td>
+    <td>Sync Parallel Interface (High Speed Stream)</td>
+  </tr>
+  <tr><td>0x00000010</td><td>dcapSpi</td>
+    <td>Serial Peripheral Interface</td>
+  </tr>
+  <tr><td>0x00000020</td><td>dcapTwi</td>
+    <td>Two Wire (Serial) Interface (i2c)</td>
+  </tr>
+  <tr><td>0x00000040</td><td>dcapAci</td>
+    <td>Async Comm Interface (UART)</td>
+  </tr>
+  <tr><td>0x00000080</td><td>dcapAio</td>
+    <td>Analog IN/OUT</td>
+  </tr>
+  <tr><td>0x00000100</td><td>dcapEmc</td>
+    <td>Electro-Mechanical Control</td>
+  </tr>
+  <tr><td>0x00000200</td><td>dcapDci</td>
+    <td>Not Documented</td>
+  </tr>
+  <tr><td>0x00000400</td><td>dcapGio</td>
+    <td>General Sensor & User I/O Libraries</td>
+  </tr>
+  <tr><td>0x00000800</td><td>dcapPti</td>
+    <td>Not Documented</td>
+  </tr>
+</table>
+
+<br>
+<h5><a name="oem-verify" class="anchor" href="#oem-verify"><span class="octicon octicon-link"></span></a>OEM Verification Procedure:</h5><hr>
+
+<p>OEM Verification is an unrequired step for initialzing a digilent controller. The process it usually done once at startup, and entails setting a seed, asking the board to generate a response based off the seed, and confirming if that response is valid for the provided seed. No open drivers need to implement this.</p>
+
+<ol>
+  <li>Set OEM Check Seed (0xE8) request. This seed is often based on time, or sometimes just '14'.</li>
+  <li>Read OEM Check (0xEC) retuest.</li>
+  <li>XOR the two bytes from the OEM seed</li>
+  <li>XOR each byte returned from the OEM Check request with the value calculated in step 3.</li>
+  <li>The resulting 4 bytes (after xoring) should equal 'Digi'. If not, the oem check fails.</li>
+</ol>
+
       </section>
     </div>
 
@@ -294,7 +459,7 @@
       </footer>
     </div>
 
-    
+
 
   </body>
 </html>

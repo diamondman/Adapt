@@ -256,7 +256,7 @@ For all jtag related USB-control messages.
 	</p>
 	<h6>WHEN CPLD UPGRADE MODE ON</h6>
 	<p>
-	  Read the state of the TDO pin of the internal CPLD. Will return 0 or 1. No clocking is done, the read is passive. 
+	  Read the state of the TDO pin of the internal CPLD. Will return 0 or 1. No clocking is done, the read is passive.
 	</p>
     </tr>
     <tr>
@@ -307,7 +307,7 @@ For all jtag related USB-control messages.
       <td><strong>0:</strong> Off<br><strong>1:</strong> On</td>
       <td>0</td>
       <td>
-	Enabling CPLD UPGRADE MODE is only used for upgrading the internal CPLD. The XPCU controller starts with this mode disabled. 
+	Enabling CPLD UPGRADE MODE is only used for upgrading the internal CPLD. The XPCU controller starts with this mode disabled.
 	<h6>CPLD UPGRADE MODE ON</h6>
 	<p>
 	  <ul>
@@ -369,7 +369,7 @@ For all jtag related USB-control messages.
       <td>6C 88 8A 8c 8E 90 92 94 96 98 9A 9C 9E A2 A4</td>
       <td>UNKNOWN</td>
       <td>???</td>
-      <td>Part of a very large block of code with unknown function. No packet captures use these commands. Originally thought to be used for SPI or serial. Unknown function at this time. Appears some of these commands can trigger the same function that 0x7X messages call</td>      
+      <td>Part of a very large block of code with unknown function. No packet captures use these commands. Originally thought to be used for SPI or serial. Unknown function at this time. Appears some of these commands can trigger the same function that 0x7X messages call</td>
     </tr>
     <tr>
       <td>Change USB Speed(?)</td>
@@ -478,17 +478,17 @@ For all jtag related USB-control messages.
 	<p>The returned data comes back in groups of two bytes. This means you will get a minimum of two bytes of response data if this message is returned.</p>
       </td>
     </tr>
-    
+
     </tr>
-    
+
   </tbody>
 </table>
 
-<h3><a name="dv-specs" class="anchor" href="#dv-specs"><span class="octicon octicon-link"></span></a>Device Specifications</h3>    
+<h3><a name="dv-specs" class="anchor" href="#dv-specs"><span class="octicon octicon-link"></span></a>Device Specifications</h3>
 <p><a href="images/xpcu/schematic.png">Basic Schematic.</a></p>
 
 
-<h3><a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="octicon octicon-link"></span></a>Troubleshooting</h3>    
+<h3><a name="troubleshooting" class="anchor" href="#troubleshooting"><span class="octicon octicon-link"></span></a>Troubleshooting</h3>
 <p><strong>If you want to check the version of firmware you have?</strong></p>
 <pre>
   FW_VERSION_STRING=`grep ":0219B900" <strong>$PATH_TO_FIRMWARE_FILE`</strong>;

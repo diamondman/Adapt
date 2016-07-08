@@ -13,12 +13,12 @@
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-      
+
       ga('create', 'UA-53477413-1', 'auto');
       ga('send', 'pageview');
-      
+
     </script>
-    
+
     <title>Adapt</title>
   </head>
 
@@ -42,23 +42,21 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link">Introduction</span></a></h3>
-                <p>Adapt is a general purpose, accessible tool for controlling configurable logic devices like FPGAs and CPLDs through various JTAG controllers. At the moment, it runs on Linux, but more platforms will follow shortly.</p>
-                <p>The current state of the tools for working with these devices presents several difficulties for creating a general purpose interface. The first problem concerns the JTAG controllers through which the devices are programmed. Every USB adapter for controlling JTAG has its own protocol, and that protocol is often undocumented. Secondly, once we are able to communicate with the target chip, each of them has its own functional deviations that prevent users or software from predicting the device's behaviour based on existing standards such as the IEEE 1149.1 or IEEE 1532 BSD compliant documents often distributed with the chips by the manufacturers.</p>
-                <p>The first problem of idiosyncratic protocols can be addressed by simply reverse-engineering as many of the USB controllers as reasonably possible and thoroughly documenting them. This is an important first step, and an auxiliary goal of this project is to do that work and preserve it in a common, community-driven repository.</p>
-                <p>However, once the protocols are known and documented, the final issue of each chip's unique deviation from the standard programming APIs remains. Solving this will similarly involve chip-family-specific instructions (be they classes or config files) to handle the divergent behaviour. When the protocols and available functions are known and documented for each device, it will finally be possile for users to create systems based on them with confidence and pleasure.</p>
-                <p>Ultimately, Adapt is intended as a framework to unite these configurations under a single interface, allowing the programmer to use a single, standards-based communication protocol and programming API for all FPGAs and related devices.</p>
+        <h3><a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link">Introduction</span></a></h3>
+        <p>Adapt is a Driver Framework for using In System Configuration controllers (devices that speak JTAG/SPI/i2c/etc on your behalf).</p>
+	<p>There are currently several issues preventing generic access to devices via JTAG/SPI/i2c/etc; these issues lie with the devices we wish to interface with, and the controllers that allow us to speak the appropriate electrical protocol to communicate with the target device in the first place.</p>
+	<ul>
+	  <li>Controllers have non standard interfaces (often undocumented).</li>
+	  <li>Some Controllers have proprietary firmware (with redistribution issues).</li>
+	  <li>Target devices have non standard interfaces</li>
+	</ul>
 
-                <h3>Status</h3>
-                <p>Work is currently focused on reversing, documenting, and re-implementing controllers for the common members of the Xilinx Coolrunner ii XC2CXXX family (primarily the 32, 64, 128, and 256), but other families and devices will followshortly. If you would like to add a controller or chip API module, have a look at the page on <a href="submitting_a_module.html">submitting a module,</a></p>
+	<p>Adapt aims to solve the first two issues, providing a library and interactive terminal for using these controllers. Code to flash/erase/test chips will be left to the users of this library.</p>
 
-                <h3>
-                    <a name="protocol-documentation-for-usb-jtag-controllers" class="anchor" href="#protocol-documentation-for-usb-jtag-controllers"><span class="octicon octicon-link">Protocol documentation for various USB JTAG controllers.</span></a></h3>
-                <p>The following table provides an index to the documentation that has been assembled so far.</p> 
-                <p>Note that some controllers do not come loaded with their full firmware and rely on the host computer to load the firmware to the device RAM. This is used to keep devices up to date and avoid manual firmware updates, though it requires configuring your system to flash the firmware everytime it is plugged in.</p>
-                <p>The most common controller microcontrollers in these JTAG controllers that require boot up flashing are the Cypress EZ-USB chip family. Luckily there is a convenient open source utility for loading the firmware onto these devices called fxload which can load an intel hex file onto the devices. </p>
-                <p>The primary complication with devices requiring firmware loading is not the act of loading the firmware, but distributing the copyrighted firmware binaries. For now, if you use Adapt, you will have to provide the firmware files from your own instalations of the private tools, or by following some steps that should be provided for getting the files.</p>
+	<h3><a name="project-status" class="anchor" href="#project-status"><span class="octicon octicon-link">Project Status</span></a></h3>
+        <p>The current goal is to make this library useful to people for everyday debugging/reverse engineering/etc. Stability, packaging, API design, and the like are under review. Removing the assumption that all controllers are USB is also a goal.</p>
+
+        <h3><a name="protocol-documentation-for-controllers" class="anchor" href="#protocol-documentation-for-controllers"><span class="octicon octicon-link">Protocol documentation for controllers.</span></a></h3>
 
 	<table>
 	  <thead><tr>
@@ -72,17 +70,17 @@
 	    <tr>
 	      <td><a href="cable_digilent_adept.html">Digilent Adept</a></td>
 	      <td>Basys2,<br>
-		CoolRunner 2 Starter 2,<br>
-		Atlys,<br>
+		CoolRunner 2 (Cr2s2),<br>
 		Nexys2,<br>
-		Nexys3
-	      <td>Sometimes. The Atlys, and Nexys families often use EZ-USB chips.</td>
+		Nexys3,<br>
+		Atlys
+	      <td>Sometimes.</td>
 	      <td>Complete except optional temp/voltage reading.</td>
 	    </tr>
 	    <tr>
 	      <td><a href="cable_xilinx_PCU.html">Xilinx Platform Cable 1</a></td>
 	      <td>XPCU DLC9G</td>
-	      <td>ALWAYS</td>
+	      <td>Yes</td>
 	      <td>In Progress</td>
 	    </tr>
 	    <tr>
@@ -95,7 +93,7 @@
 	      <td><a href="http://www.openjtag.org/download/protmanual/1.1/OPENJTAG_Communication_Protocol_Manual_1.1.pdf">OpenJTAG<!--<a>--></td>
 	      <td>OpenJTAG Controller</td>
 	      <td>No</td>
-	      <td>External Link (for now)</td>
+	      <td>Protocol open, no need to document.</td>
 	    </tr>
 	  </tbody>
 	</table>
@@ -115,7 +113,7 @@
       </footer>
     </div>
 
-    
+
 
   </body>
 </html>

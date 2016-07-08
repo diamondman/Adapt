@@ -421,3 +421,11 @@ Small Device Styles
   }
 
 }
+
+#toc, .toc, .mw-warning, .toccolours {
+    display: table;
+    border: 1px solid #aaa;
+    background-color: #f9f9f9;
+    padding: 7px;
+    font-size: 95%;
+}
