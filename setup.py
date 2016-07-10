@@ -10,21 +10,14 @@
     $ pip install . # or python setup.py install
 """
 
-import os
 import sys
 from distutils.core import setup
-
-if sys.version_info[0] == 2:
-    antlr4_package = "antlr4-python2-runtime"
-elif sys.version_info[0] == 3:
-    antlr4_package = "antlr4-python3-runtime"
-
 
 setup(
     name='adapt',
     version='0.0.10',
     url='https://github.com/diamondman/Adapt',
-    author='jessy',
+    author='Jessy Diamond Exum',
     author_email='jessy.diamondman@gmail.com',
     packages=[
         'adapt',
@@ -33,11 +26,11 @@ setup(
     platforms='any',
     license='LICENSE',
     install_requires=[
-        'libusb1 >= 1.0.11.10499',
-        'bitarray == 0.8.1',
-        '%s' % antlr4_package
+        'libusb1 >= 1.5.0',
+        'bitarray >= 0.8.1',
+        'bs4 >= 0.0.1'
     ],
-    description="Linux USB JTAG controller for Digilent boards",
+    description="Driver framework for In System Configureation (ISC) Controllers (for example, JTAG)",
     long_description=open(os.path.join(os.path.dirname(__file__),
                                        'README.md')).read(),
 )

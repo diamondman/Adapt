@@ -110,9 +110,9 @@ def program(pargs):
 def listdevices(chain, indentspaces=8):
     indent = (" "*indentspaces)
     for di, dev in enumerate(chain._devices):
-        if dev.desc:
-            print(indent+"%d %s %s %s (%08x)"%(di, dev.desc.manufacturer,
-                                         dev.desc._device_name, dev.desc._chip_package,
+        if dev._desc:
+            print(indent+"%d %s %s %s (%08x)"%(di, dev._desc.manufacturer,
+                                         dev._desc._device_name, dev._desc._chip_package,
                                               dev._id))
         else:
             print(indent+"%d UNIDENTIFIED DEVICE. ID: %s."%(di, dev._id))

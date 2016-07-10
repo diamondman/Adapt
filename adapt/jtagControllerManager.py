@@ -1,5 +1,6 @@
 import pkgutil
 import usb1
+import os
 from os import environ
 from os.path import join
 
@@ -9,7 +10,8 @@ _controllerfilter = {}
 _modules = []
 
 driver_count = 0
-base_dir = environ.get('ADAPT_HOME', '/home/diamondman/Adapt')
+base_dir = environ.get('ADAPT_HOME', os.path.dirname(os.path.realpath(__file__)))
+
 for loader, module_name, is_pkg in pkgutil.iter_modules([join(base_dir,'adapt/drivers'),
                                                          join(base_dir, 'drivers')]):
     driver_count += 1

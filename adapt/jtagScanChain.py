@@ -3,7 +3,7 @@ import time
 import struct
 from bitarray import bitarray
 
-from jtagDeviceDescription import JTAGDeviceDescription
+import jtagDeviceDescription
 from jtagStateMachine import JTAGStateMachine
 from primative import Level1Primative, Level2Primative,\
     DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative, DefaultReadDRPrimative, \
@@ -31,6 +31,9 @@ class JTAGScanChain(object):
         self._devices = []
         self._hasinit = False
         self._sm = JTAGStateMachine()
+
+        self.initialize_device_from_id = lambda sc, idcode: JTAGDevice(sc,idcode)
+        self.get_descriptor_for_idcode = jtagDeviceDescription.get_descriptor_for_idcode
 
         self._controller = controller
         self._controller._scanchain = self #This might necessitate a factory
@@ -71,7 +74,7 @@ class JTAGScanChain(object):
             self.jtag_enable()
             idcode_str = self.read_dr(32)
             while idcode_str not in NULL_ID_CODES:
-                Jdev = JTAGDevice(self, idcode_str)
+                Jdev = self.initialize_device_from_id(self, idcode_str)
                 self._devices.append(Jdev)
                 idcode_str = self.read_dr(32)
             self.flush()
