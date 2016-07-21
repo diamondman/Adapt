@@ -1,10 +1,10 @@
 from bitarray import bitarray
 
-from jtagScanChain import JTAGScanChain
+from .jtagScanChain import JTAGScanChain
 
-from drivers.digilentdriver import DigilentAdeptController
-from drivers.xilinxPC1driver import XilinxPC1Driver
-from drivers.openjtagdriver import OpenJtagDriver
+from .drivers.digilentdriver import DigilentAdeptController
+from .drivers.xilinxPC1driver import XilinxPC1Driver
+from .drivers.openjtagdriver import OpenJtagDriver
 
 if __name__ == '__main__':
     for driver in [DigilentAdeptController, XilinxPC1Driver, OpenJtagDriver]:

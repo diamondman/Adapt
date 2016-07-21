@@ -1,6 +1,6 @@
 import time
 
-from jtagUtils import JTAGControlError
+from .jtagUtils import JTAGControlError
 
 class CableDriver(object):
     def __init__(self, dev):

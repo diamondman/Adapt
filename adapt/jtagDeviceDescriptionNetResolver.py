@@ -2,7 +2,6 @@ from __future__ import print_function
 import requests
 from bs4 import BeautifulSoup
 import re
-import ipdb
 import time
 
 id_lookup_url = "http://bsdl.info/list.htm?search="

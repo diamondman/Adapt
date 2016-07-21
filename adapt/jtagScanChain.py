@@ -3,14 +3,14 @@ import time
 import struct
 from bitarray import bitarray
 
-import jtagDeviceDescription
-from jtagStateMachine import JTAGStateMachine
-from primative import Level1Primative, Level2Primative,\
+from adapt import jtagDeviceDescription
+from .jtagStateMachine import JTAGStateMachine
+from .primative import Level1Primative, Level2Primative,\
     DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative, DefaultReadDRPrimative, \
     DefaultLoadDRPrimative, DefaultLoadReadRegisterPrimative, DefaultSleepPrimative
-from jtagDevice import JTAGDevice
-from command_queue import CommandQueue
-from jtagUtils import NULL_ID_CODES, pstatus
+from .jtagDevice import JTAGDevice
+from .command_queue import CommandQueue
+from .jtagUtils import NULL_ID_CODES, pstatus
 
 class JTAGScanChain(object):
     def gen_prim_adder(self, cls_):

@@ -5,11 +5,11 @@ import fnmatch
 import numbers
 from bitarray import bitarray
 
-from jtagUtils import manufacturer_lookup
-from jtagUtils import adapt_base_dir
-from utils import memoized
+from .jtagUtils import manufacturer_lookup
+from .jtagUtils import adapt_base_dir
+from .utils import memoized
 
-from jtagDeviceDescriptionNetResolver import get_sid, get_details, decode_bsdl
+from .jtagDeviceDescriptionNetResolver import get_sid, get_details, decode_bsdl
 
 _descr_file_re = re.compile('[01X]'*32+".json")
 base_descr_dir = os.path.join(os.path.expanduser("~"),

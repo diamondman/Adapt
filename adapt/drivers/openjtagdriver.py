@@ -1,7 +1,7 @@
 from bitarray import bitarray
 
-from cabledriver import CableDriver
-from primative import Level2Primative, Executable
+from adapt.cabledriver import CableDriver
+from adapt.primative import Level2Primative, Executable
 
 class OpenJtagChangeTAPStatePrimative(Level2Primative, Executable):
     _function_name = 'transition_tap'

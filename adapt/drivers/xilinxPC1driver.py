@@ -13,11 +13,11 @@ import math
 from bitarray import bitarray
 import numbers
 
-from cabledriver import CableDriver
-from primative import Level1Primative, Level2Primative, Level3Primative,\
+from adapt.cabledriver import CableDriver
+from adapt.primative import Level1Primative, Level2Primative, Level3Primative,\
     Executable, DefaultRunInstructionPrimative,\
     DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE
-from jtagUtils import JTAGControlError
+from adapt.jtagUtils import JTAGControlError
 
 #PROG = 8
 #TCK = 4

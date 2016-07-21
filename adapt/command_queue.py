@@ -1,5 +1,5 @@
-from jtagStateMachine import JTAGStateMachine
-from primative import Level1Primative, Level2Primative, Level3Primative, Executable,\
+from .jtagStateMachine import JTAGStateMachine
+from .primative import Level1Primative, Level2Primative, Level3Primative, Executable,\
     DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE,\
     DefaultRunInstructionPrimative
 

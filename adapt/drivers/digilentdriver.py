@@ -11,9 +11,9 @@
 
 from bitarray import bitarray
 
-from jtagUtils import blen2Blen, buff2Blen, JTAGControlError, build_byte_align_buff
-from cabledriver import CableDriver
-from primative import Level1Primative, Executable,\
+from adapt.jtagUtils import blen2Blen, buff2Blen, JTAGControlError, build_byte_align_buff
+from adapt.cabledriver import CableDriver
+from adapt.primative import Level1Primative, Executable,\
     DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE
 
 def index_or_default(s):

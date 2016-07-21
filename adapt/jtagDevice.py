@@ -1,11 +1,12 @@
-from bitarray import bitarray
-from primative import DefaultRunInstructionPrimative
-from jtagDeviceDescription import JTAGDeviceDescription
-from jtagUtils import pstatus
-
 import struct
 import time
 import sys
+
+from bitarray import bitarray
+
+from .primative import DefaultRunInstructionPrimative
+from .jtagDeviceDescription import JTAGDeviceDescription
+from .jtagUtils import pstatus
 
 class JTAGDeviceBase(object):
     def __init__(self, chain, idcode):

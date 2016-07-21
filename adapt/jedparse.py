@@ -3,7 +3,7 @@ from bitarray import bitarray
 import csv
 import os
 
-from jtagUtils import graycode_buff, adapt_base_dir
+from .jtagUtils import graycode_buff, adapt_base_dir
 
 class JedecConfigFile(object):
     def __init__(self, path):
