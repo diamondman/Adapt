@@ -3,11 +3,12 @@ import time
 import struct
 from bitarray import bitarray
 
-from adapt import jtagDeviceDescription
+from . import jtagDeviceDescription
 from .jtagStateMachine import JTAGStateMachine
 from .primative import Level1Primative, Level2Primative,\
-    DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative, DefaultReadDRPrimative, \
-    DefaultLoadDRPrimative, DefaultLoadReadRegisterPrimative, DefaultSleepPrimative
+    DefaultChangeTAPStatePrimative, DefaultLoadIRPrimative,\
+    DefaultReadDRPrimative, DefaultLoadDRPrimative,\
+    DefaultLoadReadRegisterPrimative, DefaultSleepPrimative
 from .jtagDevice import JTAGDevice
 from .command_queue import CommandQueue
 from .jtagUtils import NULL_ID_CODES, pstatus
@@ -27,12 +28,14 @@ class JTAGScanChain(object):
         #print("Adding %s FAIL"%cls_)
         return False
 
-    def __init__(self, controller):
+    def __init__(self, controller,
+                 device_initializer=\
+                 lambda sc, idcode: JTAGDevice(sc,idcode)):
         self._devices = []
         self._hasinit = False
         self._sm = JTAGStateMachine()
 
-        self.initialize_device_from_id = lambda sc, idcode: JTAGDevice(sc,idcode)
+        self.initialize_device_from_id = device_initializer
         self.get_descriptor_for_idcode = jtagDeviceDescription.get_descriptor_for_idcode
 
         self._controller = controller
@@ -61,22 +64,18 @@ class JTAGScanChain(object):
                               DefaultSleepPrimative]:
             self.gen_prim_adder(primative_cls)
 
-    def init_chain(self, mock=False):
+    def init_chain(self):
         if not self._hasinit:
             self._hasinit = True
-            if mock:
-                self._devices = [JTAGDevice(self, bitarray('00000110110101001000000010010011')),
-                                 JTAGDevice(self, bitarray('00000110111001011000000010010011'))]
-                return
-
             self._devices = []
 
             self.jtag_enable()
-            idcode_str = self.read_dr(32)
-            while idcode_str not in NULL_ID_CODES:
-                Jdev = self.initialize_device_from_id(self, idcode_str)
-                self._devices.append(Jdev)
+            while True:
                 idcode_str = self.read_dr(32)
+                dev = self.initialize_device_from_id(self, idcode_str)
+                self._devices.append(dev)
+                if idcode_str not in NULL_ID_CODES: break
+
             self.flush()
             self.jtag_disable()
 

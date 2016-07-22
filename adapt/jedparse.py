@@ -3,13 +3,13 @@ from bitarray import bitarray
 import csv
 import os
 
-from .jtagUtils import graycode_buff, adapt_base_dir
+adapt_base_dir = os.path.abspath(os.path.split(os.path.split(__file__)[0])[0])
 
 class JedecConfigFile(object):
     def __init__(self, path):
         self.entity_started = False
         self.entity_finished = False
-        
+
         self.device_name = None
         self.default_test = None
         self.default_fuse = None
@@ -23,7 +23,7 @@ class JedecConfigFile(object):
             last_addr = 0
             for line in f:
                 line = line.replace('\n', '').replace('\r','')
-        
+
                 if not self.entity_started:
                     if '\x02' in line:
                         stx_index = line.index('\x02')
@@ -31,23 +31,23 @@ class JedecConfigFile(object):
                         self.entity_started = True
                     else:
                         continue
-                
+
                 if self.entity_finished:
                     break
-        
+
                 if '\x03' in line:
                     etx_index = line.index('\x03')
                     line = line[:etx_index]
                     self.entity_finished = True
-        
+
                 if len(line)==0:
                     continue
-        
+
                 if line[-1] != '*':
                     raise Exception("FUCK")
                 else:
                     line = line[:-1]
-        
+
                 term = line[0].upper()
                 if term == 'L':
                     space_index = line.index(' ')
@@ -77,7 +77,7 @@ class JedecConfigFile(object):
                     if len(default_test_str) is not 1:
                         raise Exception("X term can only have one bit")
                     self.default_test = int(default_test_str, 2)
-        
+
                 elif term == 'Q' and len(line)>1:
                     term2 = line[1].upper()
                     if term2 == 'F':
@@ -144,6 +144,14 @@ class JedecConfigFile(object):
 class BitStream(object):
     def __init__(self, segments):
         self.segments = segments
+
+def gc(addr):
+    return (addr>>1)^addr
+
+def graycode_buff(num, fillcount):
+    buff = bitarray(bin(gc(num))[2:].zfill(fillcount))
+    buff.reverse()
+    return buff
 
 if __name__ == "__main__":
     import sys

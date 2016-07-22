@@ -6,8 +6,6 @@ from bitarray import bitarray
 NULL_ID_CODES = [bitarray('1'*32),
                  bitarray('0'*32)]
 
-adapt_base_dir = os.path.abspath(os.path.split(os.path.split(__file__)[0])[0]) 
-
 manufacturer_lookup = {
     1: 'AMD', 2: 'AMI', 4: 'Fujitsu', 7: 'Hitachi', 8: 'Inmos',
     11: 'Intersil', 13: 'Mostek', 14: 'Freescale (Motorola)',
@@ -57,24 +55,13 @@ manufacturer_lookup = {
 }
 
 def bitfieldify(buff, count):
-    #bits = bitarray(''.join([bin(ord(i))[2:].zfill(8) for i in buff])[-count:])
     databits = bitarray()
     for byte_ in buff:
         databits.extend(bin(ord(byte_))[2:].zfill(8))
-        #databits.fromstring(byte_)
     lendiff = len(databits)-count
     if count:
         databits = databits[lendiff:]
     return databits
-
-
-def gc(addr):
-    return (addr>>1)^addr
-
-def graycode_buff(num, fillcount):
-    buff = bitarray(bin(gc(num))[2:].zfill(fillcount))
-    buff.reverse()
-    return buff
 
 def blen2Blen(bcount):
     """
@@ -93,7 +80,6 @@ def build_byte_align_buff(buff):
     bitmod = len(buff)%8
     if bitmod == 0:
         rdiff = bitarray()
-        #print("NO BUFF NEEDED", rdiff)
     else:
         rdiff = bitarray(8-bitmod)
         rdiff.setall(False)

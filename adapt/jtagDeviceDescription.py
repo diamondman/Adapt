@@ -6,7 +6,6 @@ import numbers
 from bitarray import bitarray
 
 from .jtagUtils import manufacturer_lookup
-from .jtagUtils import adapt_base_dir
 from .utils import memoized
 
 from .jtagDeviceDescriptionNetResolver import get_sid, get_details, decode_bsdl

@@ -11,7 +11,8 @@
 
 from bitarray import bitarray
 
-from adapt.jtagUtils import blen2Blen, buff2Blen, JTAGControlError, build_byte_align_buff
+from adapt.jtagUtils import blen2Blen, buff2Blen, JTAGControlError,\
+    build_byte_align_buff
 from adapt.cabledriver import CableDriver
 from adapt.primative import Level1Primative, Executable,\
     DOESNOTMATTER, ZERO, ONE, CONSTANT, SEQUENCE
