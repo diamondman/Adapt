@@ -3,4 +3,6 @@
 \#*
 .\#*
 build
-adapt.egg-info
+dist
+adaptisc.egg-info
+MANIFEST
