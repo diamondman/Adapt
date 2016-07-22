@@ -4,10 +4,14 @@ import sys
 import argparse
 from bitarray import bitarray
 
-import adapt
-from adapt.jtagScanChain import JTAGScanChain
-from adapt.jtagDevice import JTAGDevice
-from adapt.jedparse import JedecConfigFile
+import proteusisc
+from proteusisc.jtagScanChain import JTAGScanChain
+from proteusisc.jtagDevice import JTAGDevice
+
+from .jtagUnsupportedDevice import JTAGUnsupportedDevice
+from .deviceDrivers.jtagDeviceXC2C256 import JTAGDeviceXC2C256
+from .jedparse import JedecConfigFile
+
 
 def main():
     parser = argparse.ArgumentParser(description='General purpose tool for configuring FPGAs, '\
@@ -49,14 +53,14 @@ def main():
 ########################
 def enum(pargs):
     print("ADAPT JTAG CONTROLLER DISCOVERY")
-    controllers = adapt.getAttachedControllers()
+    controllers = proteusisc.getAttachedControllers()
     print("USB Controllers:")
     for i, c in enumerate(controllers):
         print("  %d %s"%(i, c))
 
 def init(pargs):
     print("ADAPT JTAG CHAIN SCANNER")
-    controllers = adapt.getAttachedControllers(pargs.cname)
+    controllers = proteusisc.getAttachedControllers(pargs.cname)
     print("USB Controllers:")
     for ci, c in enumerate(controllers):
         print("  %d %s=%s"%(ci, c.name, c))
@@ -66,7 +70,7 @@ def init(pargs):
 
 def erase(pargs):
     print("ADAPT JTAG DEVICE ERASER")
-    controllers = adapt.getAttachedControllers(pargs.cname)
+    controllers = proteusisc.getAttachedControllers(pargs.cname)
     check_single_controller(controllers)
     c = controllers[0]
 
@@ -83,7 +87,7 @@ def erase(pargs):
 
 def program(pargs):
     print("ADAPT JTAG DEVICE PROGRAMMER")
-    controllers = adapt.getAttachedControllers(pargs.cname)
+    controllers = proteusisc.getAttachedControllers(pargs.cname)
     check_single_controller(controllers)
     controller = controllers[0]
 
@@ -132,58 +136,6 @@ def check_single_controller(controllers):
         print("\033[91mNo Controller match for the ControllerID you provided.\033[0m\n"\
             "\033[93mUse adapt -i to list available controllers.\033[0m\n")
         sys.exit(1)
-
-class JTAGUnsupportedDevice(JTAGDevice):
-    def erase(self):
-        print("Driver for JTAG Device not found. Operation unsupported")
-    def program(self):
-        print("Driver for JTAG Device not found. Operation unsupported")
-
-class JTAGDeviceXC2C256(JTAGDevice):
-    def erase(self):
-        self._chain.jtag_enable()
-
-        self.run_tap_instruction("BYPASS", delay=0.01)
-
-        self.run_tap_instruction("ISC_ENABLE", loop=8, delay=0.01)
-
-        self.run_tap_instruction("ISC_ERASE", loop=8, delay=0.01)
-
-        self.run_tap_instruction("ISC_INIT", loop=8, delay=0.01) #DISCHARGE
-
-        self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
-
-        self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01)#, expret=bitarray('00010001'))
-
-        print(self.run_tap_instruction("BYPASS", delay=0.01))#, expret=bitarray('00100001'))
-
-        self._chain.transition_tap("TLR")
-
-        self._chain.jtag_disable()
-
-    def program(self, configfile):
-        bitstream = configfile.to_bitstream(self.desc)
-
-        self._chain.jtag_enable()
-
-        self.run_tap_instruction("BYPASS", delay=0.01)
-
-        self.run_tap_instruction("ISC_ENABLE", loop=8, delay=0.01)
-
-        for r in bitstream.segments:
-            self.run_tap_instruction("ISC_PROGRAM", arg=r, loop=8, delay=0.01)
-
-        self.run_tap_instruction("ISC_INIT", loop=8, delay=0.01) #DISCHARGE
-
-        self.run_tap_instruction("ISC_INIT", loop=8, arg=bitarray(), delay=0.01)
-
-        self.run_tap_instruction("ISC_DISABLE", loop=8, delay=0.01)#, expret=bitarray('00010101'))
-
-        self.run_tap_instruction("BYPASS")#, expret=bitarray('00100101'))
-
-        self._chain.transition_tap("TLR")
-
-        self._chain.jtag_disable()
 
         
 _device_driver_lookup = {

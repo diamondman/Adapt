@@ -22,18 +22,19 @@ setup(
     author_email='jessy.diamondman@gmail.com',
     packages=[
         'adapt',
-        'adapt/drivers',
+        'adapt/deviceDrivers',
         'adapt/test',
         ],
     platforms='any',
-    license='LICENSE',
+    license='MIT',
     install_requires=[
-        'libusb1 >= 1.5.0',
         'bitarray >= 0.8.1',
-        'bs4 >= 0.0.1',
-        'requests',
+        'proteusisc',
     ],
-    description="Driver framework for In System Configureation (ISC) Controllers (for example, JTAG)",
+    entry_points = {
+        'console_scripts': ['adapt=adapt.adapt:main'],
+    },
+    description="Reference implementation of a tool using the proteusisc library for configuring ISC devices.",
     long_description=open(os.path.join(os.path.dirname(__file__),
                                        'README.md')).read(),
 )
