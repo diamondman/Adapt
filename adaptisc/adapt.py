@@ -74,14 +74,14 @@ def erase(pargs):
     check_single_controller(controllers)
     c = controllers[0]
 
-    print("Scanning controller %s..." % (controller.productName))
+    print("Scanning controller %s..." % (c.productName))
     chain = JTAGScanChain(c, device_initializer=device_initializer)
     chain.init_chain()
 
     dev = chain._devices[pargs.din]
-    print("Preparing to erase (%s)(%s:%s)"%(controller.productName,
-                                              dev.desc.manufacturer,
-                                              dev.desc._device_name))
+    print("Preparing to erase (%s)(%s:%s)"%(c.productName,
+                                              dev._desc.manufacturer,
+                                              dev._desc._device_name))
     dev.erase()
     print("Finished Erase.")
 
@@ -89,16 +89,16 @@ def program(pargs):
     print("ADAPT JTAG DEVICE PROGRAMMER")
     controllers = proteusisc.getAttachedControllers(pargs.cname)
     check_single_controller(controllers)
-    controller = controllers[0]
+    c = controllers[0]
 
-    print("Scanning controller %s..." % (controller.productName))
-    chain = JTAGScanChain(controller)
+    print("Scanning controller %s..." % (c.productName))
+    chain = JTAGScanChain(c, device_initializer=device_initializer)
     chain.init_chain()
 
     dev = chain._devices[pargs.din]
-    print("Preparing to program (%s)(%s:%s)"%(controller.productName,
-                                              dev.desc.manufacturer,
-                                              dev.desc._device_name))
+    print("Preparing to program (%s)(%s:%s)"%(c.productName,
+                                              dev._desc.manufacturer,
+                                              dev._desc._device_name))
     print("Parsing programming file...")
     jed = JedecConfigFile(pargs.file)
 

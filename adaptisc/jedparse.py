@@ -97,13 +97,15 @@ class JedecConfigFile(object):
             raise Exception("Too many bits provided in jed file fuses")
 
 
-    def to_bitstream(self, devicedesc):
-        name = devicedesc._device_name.replace("_"+devicedesc._chip_package, '').lower()
-        mapf = open(os.path.join(adapt_base_dir, "res", "map", "%s.map"%name))
-        reader = csv.reader(mapf, delimiter='\t')
-        mapdata = [row for row in reader]
+    def to_bitstream(self, name, reg_len, mapdata):
+    #devicedesc):
+        #name = devicedesc._device_name.replace("_"+devicedesc._chip_package, '').lower()
+        #mapf = open(os.path.join(adapt_base_dir, "res", "map", "%s.map"%name))
+        #mapf = open(os.path.join("/home/diamondman/Downloads/digilent.adept.runtime_2.16.5-x86_64/data/xbr", "%s.map"%name))
+        #reader = csv.reader(mapf, delimiter='\t')
+        #mapdata = [row for row in reader]
 
-        reg_len = devicedesc._ins_reg_map['ISC_PROGRAM'].length
+        #reg_len = devicedesc._ins_reg_map['ISC_PROGRAM'].length
 
         if "xc2c32" in name:
             addr_len = 6

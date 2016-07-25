@@ -1,4 +1,5 @@
 from proteusisc.jtagDevice import JTAGDevice
+from bitarray import bitarray
 
 class JTAGDeviceXC2C256(JTAGDevice):
     def erase(self):
@@ -23,7 +24,11 @@ class JTAGDeviceXC2C256(JTAGDevice):
         self._chain.jtag_disable()
 
     def program(self, configfile):
-        bitstream = configfile.to_bitstream(self.desc)
+        from .map import data as mapdata
+        #bitstream = configfile.to_bitstream(self.desc)
+        bitstream = configfile.to_bitstream("xc2c256",
+                                            1371,
+                                            mapdata)
 
         self._chain.jtag_enable()
 

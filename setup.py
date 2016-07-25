@@ -43,6 +43,7 @@ setup(
     packages=[
         'adaptisc',
         'adaptisc/deviceDrivers',
+        'adaptisc/deviceDrivers/jtagDeviceXC2C256'
         ],
     platforms='any',
     license='LGPL 2.1',
