@@ -9,4 +9,4 @@
     :license: Pending, see LICENSE for more details.
 """
 
-__version__ = '0.0.15'
+__version__ = '0.0.16'

@@ -7,6 +7,7 @@ from bitarray import bitarray
 import proteusisc
 from proteusisc.jtagScanChain import JTAGScanChain
 from proteusisc.jtagDevice import JTAGDevice
+from proteusisc import errors as proteusiscerrors
 
 from .jtagUnsupportedDevice import JTAGUnsupportedDevice
 from .deviceDrivers.jtagDeviceXC2C256 import JTAGDeviceXC2C256
@@ -36,17 +37,17 @@ def main():
     args = parser.parse_args()
     if args.action in [erase, program]:
         if not args.cname:
-            print("Controller ID (-cname) required for operation %s."%args.action.func_name)
+            print("Controller ID (-cname) required for operation '%s'."%args.action.__name__.upper())
             sys.exit(1)
         if args.din is None:
-            print("Device Index (-din) required for operation %s."%args.action.func_name)
+            print("Device Index (-din) required for operation '%s'."%args.action.__name__.upper())
             sys.exit(1)
     if args.action in [program]:
         if not args.file:
-            print("File (-f) required for operation %s."%args.action.func_name)
+            print("File (-f) required for operation '%s'."%args.action.__name__.upper())
             sys.exit(1)
-    args.action(args)
 
+    args.action(args)
 
 ########################
 #      OPERATIONS      #
@@ -63,10 +64,20 @@ def init(pargs):
     controllers = proteusisc.getAttachedControllers(pargs.cname)
     print("USB Controllers:")
     for ci, c in enumerate(controllers):
-        print("  %d %s=%s"%(ci, c.name, c))
-        chain = JTAGScanChain(c, device_initializer=device_initializer)
-        chain.init_chain()
-        listdevices(chain)
+        try:
+
+            print("  %d %s=%s"%(ci, c.name, c))
+            chain = JTAGScanChain(c,
+                                  device_initializer=device_initializer)
+            chain.init_chain()
+            listdevices(chain)
+        except proteusiscerrors.DevicePermissionDeniedError:
+            print("\033[91m"
+"    **********************************************************\n"
+"    *    Controller Inaccessible: Permission Denied Error    *\n"
+"    * http://proteusisc.org/help/ControllerInaccessibleError *\n"
+"    **********************************************************"
+        "\033[0m")
 
 def erase(pargs):
     print("ADAPT JTAG DEVICE ERASER")
