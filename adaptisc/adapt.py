@@ -33,6 +33,8 @@ def main():
                         help="Index of the JTAG device on the specified controller's chain to run the operation on.")
     parser.add_argument('-f', '--file', dest='file', type=str,
                         help="File path to use for the operation.")
+    parser.add_argument('-noerr', '--skip-jtag-error', dest='skipjtagerr', action='store_true',
+                        default=False, help="File path to use for the operation.")
 
     args = parser.parse_args()
     if args.action in [erase, program]:
@@ -68,7 +70,8 @@ def init(pargs):
 
             print("  %d %s=%s"%(ci, c.name, c))
             chain = JTAGScanChain(c,
-                                  device_initializer=device_initializer)
+                                  device_initializer=device_initializer,
+                                  ignore_jtag_enabled=pargs.skipjtagerr)
             chain.init_chain()
             listdevices(chain)
         except proteusiscerrors.DevicePermissionDeniedError:
@@ -76,6 +79,16 @@ def init(pargs):
 "    **********************************************************\n"
 "    *    Controller Inaccessible: Permission Denied Error    *\n"
 "    * http://proteusisc.org/help/ControllerInaccessibleError *\n"
+"    **********************************************************"
+        "\033[0m")
+        except proteusiscerrors.JTAGAlreadyEnabledError:
+            print("\033[91m"
+"    **********************************************************\n"
+"    *       Error: JTAG Already Enabled on Controller!       *\n"
+"    *  Controller is either in use or left in invalid state. *\n"
+"    *   Use -noerr flag to ignore this error or powercycle   *\n"
+"    *         your controller. Use at your own fish.         *\n"
+"    *   http://proteusisc.org/help/JTAGAlreadyEnabledError   *\n"
 "    **********************************************************"
         "\033[0m")
 
@@ -86,15 +99,27 @@ def erase(pargs):
     c = controllers[0]
 
     print("Scanning controller %s..." % (c.productName))
-    chain = JTAGScanChain(c, device_initializer=device_initializer)
-    chain.init_chain()
+    try:
+        chain = JTAGScanChain(c, device_initializer=device_initializer,
+                              ignore_jtag_enabled=pargs.skipjtagerr)
+        chain.init_chain()
 
-    dev = chain._devices[pargs.din]
-    print("Preparing to erase (%s)(%s:%s)"%(c.productName,
+        dev = chain._devices[pargs.din]
+        print("Preparing to erase (%s)(%s:%s)"%(c.productName,
                                               dev._desc.manufacturer,
                                               dev._desc._device_name))
-    dev.erase()
-    print("Finished Erase.")
+        dev.erase()
+        print("Finished Erase.")
+    except proteusiscerrors.JTAGAlreadyEnabledError:
+        print("\033[91m"
+"    **********************************************************\n"
+"    *       Error: JTAG Already Enabled on Controller!       *\n"
+"    *  Controller is either in use or left in invalid state. *\n"
+"    *   Use -noerr flag to ignore this error or powercycle   *\n"
+"    *         your controller. Use at your own fish.         *\n"
+"    *   http://proteusisc.org/help/JTAGAlreadyEnabledError   *\n"
+"    **********************************************************"
+"\033[0m")
 
 def program(pargs):
     print("ADAPT JTAG DEVICE PROGRAMMER")
@@ -103,22 +128,35 @@ def program(pargs):
     c = controllers[0]
 
     print("Scanning controller %s..." % (c.productName))
-    chain = JTAGScanChain(c, device_initializer=device_initializer)
-    chain.init_chain()
+    try:
+        chain = JTAGScanChain(c, device_initializer=device_initializer,
+                              ignore_jtag_enabled=pargs.skipjtagerr)
+        chain.init_chain()
 
-    dev = chain._devices[pargs.din]
-    print("Preparing to program (%s)(%s:%s)"%(c.productName,
-                                              dev._desc.manufacturer,
-                                              dev._desc._device_name))
-    print("Parsing programming file...")
-    jed = JedecConfigFile(pargs.file)
+        dev = chain._devices[pargs.din]
+        print("Preparing to program (%s)(%s:%s)"%(c.productName,
+                                                  dev._desc.manufacturer,
+                                                  dev._desc._device_name))
+        print("Parsing programming file...")
+        jed = JedecConfigFile(pargs.file)
 
-    print("Erasing device...")
-    dev.erase()
-    print("Programming device...")
-    dev.program(jed)
+        print("Erasing device...")
+        dev.erase()
+        print("Programming device...")
+        dev.program(jed)
 
-    print("Finished Programming.")
+        print("Finished Programming.")
+
+    except proteusiscerrors.JTAGAlreadyEnabledError:
+        print("\033[91m"
+"    **********************************************************\n"
+"    *       Error: JTAG Already Enabled on Controller!       *\n"
+"    *  Controller is either in use or left in invalid state. *\n"
+"    *   Use -noerr flag to ignore this error or powercycle   *\n"
+"    *         your controller. Use at your own fish.         *\n"
+"    *   http://proteusisc.org/help/JTAGAlreadyEnabledError   *\n"
+"    **********************************************************"
+"\033[0m")
 
 
 
@@ -148,7 +186,7 @@ def check_single_controller(controllers):
             "\033[93mUse adapt -i to list available controllers.\033[0m\n")
         sys.exit(1)
 
-        
+
 _device_driver_lookup = {
     b'\x16\xd4\xc0\x93': JTAGDeviceXC2C256
 }
