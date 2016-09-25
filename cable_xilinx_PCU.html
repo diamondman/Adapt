@@ -475,7 +475,52 @@ For all jtag related USB-control messages.
     <tr>
       <td colspan="5"><em>Bulk: IN Endpoint: 6</em><br>
 	This response message is returned from the Platform Cable after the transfer is completed if any read TDO bits were high in the request message. If no read TDO bits were high, this message is not returned.
-	<p>The returned data comes back in groups of two bytes. This means you will get a minimum of two bytes of response data if this message is returned.</p>
+	<p>The return protocol is rather complicated.</p>
+	<ul>
+	  <li>Initially a 16 bit little endian shift register (first bit shifts into MSB of 2nd byte).</li>
+	  <li>After 16 bits are read, the register grows into a 32 bit little endian register.</li>
+	  <li>After 32 bits of data are read, the next bits are put in a new shift register after the first full register, and the process starts again</li>
+	</ul>
+	<h3>Example</h3>
+	<p>
+	  This is how the 16 register is shifted, and overflows/transforms into the 32 bit register. In this case we are shifting in the number:
+	  <code>abcdefghi</code> where each letter is a variable representing a bit (so we can track the bits more easily).
+	</p>
+	<p>
+	  <code>
+	  00000000 a0000000<br>
+	  00000000 ba000000<br>
+	  00000000 cba00000<br>
+	  .....<br>
+	  00000000 hgfedcba<br>
+	  a0000000 ihgfedcb<br>
+	  00000000 a0000000 ihgfedcb qponmlkj
+	  </code>
+	</p>
+	<p>
+	  The following will show the states of the return data buffer as data is shifter in. The data being read will be the following 32 bit value:
+	</p>
+	<p>
+	  <code>00010110 11010100 11000000 10010011</code>
+	</p>
+	<p>
+	  Here is the state of the return data over time as bits are shifted in.
+	</p>
+	<p>
+	  <code>
+	  4 bits   00:30 = 00000000 00110000<br>
+	  5 bits   00:98 = 00000000 10011000<br>
+	  8 bits   00:93 = 00000000 10010011<br>
+	  9 bits   80:49 = 10000000 01001001<br>
+	  15 bits  26:81 = 00100110 10000001<br>
+	  16 bits  93:c0 = 10010011 11000000<br>
+	  17 bits  00:80:49:60 = 00000000 10000000 01001001 01100000<br>
+	  24 bits  00:93:c0:d4 = 00000000 10010011 11000000 11010100<br>
+	  25 bits  80:49:60:6a = 10000000 01001001 01100000 01101010<br>
+	  32 bits  93:c0:d4:16 = 10010011 11000000 11010100 00010110<br>
+	  33 bits  93:c0:d4:16:00:00 = 10010011 11000000 11010100 00010110 00000000 00000000
+	  </code>
+	</p>
       </td>
     </tr>
 
