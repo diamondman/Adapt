@@ -49,7 +49,7 @@ setup(
     license='LGPL 2.1',
     install_requires=[
         'bitarray >= 0.8.1',
-        'proteusisc >= 0.0.20',
+        'proteusisc >= 0.1.0',
     ],
     entry_points = {
         'console_scripts': ['adapt=adaptisc.adapt:main'],
