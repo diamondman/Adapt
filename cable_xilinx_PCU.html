@@ -178,7 +178,36 @@ For all jtag related USB-control messages.
       <td>0x28</td>
       <td>Speed</td>
       <td>0</td>
-      <td>Specifies a speed class for the target device and changes the speed of all future JTAG transfers. Often 0x11. Bit 4 should always be set in the speed class.</td>
+      <td>
+	Specifies a speed class for the target device and changes the speed of all future JTAG transfers. Often 0x11. Bit 4 should always be set in the speed class.<br>
+	Below is a table of values to send to the controller, and what speed that translates to.
+	<table>
+	  <thead>
+	    <td>Value</td>
+	    <td>Bitrate</td>
+	  </thead>
+	  <tr>
+	    <td>0</td>
+	    <td>12 MegaHertz</td>
+	  </tr>
+	  <tr>
+	    <td>1</td>
+	    <td>6 MegaHertz</td>
+	  </tr>
+	  <tr>
+	    <td>2</td>
+	    <td>3 MegaHertz</td>
+	  </tr>
+	  <tr>
+	    <td>3</td>
+	    <td>1.5 MegaHertz</td>
+	  </tr>
+	  <tr>
+	    <td>4</td>
+	    <td>750 KiloHertz</td>
+	  </tr>
+	</table>
+      </td>
     </tr>
     <tr>
       <td>Write Single JTAG bit</td>

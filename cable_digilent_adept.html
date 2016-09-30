@@ -223,7 +223,11 @@ See the <a href="#oem-verify">Description of OEM Verify</a></td>
 <td>03</td>
 <td>Simple</td>
 <td>7</td>
-<td>4 byte speed in bps</td>
+<td>
+  4 byte speed in bps<br>
+  Returns status 0 and the 4 byte (little endian) actual bit rate the controller selected.<br>
+  If JTAG is not enabled, will return status code 0x04 and no data.
+</td>
 </tr>
 <tr>
 <td>GET SPEED</td>
@@ -231,7 +235,11 @@ See the <a href="#oem-verify">Description of OEM Verify</a></td>
 <td>04</td>
 <td>Simple</td>
 <td>3</td>
-<td>None</td>
+<td>
+  No Parameters<br>
+  Returns status 0 and the 4 byte (little endian) actual bit rate the controller selected.<br>
+  If JTAG is not enabled, will return status code 0x04 and no data.
+</td>
 </tr>
 <tr>
 <td>SET Tms Tdi Tdo</td>
