@@ -54,11 +54,17 @@
     </tr>
     <tr>
       <td><strong>Firmware Path</strong></td>
-      <td>{Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_emb.hex</td>
+      <td>
+	{Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_emb.hex<br>
+	{Latest ISE path}/ISE_DS/ISE/bin/lin/xusb_xlp.hex
+      </td>
     </tr>
     <tr>
       <td><strong>Latest Firmware Version</strong></td>
-      <td>1028 (0x0404)</td>
+      <td>
+	EMB: 1028 (0x0404).<br>
+	XLP: 5381 (0x1705)
+      </td>
     </tr>
   </tbody>
 </table>
@@ -66,6 +72,7 @@
 
 <ol>
   <li><a href="#getting-started">Getting Started</a></li>
+  <li><a href="#interface-selection">Interface Selection</a></li>
   <li><a href="#proto-specs">Protocol Specifications</a></li>
   <li><a href="#dv-specs">Device Specifications</a></li>
   <li><a href="#troubleshooting">Trouble Shooting</a></li>
@@ -90,7 +97,14 @@
 <p>Some cables may have different default values. Please report any you find.</p>
 
 <p>Loading the XPCU with firmware can be done with the fxload tool. It can be used manually through the terminal, but the following udev rule will auto load the firmware every time the XPCU is plugged into the host machine.</p>
-<h5>UDEV Rule for auto firmware loading</h5>
+
+
+<h3><a name="interface-selection" class="anchor" href="#interface-selection"><span class="octicon octicon-link"></span></a>Interface Selection</h3>
+	<p>The newer XLP firmware for the Platform Cable 1 requires USB interface claiming, and Interface alternate mode selection to work. Using libusb1.0, run libusb_claim_interface(0), then libusb_set_interface_alt_setting(0, 1). Trying to send bulk commands before these steps are done will fail. Devices requiring this step can be identified with the productID of 0x0D.</p>
+
+
+
+<h3>UDEV Rule for auto firmware loading</h5>
 <p>Write the following lines to /etc/udev/rules.d/xusbfwu.rules and set the file permission to 644.</p>
 <pre>SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="000d", MODE="666", RUN+="/sbin/fxload -v -t fx2 -I '/path/to/xusb_emb.hex' -D $tempnode"
 SUBSYSTEM=="usb", ACTION=="add", ATTR{idVendor}=="03fd", ATTR{idProduct}=="0008", MODE="666"</pre>
@@ -295,6 +309,14 @@ For all jtag related USB-control messages.
       <td>0</td>
       <td>2</td>
       <td>Returns 0xB503</td>
+    </tr>
+    <tr>
+      <td>Maybe Read Serial Number?</td>
+      <td>I</td>
+      <td>0x42</td>
+      <td>0</td>
+      <td>0</td>
+      <td>Available on the XLP firmware. Returns 8 bytes of data. On XPC1, all data is 0. May be a serial number for devices that support it.</td>
     </tr>
     <tr>
       <td>Get Version</td>
@@ -552,7 +574,13 @@ For all jtag related USB-control messages.
 	</p>
       </td>
     </tr>
-
+    <tr>
+      <td>Blink Green LED</td>
+      <td>O</td>
+      <td>0x2162</td>
+      <td>0 for Stop<br>0x00F0 for Start</td>
+      <td>0</td>
+      <td>Available on the XLP firmware. Causes the Green LED to blink for debug or identification purposes.</td>
     </tr>
 
   </tbody>
