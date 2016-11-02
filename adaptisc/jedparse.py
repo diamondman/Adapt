@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from bitarray import bitarray
+from proteusisc import bitarray
 import csv
 import os
 
@@ -56,7 +56,7 @@ class JedecConfigFile(object):
                     if addr_diff<0:
                         raise Exception("Addresses for fuse bits must monotonically increase")
                     if addr_diff:
-                        self.fuses += bitarray(('1' if self.default_fuse else '0')*addr_diff)
+                        self.fuses += bitarray([bool(self.default_fuse)]*addr_diff)
                     data = bitarray(line[space_index+1:])
                     self.fuses += data
                 elif term == 'N':
@@ -92,7 +92,7 @@ class JedecConfigFile(object):
         fuselen_diff = self.fuse_count-len(self.fuses)
         if fuselen_diff>0:
             print("ADDING", fuselen_diff)
-            self.fuses += bitarray(('1' if self.default_fuse else '0')*fuselen_diff)
+            self.fuses += bitarray([bool(self.default_fuse)]*fuselen_diff)
         if fuselen_diff<0:
             raise Exception("Too many bits provided in jed file fuses")
 

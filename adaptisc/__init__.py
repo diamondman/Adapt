@@ -3,9 +3,9 @@
     adapt
     ~~~~~
 
-    Linux USB JTAG controller for Digilent boards.
+    The client library for ProteusISC http://proteusisc.org/post/welcome/
 
-    :copyright: (c) 2014 by Jessy Diamond Exum.
+    :copyright: (c) 2016 by Jessy Diamond Exum.
     :license: Pending, see LICENSE for more details.
 """
 

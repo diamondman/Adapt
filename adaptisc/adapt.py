@@ -1,18 +1,16 @@
 #!/usr/bin/python3
 
+import os
 import sys
 import argparse
-from bitarray import bitarray
 
 import proteusisc
-from proteusisc.jtagScanChain import JTAGScanChain
-from proteusisc.jtagDevice import JTAGDevice
+from proteusisc import JTAGScanChain, bitarray
 from proteusisc import errors as proteusiscerrors
+from proteusisc.jtagDevice import JTAGDevice
 
 from .jtagUnsupportedDevice import JTAGUnsupportedDevice
-from .deviceDrivers.jtagDeviceXC2C256 import JTAGDeviceXC2C256
-from .jedparse import JedecConfigFile
-
+from . import deviceDrivers
 
 def main():
     parser = argparse.ArgumentParser(description='General purpose tool for configuring FPGAs, '\
@@ -25,6 +23,9 @@ def main():
                         help="Erase the specified device.")
     parser.add_argument('-p','--program', dest='action', action='store_const', const=program,
                         help="Program the specified device. For some devices, this command also erases before programming.")
+
+    parser.add_argument('-v','--verbose', dest='verbose', action='store_true',
+                        help="Show additional information from proteusisc.")
 
     parser.add_argument('-cname', '--controllername', dest='cname', type=str,
                         help="Unique identifier for a JTAG controller you want to use. "\
@@ -71,7 +72,8 @@ def init(pargs):
             print("  %d %s=%s"%(ci, c.name, c))
             chain = JTAGScanChain(c,
                                   device_initializer=device_initializer,
-                                  ignore_jtag_enabled=pargs.skipjtagerr)
+                                  ignore_jtag_enabled=pargs.skipjtagerr,
+                                  print_statistics=pargs.verbose)
             chain.init_chain()
             listdevices(chain)
         except proteusiscerrors.DevicePermissionDeniedError:
@@ -100,15 +102,23 @@ def erase(pargs):
 
     print("Scanning controller %s..." % (c.productName))
     try:
-        chain = JTAGScanChain(c, device_initializer=device_initializer,
-                              ignore_jtag_enabled=pargs.skipjtagerr)
+        chain = JTAGScanChain(c,
+                              device_initializer=device_initializer,
+                              ignore_jtag_enabled=pargs.skipjtagerr,
+                              print_statistics=pargs.verbose)
         chain.init_chain()
+        print("Found (%d) devices..."%len(chain._devices))
+
+        chain.jtag_enable()
+        print("Controller Speed: %s bps"% chain.speed)
 
         dev = chain._devices[pargs.din]
+        dev.erase()
         print("Preparing to erase (%s)(%s:%s)"%(c.productName,
                                               dev._desc.manufacturer,
                                               dev._desc._device_name))
-        dev.erase()
+        chain.flush()
+        chain.jtag_disable()
         print("Finished Erase.")
     except proteusiscerrors.JTAGAlreadyEnabledError:
         print("\033[91m"
@@ -129,21 +139,26 @@ def program(pargs):
 
     print("Scanning controller %s..." % (c.productName))
     try:
-        chain = JTAGScanChain(c, device_initializer=device_initializer,
-                              ignore_jtag_enabled=pargs.skipjtagerr)
+        chain = JTAGScanChain(c,
+                              device_initializer=device_initializer,
+                              ignore_jtag_enabled=pargs.skipjtagerr,
+                              print_statistics=pargs.verbose)
         chain.init_chain()
+        print("Found (%d) device%s..."%
+              (len(chain._devices), 's'if len(chain._devices)>1 else ''))
+
+        chain.jtag_enable()
+        print("Controller Speed: %s bps"% chain.speed)
 
         dev = chain._devices[pargs.din]
         print("Preparing to program (%s)(%s:%s)"%(c.productName,
                                                   dev._desc.manufacturer,
                                                   dev._desc._device_name))
-        print("Parsing programming file...")
-        jed = JedecConfigFile(pargs.file)
 
-        print("Erasing device...")
-        dev.erase()
+        dev.program(pargs.file)
         print("Programming device...")
-        dev.program(jed)
+        chain.flush()
+        chain.jtag_disable()
 
         print("Finished Programming.")
 
@@ -157,7 +172,6 @@ def program(pargs):
 "    *   http://proteusisc.org/help/JTAGAlreadyEnabledError   *\n"
 "    **********************************************************"
 "\033[0m")
-
 
 
 #########################
@@ -187,15 +201,13 @@ def check_single_controller(controllers):
         sys.exit(1)
 
 
-_device_driver_lookup = {
-    b'\x16\xd4\xc0\x93': JTAGDeviceXC2C256
-}
-
 def device_initializer(sc, idcode):
-    if idcode.tobytes() in _device_driver_lookup:
-        return _device_driver_lookup[idcode.tobytes()](sc, idcode)
+    maskedidcode = (idcode&bitarray('00001111111111111111111111111111'))\
+       .tobytes()
+    if maskedidcode in deviceDrivers.device_driver_lookup:
+        return deviceDrivers.device_driver_lookup[maskedidcode]\
+            (sc, idcode)
     return JTAGUnsupportedDevice(sc, idcode)
-
 
 if __name__ == "__main__":
     main()

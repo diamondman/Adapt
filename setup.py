@@ -43,13 +43,12 @@ setup(
     packages=[
         'adaptisc',
         'adaptisc/deviceDrivers',
-        'adaptisc/deviceDrivers/jtagDeviceXC2C256'
+        'adaptisc/deviceDrivers/xilinxCPLD'
         ],
     platforms='any',
     license='LGPL 2.1',
     install_requires=[
-        'bitarray >= 0.8.1',
-        'proteusisc >= 0.1.0',
+        'proteusisc >= 0.2.0',
     ],
     entry_points = {
         'console_scripts': ['adapt=adaptisc.adapt:main'],
