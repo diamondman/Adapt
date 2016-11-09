@@ -130,7 +130,7 @@ class XilinxSpartan3(JTAGDevice):
 
     def program(self, confpath):
         """
-        Described in https://www.xilinx.com/support/documentation/user_guides/ug012.pdf on page
+        Described in https://www.xilinx.com/support/documentation/user_guides/ug012.pdf
         """
         bf = BitFile(confpath);
 
@@ -173,3 +173,45 @@ class XilinxSpartan3E(XilinxSpartan3):
         b'\x01\xC2\xE0\x93', #xc3s1200e
         b'\x01\xC3\xA0\x93', #xc3s1600e
     )
+
+
+
+class XilinxSpartan6(JTAGDevice):
+    devices = (
+        b'\x04\x00\x00\x93', #XC6SLX4
+        b'\x04\x00\x10\x93', #XC6SLX9
+        b'\x04\x00\x20\x93', #XC6SLX16
+        b'\x04\x00\x40\x93', #XC6SLX25
+        b'\x04\x02\x40\x93', #XC6SLX25T
+        b'\x04\x00\x80\x93', #XC6SLX45
+        b'\x04\x02\x80\x93', #XC6SLX45T
+        b'\x04\x00\xE0\x93', #XC6SLX75
+        b'\x04\x02\xE0\x93', #XC6SLX75T
+        b'\x04\x01\x10\x93', #XC6SLX100
+        b'\x04\x03\x10\x93', #XC6SLX100T
+        b'\x04\x01\xD0\x93', #XC6SLX150
+        b'\x04\x03\xD0\x93', #XC6SLX150T
+    )
+
+    def program(self, confpath):
+        """
+        Described in https://www.xilinx.com/support/documentation/user_guides/ug012.pdf
+        """
+        bf = BitFile(confpath);
+
+        self.run_instruction("JPROGRAM", loop=10000)
+        self.run_instruction("JSHUTDOWN", loop=12)
+
+        self.run_instruction(
+            "CFG_IN", data=bitify(WRITE_CMD + (CMD_AHIGH + FLUSH + FLUSH)));
+        self.run_instruction("CFG_IN", data=bf.to_bitarray());
+        self.run_instruction("JSTART", loop=16)
+
+        _, status = self.run_instruction("BYPASS", read_status=True)
+        if not status()[0]:
+            #attribute INSTRUCTION_CAPTURE : entity is "XXXX01";
+            #Bit 5 is 1 when DONE is released (part of startup sequence)
+            #Bit 4 is 1 if house-cleaning is complete
+            #Bit 3 is ISC_Enabled
+            #Bit 2 is ISC_Done
+            raise Exception("DONE bit didn't go high!")
