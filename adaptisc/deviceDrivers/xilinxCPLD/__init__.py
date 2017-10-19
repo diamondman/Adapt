@@ -27,7 +27,7 @@ class JTAGDeviceXC2C256(JTAGDevice):
         self.pstatus(status())
 
     def program(self, configpath):
-        configfile = JedecConfigFile(pargs.file)
+        configfile = JedecConfigFile(configpath)
         from .map import data as mapdata
         bitstream = configfile.to_bitstream("xc2c256", 1371, mapdata)
 
