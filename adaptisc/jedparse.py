@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from proteusisc import bitarray
 import csv
 import os
@@ -57,7 +57,7 @@ class JedecConfigFile(object):
                         raise Exception("Addresses for fuse bits must monotonically increase")
                     if addr_diff:
                         self.fuses += bitarray([bool(self.default_fuse)]*addr_diff)
-                    data = bitarray(line[space_index+1:])
+                    data = bitarray(line[space_index+1:].translate({ord(' '): None}))
                     self.fuses += data
                 elif term == 'N':
                     if "DEVICE" in line:
