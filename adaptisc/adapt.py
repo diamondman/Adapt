@@ -40,14 +40,14 @@ def main():
     args = parser.parse_args()
     if args.action in [erase, program]:
         if not args.cname:
-            print("Controller ID (-cname) required for operation '%s'."%args.action.__name__.upper())
+            print(("Controller ID (-cname) required for operation '%s'."%args.action.__name__.upper()))
             sys.exit(1)
         if args.din is None:
-            print("Device Index (-din) required for operation '%s'."%args.action.__name__.upper())
+            print(("Device Index (-din) required for operation '%s'."%args.action.__name__.upper()))
             sys.exit(1)
     if args.action in [program]:
         if not args.file:
-            print("File (-f) required for operation '%s'."%args.action.__name__.upper())
+            print(("File (-f) required for operation '%s'."%args.action.__name__.upper()))
             sys.exit(1)
 
     args.action(args)
@@ -60,7 +60,7 @@ def enum(pargs):
     controllers = proteusisc.getAttachedControllers()
     print("USB Controllers:")
     for i, c in enumerate(controllers):
-        print("  %d %s"%(i, c))
+        print(("  %d %s"%(i, c)))
 
 def init(pargs):
     print("ADAPT JTAG CHAIN SCANNER")
@@ -69,7 +69,7 @@ def init(pargs):
     for ci, c in enumerate(controllers):
         try:
 
-            print("  %d %s=%s"%(ci, c.name, c))
+            print(("  %d %s=%s"%(ci, c.name, c)))
             chain = JTAGScanChain(c,
                                   device_initializer=device_initializer,
                                   ignore_jtag_enabled=pargs.skipjtagerr,
@@ -100,23 +100,23 @@ def erase(pargs):
     check_single_controller(controllers)
     c = controllers[0]
 
-    print("Scanning controller %s..." % (c.productName))
+    print(("Scanning controller %s..." % (c.productName)))
     try:
         chain = JTAGScanChain(c,
                               device_initializer=device_initializer,
                               ignore_jtag_enabled=pargs.skipjtagerr,
                               print_statistics=pargs.verbose)
         chain.init_chain()
-        print("Found (%d) devices..."%len(chain._devices))
+        print(("Found (%d) devices..."%len(chain._devices)))
 
         chain.jtag_enable()
-        print("Controller Speed: %s bps"% chain.speed)
+        print(("Controller Speed: %s bps"% chain.speed))
 
         dev = chain._devices[pargs.din]
         dev.erase()
-        print("Preparing to erase (%s)(%s:%s)"%(c.productName,
+        print(("Preparing to erase (%s)(%s:%s)"%(c.productName,
                                               dev._desc.manufacturer,
-                                              dev._desc._device_name))
+                                              dev._desc._device_name)))
         chain.flush()
         chain.jtag_disable()
         print("Finished Erase.")
@@ -137,23 +137,23 @@ def program(pargs):
     check_single_controller(controllers)
     c = controllers[0]
 
-    print("Scanning controller %s..." % (c.productName))
+    print(("Scanning controller %s..." % (c.productName)))
     try:
         chain = JTAGScanChain(c,
                               device_initializer=device_initializer,
                               ignore_jtag_enabled=pargs.skipjtagerr,
                               print_statistics=pargs.verbose)
         chain.init_chain()
-        print("Found (%d) device%s..."%
-              (len(chain._devices), 's'if len(chain._devices)>1 else ''))
+        print(("Found (%d) device%s..."%
+              (len(chain._devices), 's'if len(chain._devices)>1 else '')))
 
         chain.jtag_enable()
-        print("Controller Speed: %s bps"% chain.speed)
+        print(("Controller Speed: %s bps"% chain.speed))
 
         dev = chain._devices[pargs.din]
-        print("Preparing to program (%s)(%s:%s)"%(c.productName,
+        print(("Preparing to program (%s)(%s:%s)"%(c.productName,
                                                   dev._desc.manufacturer,
-                                                  dev._desc._device_name))
+                                                  dev._desc._device_name)))
 
         dev.program(pargs.file)
         print("Programming device...")
@@ -181,13 +181,13 @@ def listdevices(chain, indentspaces=8):
     indent = (" "*indentspaces)
     for di, dev in enumerate(chain._devices):
         if dev._desc:
-            print(indent+"%d %s %s %s (%08x)"%(di, dev._desc.manufacturer,
+            print((indent+"%d %s %s %s (%08x)"%(di, dev._desc.manufacturer,
                                          dev._desc._device_name, dev._desc._chip_package,
-                                              dev._id))
+                                              dev._id)))
         else:
-            print(indent+"%d UNIDENTIFIED DEVICE. ID: %s."%(di, dev._id))
-            print(indent+"    Search for bsdl file: http://bsdl.info/list.htm?search=XXXX%s"%\
-                bin(dev._id & 0xFFFFFFF)[2:].zfill(28))
+            print((indent+"%d UNIDENTIFIED DEVICE. ID: %s."%(di, dev._id)))
+            print((indent+"    Search for bsdl file: http://bsdl.info/list.htm?search=XXXX%s"%\
+                bin(dev._id & 0xFFFFFFF)[2:].zfill(28)))
 
 def check_single_controller(controllers):
     if len(controllers)>1:

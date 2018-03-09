@@ -23,7 +23,7 @@ class JTAGDeviceXC2C256(JTAGDevice):
 
         self.run_instruction("BYPASS", delay=0.01)
 
-        print("Post-DISABLE Status:", status())
+        print(("Post-DISABLE Status:", status()))
         self.pstatus(status())
 
     def program(self, configpath):
@@ -48,19 +48,19 @@ class JTAGDeviceXC2C256(JTAGDevice):
 
         self.run_instruction("BYPASS")
 
-        print("Post Program Status:", status())
+        print(("Post Program Status:", status()))
         self.pstatus(status())
 
     @staticmethod
     def pstatus(resflags):
         if not resflags&bitarray('11000011'):
-            print(resflags, bitarray('11000011'))
-            print(resflags&bitarray('11000011'))
+            print((resflags, bitarray('11000011')))
+            print((resflags&bitarray('11000011')))
             print()
-        print("STATUS: "+
+        print(("STATUS: "+
               ("" if (resflags&bitarray('11000011')==bitarray('00000001'))
                else "INVALID_STATUS ")+\
             ("ISCDIS " if resflags[-6] else "")+\
               ("ISCEN " if resflags[-5] else "")+\
             ("SECURE " if resflags[-4] else "")+\
-              ("DONE " if resflags[-3] else ""))
+              ("DONE " if resflags[-3] else "")))
